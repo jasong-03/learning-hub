@@ -1,0 +1,17 @@
+{
+  "id": "english",
+  "title": "English for Engineers",
+  "description": "Professional English for technical work: reading documentation, writing, meetings and interviews. Lessons not written yet.",
+  "categoryId": "languages",
+  "level": "intermediate",
+  "language": "en",
+  "status": "planned",
+  "icon": "Languages",
+  "tags": ["english", "communication"],
+  "modules": [
+    { "id": "technical-reading", "title": "Technical Reading", "icon": "BookOpen", "description": "Reading documentation, RFCs and incident reports efficiently." },
+    { "id": "technical-writing", "title": "Technical Writing", "icon": "PenLine", "description": "Clear pull requests, design docs and status updates." },
+    { "id": "speaking", "title": "Meetings and Presentations", "icon": "Mic", "description": "Stand-ups, demos and explaining trade-offs." },
+    { "id": "interviews", "title": "Technical Interviews", "icon": "Users", "description": "Describing past work and reasoning out loud." }
+  ]
+}

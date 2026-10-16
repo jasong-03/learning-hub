@@ -1,0 +1,16 @@
+# Vercel builds from source; generated content is rebuilt by `pnpm build` (prebuild runs generate + check).
+node_modules
+.next
+.source
+src/generated
+content/courses/kubernetes/learn
+content/courses/kubernetes/labs
+content/courses/ai-engineer-interview/learn
+content/courses/ai-engineer-interview/questions
+content/courses/ai-engineer-interview/upstream.json
+content/courses/*/meta.json
+public/content-assets
+*.tsbuildinfo
+next-env.d.ts
+# local-only redaction rules
+redactions.local.json

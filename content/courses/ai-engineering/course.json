@@ -1,0 +1,18 @@
+{
+  "id": "ai-engineering",
+  "title": "AI Engineering",
+  "description": "Building applications on large language models: prompting, retrieval, agents, evaluation and production concerns. Lessons not written yet.",
+  "categoryId": "ai",
+  "level": "intermediate",
+  "language": "en",
+  "status": "planned",
+  "icon": "Sparkles",
+  "tags": ["llm", "rag", "agents", "evaluation"],
+  "modules": [
+    { "id": "foundations", "title": "LLM Foundations", "icon": "Brain", "description": "Tokens, context windows, sampling and model selection." },
+    { "id": "prompting", "title": "Prompt Engineering", "icon": "MessageSquare", "description": "Structured prompts, few-shot examples and output formats." },
+    { "id": "retrieval", "title": "Retrieval-Augmented Generation", "icon": "Search", "description": "Embeddings, chunking, vector search and grounding." },
+    { "id": "agents", "title": "Agents and Tool Use", "icon": "Bot", "description": "Tool calling, planning loops and guardrails." },
+    { "id": "evaluation", "title": "Evaluation and Operations", "icon": "ClipboardCheck", "description": "Evals, observability, cost and latency." }
+  ]
+}

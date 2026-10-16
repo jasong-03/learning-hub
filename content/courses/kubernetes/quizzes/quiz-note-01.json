@@ -1,0 +1,104 @@
+{
+  "id": "quiz-note-01",
+  "lessonId": "note-01",
+  "title": "Tự kiểm tra: Pod, Service, kubectl & YAML",
+  "questions": [
+    {
+      "id": "shared-ip",
+      "prompt": "Một Pod có 2 container. Hai container này có dùng chung IP không?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Có, các container trong cùng Pod dùng chung network namespace và IP"
+        },
+        {
+          "id": "b",
+          "text": "Không, mỗi container có IP riêng"
+        },
+        {
+          "id": "c",
+          "text": "Chỉ khi khai báo hostNetwork: true"
+        }
+      ],
+      "correctOptionIds": [
+        "a"
+      ],
+      "explanation": "Các container trong một Pod chia sẻ network namespace, nên gọi nhau qua localhost với port khác nhau."
+    },
+    {
+      "id": "ports",
+      "prompt": "Trong một NodePort Service, field nào là port mà container thực sự lắng nghe?",
+      "options": [
+        {
+          "id": "a",
+          "text": "port"
+        },
+        {
+          "id": "b",
+          "text": "targetPort"
+        },
+        {
+          "id": "c",
+          "text": "nodePort"
+        }
+      ],
+      "correctOptionIds": [
+        "b"
+      ],
+      "explanation": "port là port của Service, targetPort là port của container, nodePort là port mở trên mỗi Node."
+    },
+    {
+      "id": "pod-ip",
+      "prompt": "Tại sao không nên để client gọi trực tiếp Pod IP?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Pod IP thay đổi khi Pod bị tạo lại, Service cung cấp địa chỉ ổn định"
+        },
+        {
+          "id": "b",
+          "text": "Pod IP không thể truy cập từ bên trong cluster"
+        },
+        {
+          "id": "c",
+          "text": "Pod IP chỉ hỗ trợ UDP"
+        }
+      ],
+      "correctOptionIds": [
+        "a"
+      ]
+    },
+    {
+      "id": "manifest-fields",
+      "prompt": "Những field top-level nào xuất hiện trong hầu hết Kubernetes manifest? (chọn tất cả đáp án đúng)",
+      "options": [
+        {
+          "id": "a",
+          "text": "apiVersion"
+        },
+        {
+          "id": "b",
+          "text": "kind"
+        },
+        {
+          "id": "c",
+          "text": "metadata"
+        },
+        {
+          "id": "d",
+          "text": "spec"
+        },
+        {
+          "id": "e",
+          "text": "containerRuntime"
+        }
+      ],
+      "correctOptionIds": [
+        "a",
+        "b",
+        "c",
+        "d"
+      ]
+    }
+  ]
+}

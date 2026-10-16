@@ -1,0 +1,116 @@
+{
+  "id": "quiz-note-03",
+  "lessonId": "note-03",
+  "title": "Tự kiểm tra: Deployment",
+  "questions": [
+    {
+      "id": "hierarchy",
+      "prompt": "Deployment quản lý trực tiếp resource nào?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Pod"
+        },
+        {
+          "id": "b",
+          "text": "ReplicaSet"
+        },
+        {
+          "id": "c",
+          "text": "Service"
+        }
+      ],
+      "correctOptionIds": [
+        "b"
+      ],
+      "explanation": "Deployment quản lý ReplicaSet, và ReplicaSet quản lý Pod."
+    },
+    {
+      "id": "new-replicaset",
+      "prompt": "Khi update image của Deployment, chuyện gì xảy ra?",
+      "options": [
+        {
+          "id": "a",
+          "text": "ReplicaSet hiện tại sửa image của các Pod đang chạy"
+        },
+        {
+          "id": "b",
+          "text": "Một ReplicaSet mới được tạo và scale lên, ReplicaSet cũ scale xuống"
+        },
+        {
+          "id": "c",
+          "text": "Toàn bộ Pod bị xóa trước rồi mới tạo lại"
+        }
+      ],
+      "correctOptionIds": [
+        "b"
+      ],
+      "explanation": "Pod template thay đổi nên Deployment tạo ReplicaSet mới; ReplicaSet cũ được giữ lại để rollback."
+    },
+    {
+      "id": "surge-math",
+      "prompt": "replicas = 4, maxSurge = 1, maxUnavailable = 1. Trong lúc rollout, tối đa và tối thiểu bao nhiêu Pod?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Tối đa 5 Pod, tối thiểu 3 Pod available"
+        },
+        {
+          "id": "b",
+          "text": "Tối đa 4 Pod, tối thiểu 4 Pod available"
+        },
+        {
+          "id": "c",
+          "text": "Tối đa 6 Pod, tối thiểu 2 Pod available"
+        }
+      ],
+      "correctOptionIds": [
+        "a"
+      ],
+      "explanation": "Tối đa = replicas + maxSurge = 5; tối thiểu available = replicas - maxUnavailable = 3."
+    },
+    {
+      "id": "rollback-revision",
+      "prompt": "Có revision 1, 2, 3. Chạy `kubectl rollout undo` về revision 2. Revision mới là gì?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Revision 2 trở thành current, history là 1 → 2 → 3 → 2"
+        },
+        {
+          "id": "b",
+          "text": "Revision 4 với template của v2"
+        },
+        {
+          "id": "c",
+          "text": "Revision 3 bị xóa và không có revision mới"
+        }
+      ],
+      "correctOptionIds": [
+        "b"
+      ],
+      "explanation": "Kubernetes xem rollback là một deployment change mới, nên revision tăng tiếp."
+    },
+    {
+      "id": "recreate",
+      "prompt": "Strategy `Recreate` khác `RollingUpdate` ở điểm nào?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Recreate xóa toàn bộ Pod cũ trước khi tạo Pod mới, nên có downtime"
+        },
+        {
+          "id": "b",
+          "text": "Recreate giữ Pod cũ và mới chạy song song"
+        },
+        {
+          "id": "c",
+          "text": "Recreate chỉ dùng được với StatefulSet"
+        }
+      ],
+      "correctOptionIds": [
+        "a"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "id": "kubernetes-essentials",
+  "title": "Kubernetes Essentials",
+  "description": "The core of running applications on Kubernetes: fundamentals, application deployment, and networking and security.",
+  "items": [
+    { "type": "module", "courseId": "kubernetes", "moduleId": "fundamentals" },
+    { "type": "module", "courseId": "kubernetes", "moduleId": "application-deployment" },
+    { "type": "module", "courseId": "kubernetes", "moduleId": "networking-security" }
+  ]
+}

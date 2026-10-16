@@ -1,0 +1,20 @@
+{
+  "id": "kubernetes",
+  "title": "Kubernetes: Zero to Production",
+  "description": "Pods to production platforms: notes, phase guides and 46 hands-on labs, from fundamentals to AWS EKS.",
+  "categoryId": "cloud-native",
+  "level": "intermediate",
+  "language": "vi",
+  "status": "active",
+  "icon": "Ship",
+  "tags": ["kubernetes", "containers", "devops", "eks"],
+  "importer": "kubernetes-progress",
+  "modules": [
+    { "id": "fundamentals", "title": "Fundamentals", "icon": "Box", "description": "Pods, ReplicaSets, Deployments, Services, namespaces and resource management (Notes #1-#10)." },
+    { "id": "application-deployment", "title": "Application Deployment", "icon": "Rocket", "description": "ConfigMaps, Secrets, health probes, storage and StatefulSets." },
+    { "id": "networking-security", "title": "Networking & Security", "icon": "ShieldCheck", "description": "Ingress, Gateway API, DNS, RBAC, ServiceAccounts and NetworkPolicy." },
+    { "id": "scaling-operations", "title": "Scaling & Operations", "icon": "Gauge", "description": "HPA, Jobs, DaemonSets, advanced scheduling, graceful shutdown and node operations." },
+    { "id": "production-platform", "title": "Production Platform", "icon": "Layers", "description": "Helm, Prometheus, Loki, CI/CD, Argo CD, Argo Rollouts and security hardening." },
+    { "id": "aws-eks", "title": "AWS EKS", "icon": "Cloud", "description": "EKS architecture, VPC networking, IAM, Terraform, load balancing, storage and Karpenter." }
+  ]
+}

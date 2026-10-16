@@ -1,0 +1,9 @@
+{
+  "id": "platform-engineer",
+  "title": "Platform Engineer",
+  "description": "From Kubernetes fundamentals to running production platforms on AWS. AWS lessons count toward progress once they are written.",
+  "items": [
+    { "type": "course", "courseId": "kubernetes" },
+    { "type": "course", "courseId": "aws" }
+  ]
+}

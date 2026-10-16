@@ -1,0 +1,1609 @@
+{
+ "description": "Kubernetes Learning Hub V1 lesson index captured before the multi-course migration. Used by regression tests; do not edit.",
+ "lessons": [
+  {
+   "id": "note-01",
+   "kind": "note",
+   "phase": "fundamentals",
+   "title": "Kubernetes Note #1 — Pod, Service, kubectl, Manifest & YAML",
+   "url": "/docs/fundamentals/note-01-pod-service-kubectl-manifest-yaml",
+   "checklist": [],
+   "related": [
+    "lab-01"
+   ]
+  },
+  {
+   "id": "note-02",
+   "kind": "note",
+   "phase": "fundamentals",
+   "title": "Kubernetes Note #2 — ReplicaSet",
+   "url": "/docs/fundamentals/note-02-replicaset",
+   "checklist": [],
+   "related": [
+    "lab-06"
+   ]
+  },
+  {
+   "id": "note-03",
+   "kind": "note",
+   "phase": "fundamentals",
+   "title": "Kubernetes Note #3 — Deployment",
+   "url": "/docs/fundamentals/note-03-deployment",
+   "checklist": [],
+   "related": [
+    "lab-06",
+    "lab-07"
+   ]
+  },
+  {
+   "id": "note-04",
+   "kind": "note",
+   "phase": "fundamentals",
+   "title": "Kubernetes Note #4 — Service Types",
+   "url": "/docs/fundamentals/note-04-service-types",
+   "checklist": [],
+   "related": [
+    "lab-14"
+   ]
+  },
+  {
+   "id": "note-05",
+   "kind": "note",
+   "phase": "fundamentals",
+   "title": "Kubernetes Note #5 — Namespace",
+   "url": "/docs/fundamentals/note-05-namespace",
+   "checklist": [],
+   "related": [
+    "lab-02"
+   ]
+  },
+  {
+   "id": "note-06",
+   "kind": "note",
+   "phase": "fundamentals",
+   "title": "Kubernetes Note #6 — Resource Requests & Limits",
+   "url": "/docs/fundamentals/note-06-resource-requests-limits",
+   "checklist": [],
+   "related": [
+    "lab-21"
+   ]
+  },
+  {
+   "id": "note-07",
+   "kind": "note",
+   "phase": "fundamentals",
+   "title": "Kubernetes Note #7 — Command & Args",
+   "url": "/docs/fundamentals/note-07-command-args",
+   "checklist": [],
+   "related": [
+    "lab-21"
+   ]
+  },
+  {
+   "id": "note-08",
+   "kind": "note",
+   "phase": "fundamentals",
+   "title": "Kubernetes Note #8 — Metrics Server & kubectl top",
+   "url": "/docs/fundamentals/note-08-metrics-server-kubectl-top",
+   "checklist": [],
+   "related": [
+    "lab-24",
+    "lab-21",
+    "lab-36"
+   ]
+  },
+  {
+   "id": "note-09",
+   "kind": "note",
+   "phase": "fundamentals",
+   "title": "Kubernetes Note #9 — ResourceQuota",
+   "url": "/docs/fundamentals/note-09-resourcequota",
+   "checklist": [],
+   "related": [
+    "lab-02"
+   ]
+  },
+  {
+   "id": "note-10",
+   "kind": "note",
+   "phase": "fundamentals",
+   "title": "Kubernetes Note #10 — LimitRange",
+   "url": "/docs/fundamentals/note-10-limitrange",
+   "checklist": [],
+   "related": []
+  },
+  {
+   "id": "lab-roadmap",
+   "kind": "roadmap",
+   "phase": "fundamentals",
+   "title": "Lab Roadmap — Note #1–#10",
+   "url": "/docs/fundamentals/lab-roadmap",
+   "checklist": [],
+   "related": [
+    "lab-01",
+    "lab-02",
+    "lab-06",
+    "lab-07",
+    "lab-14",
+    "lab-21",
+    "lab-24"
+   ]
+  },
+  {
+   "id": "application-deployment-overview",
+   "kind": "overview",
+   "phase": "application-deployment",
+   "title": "Kubernetes — Giai đoạn 1: Application Deployment",
+   "url": "/docs/application-deployment/overview",
+   "checklist": [],
+   "related": []
+  },
+  {
+   "id": "application-deployment-part-01",
+   "kind": "part",
+   "phase": "application-deployment",
+   "title": "Phần 1 — ConfigMap",
+   "url": "/docs/application-deployment/part-01-configmap",
+   "checklist": [],
+   "related": [
+    "lab-20"
+   ]
+  },
+  {
+   "id": "application-deployment-part-02",
+   "kind": "part",
+   "phase": "application-deployment",
+   "title": "Phần 2 — Secret",
+   "url": "/docs/application-deployment/part-02-secret",
+   "checklist": [],
+   "related": [
+    "lab-20"
+   ]
+  },
+  {
+   "id": "application-deployment-part-03",
+   "kind": "part",
+   "phase": "application-deployment",
+   "title": "Phần 3 — Health Probes",
+   "url": "/docs/application-deployment/part-03-health-probes",
+   "checklist": [],
+   "related": [
+    "lab-26"
+   ]
+  },
+  {
+   "id": "application-deployment-part-04",
+   "kind": "part",
+   "phase": "application-deployment",
+   "title": "Phần 4 — Volumes, PV & PVC",
+   "url": "/docs/application-deployment/part-04-volumes-pv-pvc",
+   "checklist": [],
+   "related": [
+    "lab-19"
+   ]
+  },
+  {
+   "id": "application-deployment-part-05",
+   "kind": "part",
+   "phase": "application-deployment",
+   "title": "Phần 5 — StorageClass",
+   "url": "/docs/application-deployment/part-05-storageclass",
+   "checklist": [],
+   "related": [
+    "lab-19"
+   ]
+  },
+  {
+   "id": "application-deployment-part-06",
+   "kind": "part",
+   "phase": "application-deployment",
+   "title": "Phần 6 — StatefulSet",
+   "url": "/docs/application-deployment/part-06-statefulset",
+   "checklist": [],
+   "related": [
+    "lab-08",
+    "lab-12"
+   ]
+  },
+  {
+   "id": "application-deployment-part-07",
+   "kind": "part",
+   "phase": "application-deployment",
+   "title": "Phần 7 — Lab tổng hợp Giai đoạn 1",
+   "url": "/docs/application-deployment/part-07-lab-tong-hop-giai-doan-1",
+   "checklist": [],
+   "related": [
+    "lab-35"
+   ]
+  },
+  {
+   "id": "application-deployment-part-08",
+   "kind": "part",
+   "phase": "application-deployment",
+   "title": "Phần 8 — Tự kiểm tra kiến thức",
+   "url": "/docs/application-deployment/part-08-tu-kiem-tra-kien-thuc",
+   "checklist": [],
+   "related": []
+  },
+  {
+   "id": "networking-security-overview",
+   "kind": "overview",
+   "phase": "networking-security",
+   "title": "Kubernetes — Giai đoạn 2: Networking & Security",
+   "url": "/docs/networking-security/overview",
+   "checklist": [],
+   "related": []
+  },
+  {
+   "id": "networking-security-part-01",
+   "kind": "part",
+   "phase": "networking-security",
+   "title": "Phần 1 — Ingress & Ingress Controller",
+   "url": "/docs/networking-security/part-01-ingress-ingress-controller",
+   "checklist": [],
+   "related": [
+    "lab-15"
+   ]
+  },
+  {
+   "id": "networking-security-part-02",
+   "kind": "part",
+   "phase": "networking-security",
+   "title": "Phần 2 — Gateway API",
+   "url": "/docs/networking-security/part-02-gateway-api",
+   "checklist": [],
+   "related": [
+    "lab-15"
+   ]
+  },
+  {
+   "id": "networking-security-part-03",
+   "kind": "part",
+   "phase": "networking-security",
+   "title": "Phần 3 — CoreDNS & Kubernetes Networking",
+   "url": "/docs/networking-security/part-03-coredns-kubernetes-networking",
+   "checklist": [],
+   "related": [
+    "lab-13",
+    "lab-14"
+   ]
+  },
+  {
+   "id": "networking-security-part-04",
+   "kind": "part",
+   "phase": "networking-security",
+   "title": "Phần 4 — RBAC",
+   "url": "/docs/networking-security/part-04-rbac",
+   "checklist": [],
+   "related": [
+    "lab-22"
+   ]
+  },
+  {
+   "id": "networking-security-part-05",
+   "kind": "part",
+   "phase": "networking-security",
+   "title": "Phần 5 — ServiceAccount",
+   "url": "/docs/networking-security/part-05-serviceaccount",
+   "checklist": [],
+   "related": [
+    "lab-22"
+   ]
+  },
+  {
+   "id": "networking-security-part-06",
+   "kind": "part",
+   "phase": "networking-security",
+   "title": "Phần 6 — NetworkPolicy",
+   "url": "/docs/networking-security/part-06-networkpolicy",
+   "checklist": [],
+   "related": [
+    "lab-16"
+   ]
+  },
+  {
+   "id": "networking-security-part-07",
+   "kind": "part",
+   "phase": "networking-security",
+   "title": "Phần 7 — Security & Networking Troubleshooting",
+   "url": "/docs/networking-security/part-07-security-networking-troubleshooting",
+   "checklist": [],
+   "related": [
+    "lab-17"
+   ]
+  },
+  {
+   "id": "networking-security-part-08",
+   "kind": "part",
+   "phase": "networking-security",
+   "title": "Phần 8 — Mini Lab trên Kind",
+   "url": "/docs/networking-security/part-08-mini-lab-tren-kind",
+   "checklist": [],
+   "related": [
+    "lab-16"
+   ]
+  },
+  {
+   "id": "networking-security-part-09",
+   "kind": "part",
+   "phase": "networking-security",
+   "title": "Phần 9 — Mini Assessment",
+   "url": "/docs/networking-security/part-09-mini-assessment",
+   "checklist": [],
+   "related": []
+  },
+  {
+   "id": "scaling-operations-overview",
+   "kind": "overview",
+   "phase": "scaling-operations",
+   "title": "Kubernetes — Giai đoạn 3: Scaling & Operations",
+   "url": "/docs/scaling-operations/overview",
+   "checklist": [],
+   "related": []
+  },
+  {
+   "id": "scaling-operations-part-01",
+   "kind": "part",
+   "phase": "scaling-operations",
+   "title": "Phần 1 — HPA: Horizontal Pod Autoscaler",
+   "url": "/docs/scaling-operations/part-01-hpa-horizontal-pod-autoscaler",
+   "checklist": [],
+   "related": [
+    "lab-36"
+   ]
+  },
+  {
+   "id": "scaling-operations-part-02",
+   "kind": "part",
+   "phase": "scaling-operations",
+   "title": "Phần 2 — Job & CronJob",
+   "url": "/docs/scaling-operations/part-02-job-cronjob",
+   "checklist": [],
+   "related": [
+    "lab-10"
+   ]
+  },
+  {
+   "id": "scaling-operations-part-03",
+   "kind": "part",
+   "phase": "scaling-operations",
+   "title": "Phần 3 — DaemonSet",
+   "url": "/docs/scaling-operations/part-03-daemonset",
+   "checklist": [],
+   "related": [
+    "lab-09"
+   ]
+  },
+  {
+   "id": "scaling-operations-part-04",
+   "kind": "part",
+   "phase": "scaling-operations",
+   "title": "Phần 4 — Advanced Scheduling",
+   "url": "/docs/scaling-operations/part-04-advanced-scheduling",
+   "checklist": [],
+   "related": [
+    "lab-03",
+    "lab-04",
+    "lab-05"
+   ]
+  },
+  {
+   "id": "scaling-operations-part-05",
+   "kind": "part",
+   "phase": "scaling-operations",
+   "title": "Phần 5 — Pod Lifecycle & Graceful Shutdown",
+   "url": "/docs/scaling-operations/part-05-pod-lifecycle-graceful-shutdown",
+   "checklist": [],
+   "related": []
+  },
+  {
+   "id": "scaling-operations-part-06",
+   "kind": "part",
+   "phase": "scaling-operations",
+   "title": "Phần 6 — Reliability & Node Operations",
+   "url": "/docs/scaling-operations/part-06-reliability-node-operations",
+   "checklist": [],
+   "related": [
+    "lab-37",
+    "lab-42"
+   ]
+  },
+  {
+   "id": "scaling-operations-part-07",
+   "kind": "part",
+   "phase": "scaling-operations",
+   "title": "Phần 7 — Production Troubleshooting Runbook",
+   "url": "/docs/scaling-operations/part-07-production-troubleshooting-runbook",
+   "checklist": [],
+   "related": [
+    "lab-41"
+   ]
+  },
+  {
+   "id": "scaling-operations-part-08",
+   "kind": "part",
+   "phase": "scaling-operations",
+   "title": "Phần 8 — Lab tổng hợp Giai đoạn 3 trên `kind-lab`",
+   "url": "/docs/scaling-operations/part-08-lab-tong-hop-giai-doan-3-tren-kind-lab",
+   "checklist": [],
+   "related": []
+  },
+  {
+   "id": "scaling-operations-part-09",
+   "kind": "part",
+   "phase": "scaling-operations",
+   "title": "Phần 9 — Knowledge Test",
+   "url": "/docs/scaling-operations/part-09-knowledge-test",
+   "checklist": [],
+   "related": []
+  },
+  {
+   "id": "production-platform-overview",
+   "kind": "overview",
+   "phase": "production-platform",
+   "title": "Kubernetes — Giai đoạn 4: Production Platform",
+   "url": "/docs/production-platform/overview",
+   "checklist": [],
+   "related": []
+  },
+  {
+   "id": "production-platform-part-01",
+   "kind": "part",
+   "phase": "production-platform",
+   "title": "Phần 1 — Helm: Kubernetes Package Manager",
+   "url": "/docs/production-platform/part-01-helm-kubernetes-package-manager",
+   "checklist": [],
+   "related": [
+    "lab-29",
+    "lab-30"
+   ]
+  },
+  {
+   "id": "production-platform-part-02",
+   "kind": "part",
+   "phase": "production-platform",
+   "title": "Phần 2 — Prometheus & Grafana",
+   "url": "/docs/production-platform/part-02-prometheus-grafana",
+   "checklist": [],
+   "related": [
+    "lab-24",
+    "lab-27"
+   ]
+  },
+  {
+   "id": "production-platform-part-03",
+   "kind": "part",
+   "phase": "production-platform",
+   "title": "Phần 3 — Loki & Centralized Logging",
+   "url": "/docs/production-platform/part-03-loki-centralized-logging",
+   "checklist": [],
+   "related": [
+    "lab-25",
+    "lab-28"
+   ]
+  },
+  {
+   "id": "production-platform-part-04",
+   "kind": "part",
+   "phase": "production-platform",
+   "title": "Phần 4 — CI/CD với GitHub Actions",
+   "url": "/docs/production-platform/part-04-ci-cd-voi-github-actions",
+   "checklist": [],
+   "related": [
+    "lab-32"
+   ]
+  },
+  {
+   "id": "production-platform-part-05",
+   "kind": "part",
+   "phase": "production-platform",
+   "title": "Phần 5 — ArgoCD & GitOps",
+   "url": "/docs/production-platform/part-05-argocd-gitops",
+   "checklist": [],
+   "related": [
+    "lab-31",
+    "lab-32"
+   ]
+  },
+  {
+   "id": "production-platform-part-06",
+   "kind": "part",
+   "phase": "production-platform",
+   "title": "Phần 6 — Argo Rollouts: Progressive Delivery",
+   "url": "/docs/production-platform/part-06-argo-rollouts-progressive-delivery",
+   "checklist": [],
+   "related": [
+    "lab-40"
+   ]
+  },
+  {
+   "id": "production-platform-part-07",
+   "kind": "part",
+   "phase": "production-platform",
+   "title": "Phần 7 — Kubernetes Security Hardening",
+   "url": "/docs/production-platform/part-07-kubernetes-security-hardening",
+   "checklist": [],
+   "related": [
+    "lab-23"
+   ]
+  },
+  {
+   "id": "production-platform-part-08",
+   "kind": "part",
+   "phase": "production-platform",
+   "title": "Phần 8 — Lab tích hợp trên `kind-lab`",
+   "url": "/docs/production-platform/part-08-lab-tich-hop-tren-kind-lab",
+   "checklist": [],
+   "related": []
+  },
+  {
+   "id": "production-platform-part-09",
+   "kind": "part",
+   "phase": "production-platform",
+   "title": "Phần 9 — Troubleshooting Production Platform",
+   "url": "/docs/production-platform/part-09-troubleshooting-production-platform",
+   "checklist": [],
+   "related": [
+    "lab-41"
+   ]
+  },
+  {
+   "id": "production-platform-part-10",
+   "kind": "part",
+   "phase": "production-platform",
+   "title": "Phần 10 — Kiểm tra kiến thức Giai đoạn 4",
+   "url": "/docs/production-platform/part-10-kiem-tra-kien-thuc-giai-doan-4",
+   "checklist": [],
+   "related": []
+  },
+  {
+   "id": "aws-eks-overview",
+   "kind": "overview",
+   "phase": "aws-eks",
+   "title": "Kubernetes — Giai đoạn 5: AWS EKS Production",
+   "url": "/docs/aws-eks/overview",
+   "checklist": [],
+   "related": []
+  },
+  {
+   "id": "aws-eks-part-01",
+   "kind": "part",
+   "phase": "aws-eks",
+   "title": "Phần 1 — Amazon EKS Architecture",
+   "url": "/docs/aws-eks/part-01-amazon-eks-architecture",
+   "checklist": [],
+   "related": []
+  },
+  {
+   "id": "aws-eks-part-02",
+   "kind": "part",
+   "phase": "aws-eks",
+   "title": "Phần 2 — AWS VPC & EKS Networking",
+   "url": "/docs/aws-eks/part-02-aws-vpc-eks-networking",
+   "checklist": [],
+   "related": []
+  },
+  {
+   "id": "aws-eks-part-03",
+   "kind": "part",
+   "phase": "aws-eks",
+   "title": "Phần 3 — IAM, EKS Access Entries & Pod Identity",
+   "url": "/docs/aws-eks/part-03-iam-eks-access-entries-pod-identity",
+   "checklist": [],
+   "related": [
+    "lab-22"
+   ]
+  },
+  {
+   "id": "aws-eks-part-04",
+   "kind": "part",
+   "phase": "aws-eks",
+   "title": "Phần 4 — Terraform: Infrastructure as Code",
+   "url": "/docs/aws-eks/part-04-terraform-infrastructure-as-code",
+   "checklist": [],
+   "related": []
+  },
+  {
+   "id": "aws-eks-part-05",
+   "kind": "part",
+   "phase": "aws-eks",
+   "title": "Phần 5 — Amazon ECR & CI/CD",
+   "url": "/docs/aws-eks/part-05-amazon-ecr-ci-cd",
+   "checklist": [],
+   "related": []
+  },
+  {
+   "id": "aws-eks-part-06",
+   "kind": "part",
+   "phase": "aws-eks",
+   "title": "Phần 6 — AWS Load Balancer Controller",
+   "url": "/docs/aws-eks/part-06-aws-load-balancer-controller",
+   "checklist": [],
+   "related": [
+    "lab-15"
+   ]
+  },
+  {
+   "id": "aws-eks-part-07",
+   "kind": "part",
+   "phase": "aws-eks",
+   "title": "Phần 7 — EBS CSI Driver & Persistent Storage",
+   "url": "/docs/aws-eks/part-07-ebs-csi-driver-persistent-storage",
+   "checklist": [],
+   "related": [
+    "lab-19"
+   ]
+  },
+  {
+   "id": "aws-eks-part-08",
+   "kind": "part",
+   "phase": "aws-eks",
+   "title": "Phần 8 — Karpenter & Autoscaling",
+   "url": "/docs/aws-eks/part-08-karpenter-autoscaling",
+   "checklist": [],
+   "related": [
+    "lab-36"
+   ]
+  },
+  {
+   "id": "aws-eks-part-09",
+   "kind": "part",
+   "phase": "aws-eks",
+   "title": "Phần 9 — Production Observability & Security",
+   "url": "/docs/aws-eks/part-09-production-observability-security",
+   "checklist": [],
+   "related": []
+  },
+  {
+   "id": "aws-eks-part-10",
+   "kind": "part",
+   "phase": "aws-eks",
+   "title": "Phần 10 — EKS Production Operations",
+   "url": "/docs/aws-eks/part-10-eks-production-operations",
+   "checklist": [],
+   "related": []
+  },
+  {
+   "id": "aws-eks-part-11",
+   "kind": "part",
+   "phase": "aws-eks",
+   "title": "Phần 11 — AWS EKS Pricing & Cost Optimization",
+   "url": "/docs/aws-eks/part-11-aws-eks-pricing-cost-optimization",
+   "checklist": [],
+   "related": []
+  },
+  {
+   "id": "aws-eks-part-12",
+   "kind": "part",
+   "phase": "aws-eks",
+   "title": "Phần 12 — Capstone: AWS EKS Production Platform",
+   "url": "/docs/aws-eks/part-12-capstone-aws-eks-production-platform",
+   "checklist": [],
+   "related": []
+  },
+  {
+   "id": "aws-eks-part-13",
+   "kind": "part",
+   "phase": "aws-eks",
+   "title": "Phần 13 — EKS Troubleshooting Cheat Sheet",
+   "url": "/docs/aws-eks/part-13-eks-troubleshooting-cheat-sheet",
+   "checklist": [],
+   "related": []
+  },
+  {
+   "id": "aws-eks-part-14",
+   "kind": "part",
+   "phase": "aws-eks",
+   "title": "Phần 14 — Kiểm tra kiến thức EKS",
+   "url": "/docs/aws-eks/part-14-kiem-tra-kien-thuc-eks",
+   "checklist": [],
+   "related": []
+  },
+  {
+   "id": "lab-01",
+   "kind": "lab",
+   "phase": "fundamentals",
+   "title": "Lab 1 - The Anatomy of a Container",
+   "url": "/docs/fundamentals/labs/lab-01-anatomy-of-a-container",
+   "checklist": [
+    "lab-01:1-inspect-the-host-process-tree",
+    "lab-01:2-start-an-isolated-container",
+    "lab-01:3-confirm-the-pid-namespace-isolation",
+    "lab-01:4-confirm-the-network-namespace",
+    "lab-01:5-test-reading-the-cgroup-memory-limit",
+    "lab-01:6-demonstrate-oom-behavior-optional-mini-project",
+    "lab-01:verification",
+    "lab-01:cleanup"
+   ],
+   "related": [
+    "note-01",
+    "lab-roadmap"
+   ]
+  },
+  {
+   "id": "lab-02",
+   "kind": "lab",
+   "phase": "fundamentals",
+   "title": "Lab 2 - Namespaces and Contexts",
+   "url": "/docs/fundamentals/labs/lab-02-namespaces-and-contexts",
+   "checklist": [
+    "lab-02:step-1-create-a-namespace-and-context",
+    "lab-02:step-2-apply-a-resourcequota",
+    "lab-02:step-3-test-the-quota-the-good",
+    "lab-02:step-4-break-things-on-purpose",
+    "lab-02:step-5-cleanup"
+   ],
+   "related": [
+    "note-05",
+    "note-09",
+    "lab-roadmap"
+   ]
+  },
+  {
+   "id": "lab-03",
+   "kind": "lab",
+   "phase": "scaling-operations",
+   "title": "Lab 3 - Controlling Where Pods Run (Scheduling and Taints)",
+   "url": "/docs/scaling-operations/labs/lab-03-scheduling-and-taints",
+   "checklist": [
+    "lab-03:1-label-a-node",
+    "lab-03:2-schedule-a-pod-using-nodeselector",
+    "lab-03:3-test-taints-and-tolerations",
+    "lab-03:4-debug-a-broken-schedule",
+    "lab-03:5-cleanup",
+    "lab-03:verification"
+   ],
+   "related": [
+    "scaling-operations-part-04"
+   ]
+  },
+  {
+   "id": "lab-04",
+   "kind": "lab",
+   "phase": "scaling-operations",
+   "title": "Lab 4 - Pod Priority and Preemption",
+   "url": "/docs/scaling-operations/labs/lab-04-pod-priority-and-preemption",
+   "checklist": [
+    "lab-04:step-1-create-priority-classes",
+    "lab-04:step-2-fill-the-cluster-with-low-priority-pods",
+    "lab-04:step-3-deploy-the-high-priority-vip-pod",
+    "lab-04:step-4-investigate-the-preemption",
+    "lab-04:step-5-cleanup"
+   ],
+   "related": [
+    "scaling-operations-part-04"
+   ]
+  },
+  {
+   "id": "lab-05",
+   "kind": "lab",
+   "phase": "scaling-operations",
+   "title": "Lab 5 - Node Affinity and Pod Anti-Affinity",
+   "url": "/docs/scaling-operations/labs/lab-05-node-affinity-and-anti-affinity",
+   "checklist": [
+    "lab-05:step-1-check-your-cluster",
+    "lab-05:step-2-create-ha-deployment-with-required-anti-affinity",
+    "lab-05:step-3-observe-the-spread",
+    "lab-05:step-4-investigate-the-failure",
+    "lab-05:step-5-switch-to-preferred-anti-affinity",
+    "lab-05:step-6-test-node-affinity",
+    "lab-05:step-7-label-a-node-and-watch-pods-schedule",
+    "lab-05:step-8-verify-the-label",
+    "lab-05:step-9-cleanup"
+   ],
+   "related": [
+    "scaling-operations-part-04"
+   ]
+  },
+  {
+   "id": "lab-06",
+   "kind": "lab",
+   "phase": "fundamentals",
+   "title": "Lab 6 - Pods, ReplicaSets, and Deployments",
+   "url": "/docs/fundamentals/labs/lab-06-pods-replicasets-and-deployments",
+   "checklist": [
+    "lab-06:1-create-the-deployment",
+    "lab-06:2-verify-the-hierarchy",
+    "lab-06:3-test-self-healing",
+    "lab-06:4-test-scaling",
+    "lab-06:5-test-rolling-update",
+    "lab-06:6-test-rollback",
+    "lab-06:7-inspect-the-deployment-history",
+    "lab-06:8-cleanup",
+    "lab-06:verification"
+   ],
+   "related": [
+    "note-02",
+    "note-03",
+    "lab-roadmap"
+   ]
+  },
+  {
+   "id": "lab-07",
+   "kind": "lab",
+   "phase": "fundamentals",
+   "title": "Lab 7 - Deployments and Rollout Strategies",
+   "url": "/docs/fundamentals/labs/lab-07-deployments-and-rollout-strategies",
+   "checklist": [
+    "lab-07:step-1-create-the-deployment",
+    "lab-07:step-2-perform-a-zero-downtime-update-v2",
+    "lab-07:step-3-break-things-on-purpose",
+    "lab-07:step-4-investigate-the-stuck-rollout",
+    "lab-07:step-5-the-instant-rollback",
+    "lab-07:step-6-verify-the-recovery",
+    "lab-07:step-7-cleanup"
+   ],
+   "related": [
+    "note-03",
+    "lab-roadmap"
+   ]
+  },
+  {
+   "id": "lab-08",
+   "kind": "lab",
+   "phase": "application-deployment",
+   "title": "Lab 8 - StatefulSets",
+   "url": "/docs/application-deployment/labs/lab-08-statefulsets",
+   "checklist": [
+    "lab-08:1-create-a-headless-service",
+    "lab-08:2-create-the-statefulset",
+    "lab-08:3-observe-sequential-boot",
+    "lab-08:4-verify-stable-dns",
+    "lab-08:5-verify-unique-pvcs",
+    "lab-08:6-test-scaling-down",
+    "lab-08:7-cleanup",
+    "lab-08:verification"
+   ],
+   "related": [
+    "application-deployment-part-06"
+   ]
+  },
+  {
+   "id": "lab-09",
+   "kind": "lab",
+   "phase": "scaling-operations",
+   "title": "Lab 9 - DaemonSets",
+   "url": "/docs/scaling-operations/labs/lab-09-daemonsets",
+   "checklist": [
+    "lab-09:1-deploy-a-daemonset",
+    "lab-09:2-verify-placement",
+    "lab-09:3-check-daemonset-status",
+    "lab-09:4-add-toleration-for-control-plane",
+    "lab-09:5-cleanup",
+    "lab-09:verification"
+   ],
+   "related": [
+    "scaling-operations-part-03"
+   ]
+  },
+  {
+   "id": "lab-10",
+   "kind": "lab",
+   "phase": "scaling-operations",
+   "title": "Lab 10 - Jobs and CronJobs",
+   "url": "/docs/scaling-operations/labs/lab-10-jobs-and-cronjobs",
+   "checklist": [
+    "lab-10:1-create-a-failing-job",
+    "lab-10:2-observe-the-retry-mechanism",
+    "lab-10:3-investigate-the-job-status",
+    "lab-10:4-test-a-successful-job",
+    "lab-10:5-test-parallel-jobs",
+    "lab-10:6-create-a-cronjob",
+    "lab-10:7-manually-trigger-a-cronjob",
+    "lab-10:8-cleanup",
+    "lab-10:verification"
+   ],
+   "related": [
+    "scaling-operations-part-02"
+   ]
+  },
+  {
+   "id": "lab-11",
+   "kind": "lab",
+   "phase": "application-deployment",
+   "title": "Lab 11 - Init Containers",
+   "url": "/docs/application-deployment/labs/lab-11-init-containers",
+   "checklist": [
+    "lab-11:step-1-create-the-init-pod",
+    "lab-11:step-2-verify-the-setup-worked",
+    "lab-11:step-3-break-things-on-purpose",
+    "lab-11:step-4-investigate-the-failure",
+    "lab-11:step-5-cleanup"
+   ],
+   "related": []
+  },
+  {
+   "id": "lab-12",
+   "kind": "lab",
+   "phase": "application-deployment",
+   "title": "Lab 12 - Advanced Stateful Workloads (Databases and Message Queues)",
+   "url": "/docs/application-deployment/labs/lab-12-advanced-stateful-workloads",
+   "checklist": [
+    "lab-12:1-add-the-bitnami-repository",
+    "lab-12:2-install-the-postgresql-statefulset",
+    "lab-12:3-verify-the-statefulset-topology",
+    "lab-12:4-verify-stable-network-identity",
+    "lab-12:5-insert-data-and-confirm-persistence",
+    "lab-12:6-scale-the-statefulset-and-observe-ordering",
+    "lab-12:7-deploy-a-message-queue-workload",
+    "lab-12:8-observe-quorum-and-sequencing",
+    "lab-12:cleanup",
+    "lab-12:verification"
+   ],
+   "related": [
+    "application-deployment-part-06"
+   ]
+  },
+  {
+   "id": "lab-13",
+   "kind": "lab",
+   "phase": "networking-security",
+   "title": "Lab 13 - Networking Fundamentals and the CNI",
+   "url": "/docs/networking-security/labs/lab-13-networking-fundamentals-and-the-cni",
+   "checklist": [
+    "lab-13:step-1-create-a-deployment-and-service",
+    "lab-13:step-2-enter-the-node",
+    "lab-13:step-3-view-the-iptables-rules",
+    "lab-13:step-4-break-things-on-purpose",
+    "lab-13:step-5-cleanup"
+   ],
+   "related": [
+    "networking-security-part-03"
+   ]
+  },
+  {
+   "id": "lab-14",
+   "kind": "lab",
+   "phase": "fundamentals",
+   "title": "Lab 14 - Services and Cluster Networking",
+   "url": "/docs/fundamentals/labs/lab-14-services-and-cluster-networking",
+   "checklist": [
+    "lab-14:1-create-the-deployment-and-service",
+    "lab-14:2-verify-the-service-and-endpoints",
+    "lab-14:3-test-internal-connectivity",
+    "lab-14:4-test-self-healing",
+    "lab-14:5-test-scaling",
+    "lab-14:6-debug-a-broken-service",
+    "lab-14:7-cleanup",
+    "lab-14:verification"
+   ],
+   "related": [
+    "note-04",
+    "lab-roadmap",
+    "networking-security-part-03"
+   ]
+  },
+  {
+   "id": "lab-15",
+   "kind": "lab",
+   "phase": "networking-security",
+   "title": "Lab 15 - Ingress and Ingress Controllers",
+   "url": "/docs/networking-security/labs/lab-15-ingress-and-ingress-controllers",
+   "checklist": [
+    "lab-15:1-install-the-nginx-ingress-controller",
+    "lab-15:2-deploy-two-applications",
+    "lab-15:3-create-path-based-ingress",
+    "lab-15:4-test-path-based-routing",
+    "lab-15:5-test-host-based-routing",
+    "lab-15:6-cleanup",
+    "lab-15:verification"
+   ],
+   "related": [
+    "networking-security-part-01",
+    "networking-security-part-02",
+    "aws-eks-part-06"
+   ]
+  },
+  {
+   "id": "lab-16",
+   "kind": "lab",
+   "phase": "networking-security",
+   "title": "Lab 16 - Network Policies",
+   "url": "/docs/networking-security/labs/lab-16-network-policies",
+   "checklist": [
+    "lab-16:step-1-create-namespaces",
+    "lab-16:step-2-deploy-pods",
+    "lab-16:step-3-wait-for-pods-to-run",
+    "lab-16:step-4-verify-default-connectivity",
+    "lab-16:step-5-apply-a-default-deny-networkpolicy",
+    "lab-16:step-6-verify-the-block",
+    "lab-16:step-7-verify-networkpolicy-exists",
+    "lab-16:step-8-cleanup"
+   ],
+   "related": [
+    "networking-security-part-06",
+    "networking-security-part-08"
+   ]
+  },
+  {
+   "id": "lab-17",
+   "kind": "lab",
+   "phase": "networking-security",
+   "title": "Lab 17 - End-to-End Traffic Flow and the 502 Bad Gateway",
+   "url": "/docs/networking-security/labs/lab-17-end-to-end-traffic-flow-and-the-502-bad-gateway",
+   "checklist": [
+    "lab-17:step-1-create-a-kind-cluster-with-ingress-support",
+    "lab-17:step-2-install-the-nginx-ingress-controller",
+    "lab-17:step-3-sample-application-yaml-deployment-clusterip-service-ingress",
+    "lab-17:step-4-verify-the-end-to-end-traffic-flow",
+    "lab-17:step-5-break-the-path-and-produce-a-502-bad-gateway",
+    "lab-17:step-6-the-502-debugging-workflow",
+    "lab-17:step-7-fix-the-path-and-verify",
+    "lab-17:step-8-map-502-503-404-and-504",
+    "lab-17:cleanup"
+   ],
+   "related": [
+    "networking-security-part-07"
+   ]
+  },
+  {
+   "id": "lab-18",
+   "kind": "lab",
+   "phase": "networking-security",
+   "title": "Lab 18 - Service Mesh (Istio and Linkerd)",
+   "url": "/docs/networking-security/labs/lab-18-service-mesh-istio-and-linkerd",
+   "checklist": [
+    "lab-18:step-1-install-linkerd-cli-and-control-plane",
+    "lab-18:step-2-deploy-the-sample-application",
+    "lab-18:step-3-inject-sidecars-into-the-deployment",
+    "lab-18:step-4-verify-sidecar-proxy-containers",
+    "lab-18:step-5-run-mesh-verification-and-view-mtls",
+    "lab-18:step-6-confirm-mtls-between-proxies",
+    "lab-18:step-7-istio-alternative-commands",
+    "lab-18:step-8-cleanup"
+   ],
+   "related": []
+  },
+  {
+   "id": "lab-19",
+   "kind": "lab",
+   "phase": "application-deployment",
+   "title": "Lab 19 - Persistent Storage (PVs, PVCs, and StorageClasses)",
+   "url": "/docs/application-deployment/labs/lab-19-persistent-storage-pv-pvc-sc",
+   "checklist": [
+    "lab-19:1-check-available-storageclasses",
+    "lab-19:2-create-the-pvc",
+    "lab-19:3-create-a-pod-that-writes-data",
+    "lab-19:4-verify-the-data",
+    "lab-19:5-simulate-a-crash",
+    "lab-19:6-recover-the-data",
+    "lab-19:7-cleanup",
+    "lab-19:verification"
+   ],
+   "related": [
+    "application-deployment-part-04",
+    "application-deployment-part-05",
+    "aws-eks-part-07"
+   ]
+  },
+  {
+   "id": "lab-20",
+   "kind": "lab",
+   "phase": "application-deployment",
+   "title": "Lab 20 - ConfigMaps and Secrets",
+   "url": "/docs/application-deployment/labs/lab-20-configmaps-and-secrets",
+   "checklist": [
+    "lab-20:1-create-the-configmap-and-secret",
+    "lab-20:2-create-the-pod-with-environment-variables",
+    "lab-20:3-verify-environment-variables",
+    "lab-20:4-test-volume-mount",
+    "lab-20:5-debug-a-missing-key",
+    "lab-20:6-cleanup",
+    "lab-20:verification"
+   ],
+   "related": [
+    "application-deployment-part-01",
+    "application-deployment-part-02"
+   ]
+  },
+  {
+   "id": "lab-21",
+   "kind": "lab",
+   "phase": "fundamentals",
+   "title": "Lab 21 - Resource Management and the OOMKiller",
+   "url": "/docs/fundamentals/labs/lab-21-resource-management-and-oomkiller",
+   "checklist": [
+    "lab-21:1-deploy-a-pod-that-gets-oomkilled",
+    "lab-21:2-debug-the-oomkilled",
+    "lab-21:3-observe-cpu-throttling",
+    "lab-21:4-check-qos-classes",
+    "lab-21:5-test-guaranteed-qos",
+    "lab-21:6-cleanup",
+    "lab-21:verification"
+   ],
+   "related": [
+    "note-06",
+    "note-07",
+    "note-08",
+    "lab-roadmap"
+   ]
+  },
+  {
+   "id": "lab-22",
+   "kind": "lab",
+   "phase": "networking-security",
+   "title": "Lab 22 - RBAC and Service Accounts",
+   "url": "/docs/networking-security/labs/lab-22-rbac-and-service-accounts",
+   "checklist": [
+    "lab-22:step-1-create-a-namespace",
+    "lab-22:step-2-create-the-rbac-resources",
+    "lab-22:step-3-verify-rbac-objects",
+    "lab-22:step-4-create-a-pod-using-the-serviceaccount",
+    "lab-22:step-5-wait-for-the-pod-to-run",
+    "lab-22:step-6-test-allowed-action-list-pods",
+    "lab-22:step-7-test-denied-action-list-secrets",
+    "lab-22:step-8-use-kubectl-auth-can-i-pro-method",
+    "lab-22:step-9-check-pod-serviceaccount",
+    "lab-22:cleanup"
+   ],
+   "related": [
+    "networking-security-part-04",
+    "networking-security-part-05",
+    "aws-eks-part-03"
+   ]
+  },
+  {
+   "id": "lab-23",
+   "kind": "lab",
+   "phase": "networking-security",
+   "title": "Lab 23 - Container Security Contexts",
+   "url": "/docs/networking-security/labs/lab-23-container-security-contexts",
+   "checklist": [
+    "lab-23:step-1-create-a-pod-that-fails-with-a-root-image-under-runasnonroot",
+    "lab-23:step-2-observe-the-createcontainerconfigerror",
+    "lab-23:step-3-create-a-hardened-nonroot-pod-with-read-only-filesystem",
+    "lab-23:step-4-prove-the-restrictions-with-kubectl-exec",
+    "lab-23:step-5-create-a-writable-tmp-directory",
+    "lab-23:step-6-drop-all-capabilities-and-add-net_bind_service-for-port-80",
+    "lab-23:step-7-enforce-with-pod-security-admission",
+    "lab-23:cleanup"
+   ],
+   "related": [
+    "production-platform-part-07"
+   ]
+  },
+  {
+   "id": "lab-24",
+   "kind": "lab",
+   "phase": "fundamentals",
+   "title": "Lab 24 - Monitoring and Metrics",
+   "url": "/docs/fundamentals/labs/lab-24-monitoring-and-metrics",
+   "checklist": [
+    "lab-24:step-1-install-the-metrics-server",
+    "lab-24:step-2-patch-it-for-kind",
+    "lab-24:step-3-wait-for-it-to-be-ready",
+    "lab-24:step-4-verify-it-works",
+    "lab-24:step-5-deploy-the-cpu-hog",
+    "lab-24:step-6-investigate-with-kubectl-top",
+    "lab-24:step-7-cleanup"
+   ],
+   "related": [
+    "note-08",
+    "lab-roadmap",
+    "production-platform-part-02"
+   ]
+  },
+  {
+   "id": "lab-25",
+   "kind": "lab",
+   "phase": "production-platform",
+   "title": "Lab 25 - Logging",
+   "url": "/docs/production-platform/labs/lab-25-logging",
+   "checklist": [
+    "lab-25:step-1-create-the-multi-container-pod",
+    "lab-25:step-2-investigate-multi-container-logs",
+    "lab-25:step-3-investigate-the-crash",
+    "lab-25:step-4-cleanup"
+   ],
+   "related": [
+    "production-platform-part-03"
+   ]
+  },
+  {
+   "id": "lab-26",
+   "kind": "lab",
+   "phase": "application-deployment",
+   "title": "Lab 26 - Probes and Health Checks",
+   "url": "/docs/application-deployment/labs/lab-26-probes-and-health-checks",
+   "checklist": [
+    "lab-26:step-1-create-the-liveness-pod",
+    "lab-26:step-2-observe-the-crash",
+    "lab-26:step-3-investigate-the-failure",
+    "lab-26:step-4-explanation",
+    "lab-26:step-5-cleanup"
+   ],
+   "related": [
+    "application-deployment-part-03"
+   ]
+  },
+  {
+   "id": "lab-27",
+   "kind": "lab",
+   "phase": "production-platform",
+   "title": "Lab 27 - Observability Deep Dive (Prometheus and Grafana)",
+   "url": "/docs/production-platform/labs/lab-27-prometheus-and-grafana",
+   "checklist": [
+    "lab-27:step-1-add-the-helm-repo-and-install-the-stack",
+    "lab-27:step-2-access-grafana",
+    "lab-27:step-3-access-prometheus-and-run-promql",
+    "lab-27:step-4-deploy-an-app-that-exports-metrics",
+    "lab-27:step-5-create-the-servicemonitor",
+    "lab-27:step-6-verify-custom-metrics",
+    "lab-27:cleanup"
+   ],
+   "related": [
+    "production-platform-part-02"
+   ]
+  },
+  {
+   "id": "lab-28",
+   "kind": "lab",
+   "phase": "production-platform",
+   "title": "Lab 28 - Centralized Logging (Loki and Promtail)",
+   "url": "/docs/production-platform/labs/lab-28-loki-and-promtail",
+   "checklist": [
+    "lab-28:step-1-install-the-stack",
+    "lab-28:step-2-explore-self-logs",
+    "lab-28:step-3-deploy-an-error-generating-pod",
+    "lab-28:step-4-find-the-error-in-loki",
+    "lab-28:step-5-inspect-promtail-targets",
+    "lab-28:verification",
+    "lab-28:cleanup"
+   ],
+   "related": [
+    "production-platform-part-03"
+   ]
+  },
+  {
+   "id": "lab-29",
+   "kind": "lab",
+   "phase": "production-platform",
+   "title": "Lab 29 - Helm",
+   "url": "/docs/production-platform/labs/lab-29-helm",
+   "checklist": [
+    "lab-29:step-1-install-helm-cli",
+    "lab-29:step-2-generate-a-basic-helm-chart",
+    "lab-29:step-3-simplify-the-templates",
+    "lab-29:step-4-write-your-own-template",
+    "lab-29:step-5-write-your-own-values-file",
+    "lab-29:step-6-test-the-rendering-dry-run",
+    "lab-29:step-7-install-your-custom-chart",
+    "lab-29:step-8-simulate-a-bad-upgrade",
+    "lab-29:step-9-rollback",
+    "lab-29:step-10-cleanup"
+   ],
+   "related": [
+    "production-platform-part-01"
+   ]
+  },
+  {
+   "id": "lab-30",
+   "kind": "lab",
+   "phase": "production-platform",
+   "title": "Lab 30 - Helm Deep Dive (Writing Production Charts)",
+   "url": "/docs/production-platform/labs/lab-30-helm-deep-dive-writing-production-charts",
+   "checklist": [
+    "lab-30:step-1-scaffold-a-chart-with-helm-create",
+    "lab-30:step-2-understand-the-template-structure",
+    "lab-30:step-3-add-values-to-build-a-clean-structure",
+    "lab-30:step-4-understand-and-rewrite-the-templates",
+    "lab-30:step-5-render-with-helm-template",
+    "lab-30:step-6-install-the-chart-with-helm-install",
+    "lab-30:step-7-upgrade-the-chart-with-helm-upgrade",
+    "lab-30:step-8-roll-back-the-chart-with-helm-rollback",
+    "lab-30:step-9-add-a-pre-install-hook-example",
+    "lab-30:cleanup"
+   ],
+   "related": [
+    "production-platform-part-01"
+   ]
+  },
+  {
+   "id": "lab-31",
+   "kind": "lab",
+   "phase": "production-platform",
+   "title": "Lab 31 - GitOps Principles and Practices",
+   "url": "/docs/production-platform/labs/lab-31-gitops-principles-and-practices",
+   "checklist": [
+    "lab-31:step-1-install-argocd",
+    "lab-31:step-2-access-the-argocd-ui",
+    "lab-31:step-3-create-an-argocd-application-via-yaml",
+    "lab-31:step-4-watch-it-deploy",
+    "lab-31:step-5-self-heal-test-breaking-things-on-purpose",
+    "lab-31:step-6-cleanup"
+   ],
+   "related": [
+    "production-platform-part-05"
+   ]
+  },
+  {
+   "id": "lab-32",
+   "kind": "lab",
+   "phase": "production-platform",
+   "title": "Lab 32 - CI/CD Pipelines (GitHub Actions and ArgoCD)",
+   "url": "/docs/production-platform/labs/lab-32-cicd-pipelines-github-actions-argocd",
+   "checklist": [
+    "lab-32:step-1-create-the-application-files",
+    "lab-32:step-2-add-the-helm-chart",
+    "lab-32:step-3-add-the-github-actions-workflow",
+    "lab-32:step-4-configure-secrets-and-permissions",
+    "lab-32:step-5-run-the-pipeline",
+    "lab-32:step-6-optional-deploy-with-argocd-on-kind",
+    "lab-32:verification",
+    "lab-32:cleanup"
+   ],
+   "related": [
+    "production-platform-part-04",
+    "production-platform-part-05"
+   ]
+  },
+  {
+   "id": "lab-33",
+   "kind": "lab",
+   "phase": "production-platform",
+   "title": "Lab 33 - Extending Kubernetes (CRDs and Operators)",
+   "url": "/docs/production-platform/labs/lab-33-crds-and-operators",
+   "checklist": [
+    "lab-33:step-1-define-the-crontab-crd",
+    "lab-33:step-2-apply-the-crd-and-verify-the-api-server-learned-it",
+    "lab-33:step-3-create-a-crontab-custom-resource",
+    "lab-33:step-4-create-a-cr-before-the-crd-exists-expected-rejection",
+    "lab-33:step-5-trigger-a-schema-validation-failure",
+    "lab-33:step-6-inspect-the-crd-and-cr-with-explain-and-describe",
+    "lab-33:step-7-observe-that-no-controller-exists-yet",
+    "lab-33:step-8-cleanup"
+   ],
+   "related": []
+  },
+  {
+   "id": "lab-34",
+   "kind": "lab",
+   "phase": "production-platform",
+   "title": "Lab 34 - Operators in Practice",
+   "url": "/docs/production-platform/labs/lab-34-operators-in-practice",
+   "checklist": [
+    "lab-34:step-1-create-a-simple-crd",
+    "lab-34:step-2-inspect-the-crd",
+    "lab-34:step-3-apply-a-custom-resource",
+    "lab-34:step-4-observe-the-controller-behavior",
+    "lab-34:step-5-watch-the-controller-reconcile-a-change",
+    "lab-34:step-6-install-the-redis-operator",
+    "lab-34:step-7-create-a-redis-cluster-and-observe-reconciliation",
+    "lab-34:step-8-confirm-the-reconciliation-loop-recovers-state",
+    "lab-34:step-9-prove-the-operator-drives-state-optional",
+    "lab-34:cleanup"
+   ],
+   "related": []
+  },
+  {
+   "id": "lab-35",
+   "kind": "lab",
+   "phase": "application-deployment",
+   "title": "Lab 35 - Building a 3-Tier Web Application",
+   "url": "/docs/application-deployment/labs/lab-35-building-a-3-tier-web-application",
+   "checklist": [
+    "lab-35:step-1-create-the-database-tier",
+    "lab-35:step-2-create-the-backend-tier",
+    "lab-35:step-3-create-the-frontend-tier",
+    "lab-35:step-4-verify-the-connections",
+    "lab-35:step-5-examine-dns-resolution",
+    "lab-35:step-6-break-things-on-purpose",
+    "lab-35:step-7-fix-it",
+    "lab-35:step-8-expose-the-frontend",
+    "lab-35:step-9-cleanup"
+   ],
+   "related": [
+    "application-deployment-part-07"
+   ]
+  },
+  {
+   "id": "lab-36",
+   "kind": "lab",
+   "phase": "scaling-operations",
+   "title": "Lab 36 - Horizontal Pod Autoscaler",
+   "url": "/docs/scaling-operations/labs/lab-36-horizontal-pod-autoscaler",
+   "checklist": [
+    "lab-36:step-1-verify-metrics-server",
+    "lab-36:step-2-deploy-the-app",
+    "lab-36:step-3-expose-the-app",
+    "lab-36:step-4-create-the-hpa",
+    "lab-36:step-5-generate-traffic-the-spike",
+    "lab-36:step-6-watch-the-autoscaler-react",
+    "lab-36:step-7-watch-scale-down",
+    "lab-36:step-8-check-hpa-details",
+    "lab-36:step-9-cleanup"
+   ],
+   "related": [
+    "note-08",
+    "scaling-operations-part-01",
+    "aws-eks-part-08"
+   ]
+  },
+  {
+   "id": "lab-37",
+   "kind": "lab",
+   "phase": "scaling-operations",
+   "title": "Lab 37 - Cluster Upgrades and Maintenance",
+   "url": "/docs/scaling-operations/labs/lab-37-cluster-upgrades-and-maintenance",
+   "checklist": [
+    "lab-37:step-1-deploy-an-app",
+    "lab-37:step-2-cordon-the-node",
+    "lab-37:step-3-attempt-a-raw-drain-the-protection",
+    "lab-37:step-4-drain-the-node-with-the-correct-flags",
+    "lab-37:step-5-perform-the-node-maintenance",
+    "lab-37:step-6-uncordon-and-return-the-node-to-the-pool",
+    "lab-37:step-7-the-kubeadm-upgrade-flow-local-simulation",
+    "lab-37:step-8-cleanup"
+   ],
+   "related": [
+    "scaling-operations-part-06"
+   ]
+  },
+  {
+   "id": "lab-38",
+   "kind": "lab",
+   "phase": "production-platform",
+   "title": "Lab 38 - Backups and Disaster Recovery with Velero",
+   "url": "/docs/production-platform/labs/lab-38-backups-and-disaster-recovery-with-velero",
+   "checklist": [
+    "lab-38:step-1-install-the-velero-cli",
+    "lab-38:step-2-run-minio-in-cluster-as-the-s3-target",
+    "lab-38:step-3-create-the-credentials-file-and-bucket",
+    "lab-38:step-4-install-the-velero-server-with-velero-install",
+    "lab-38:step-5-deploy-a-sample-workload-with-a-pvc",
+    "lab-38:step-6-create-a-velero-backup",
+    "lab-38:step-7-simulate-a-disaster",
+    "lab-38:step-8-restore-from-backup",
+    "lab-38:step-9-create-a-scheduled-backup-optional",
+    "lab-38:cleanup"
+   ],
+   "related": []
+  },
+  {
+   "id": "lab-39",
+   "kind": "lab",
+   "phase": "production-platform",
+   "title": "Lab 39 - Multi-Cluster Kubernetes",
+   "url": "/docs/production-platform/labs/lab-39-multi-cluster-kubernetes",
+   "checklist": [
+    "lab-39:step-1-create-two-kind-clusters-with-distinct-names",
+    "lab-39:step-2-verify-the-contexts-were-added",
+    "lab-39:step-3-work-with-multiple-contexts-in-a-single-kubeconfig",
+    "lab-39:step-4-deploy-the-same-manifest-to-both-clusters",
+    "lab-39:step-5-demonstrate-cluster-isolation",
+    "lab-39:step-6-real-federation-and-cross-cluster-networking-explained",
+    "lab-39:step-7-demo-gitops-applicationset-optional",
+    "lab-39:step-8-cleanup"
+   ],
+   "related": []
+  },
+  {
+   "id": "lab-40",
+   "kind": "lab",
+   "phase": "production-platform",
+   "title": "Lab 40 - Progressive Delivery with Argo Rollouts",
+   "url": "/docs/production-platform/labs/lab-40-argo-rollouts",
+   "checklist": [
+    "lab-40:step-1---install-the-argo-rollouts-controller",
+    "lab-40:step-2---install-the-cli",
+    "lab-40:step-3---create-a-canary-rollout",
+    "lab-40:step-4---watch-the-initial-rollout",
+    "lab-40:step-5---a-good-update",
+    "lab-40:step-6---a-broken-update-and-abort",
+    "lab-40:step-7---observations",
+    "lab-40:cleanup"
+   ],
+   "related": [
+    "production-platform-part-06"
+   ]
+  },
+  {
+   "id": "lab-41",
+   "kind": "lab",
+   "phase": "scaling-operations",
+   "title": "Lab 41 - The SRE Troubleshooting Masterclass",
+   "url": "/docs/scaling-operations/labs/lab-41-sre-troubleshooting-masterclass",
+   "checklist": [
+    "lab-41:step-1-deploy-the-broken-app",
+    "lab-41:step-2-start-the-investigation-phase-1",
+    "lab-41:step-3-investigate-the-frontend-phase-2",
+    "lab-41:step-4-apply-the-fixes",
+    "lab-41:step-5-verify-the-recovery",
+    "lab-41:step-6-add-a-third-failure-advanced",
+    "lab-41:step-7-fix-the-third-failure",
+    "lab-41:step-8-cleanup"
+   ],
+   "related": [
+    "scaling-operations-part-07",
+    "production-platform-part-09"
+   ]
+  },
+  {
+   "id": "lab-42",
+   "kind": "lab",
+   "phase": "scaling-operations",
+   "title": "Lab 42 - Node Pressure and Evictions",
+   "url": "/docs/scaling-operations/labs/lab-42-node-pressure-and-evictions",
+   "checklist": [
+    "lab-42:step-1-create-a-memory-constrained-cluster",
+    "lab-42:step-2-inspect-the-healthy-node-conditions",
+    "lab-42:step-3-create-a-low-risk-baseline-pod",
+    "lab-42:step-4-deploy-the-memory-hog",
+    "lab-42:step-5-observe-the-node-condition-flip-to-memorypressure",
+    "lab-42:step-6-find-the-eviction-events",
+    "lab-42:step-7-inspect-the-evicted-pods-terminal-status",
+    "lab-42:step-8-let-the-node-recover-and-confirm-the-condition-clears",
+    "lab-42:step-9-cleanup"
+   ],
+   "related": [
+    "scaling-operations-part-06"
+   ]
+  },
+  {
+   "id": "lab-43",
+   "kind": "lab",
+   "phase": "production-platform",
+   "title": "Lab 43 - CKA Exam Masterclass (Speed and Shortcut Techniques)",
+   "url": "/docs/production-platform/labs/lab-43-cka-exam-masterclass",
+   "checklist": [
+    "lab-43:step-1-configure-vimrc",
+    "lab-43:step-2-configure-bashrc-aliases-and-exports",
+    "lab-43:step-3-context-switching-check",
+    "lab-43:step-4-imperative-generators",
+    "lab-43:step-5-the-do-flag",
+    "lab-43:step-6-edit-the-generated-yaml-and-apply",
+    "lab-43:step-7-the-60-second-challenge",
+    "lab-43:verification",
+    "lab-43:cleanup"
+   ],
+   "related": []
+  },
+  {
+   "id": "lab-44",
+   "kind": "lab",
+   "phase": "fundamentals",
+   "title": "Lab 44 - Cluster Architecture and the Kubeconfig File",
+   "url": "/docs/fundamentals/labs/lab-44-cluster-architecture-and-kubeconfig",
+   "checklist": [
+    "lab-44:step-1-inspect-the-generated-kubeconfig",
+    "lab-44:step-2-change-the-default-namespace-of-the-current-context",
+    "lab-44:step-3-break-the-config-and-observe-the-failure",
+    "lab-44:step-4-restore-the-config-from-kind",
+    "lab-44:step-5-add-a-second-cluster-multi-context",
+    "lab-44:step-6-switch-and-verify-isolation",
+    "lab-44:step-7-cleanup"
+   ],
+   "related": []
+  },
+  {
+   "id": "lab-45",
+   "kind": "lab",
+   "phase": "scaling-operations",
+   "title": "Lab 45 - etcd Backup and Restore",
+   "url": "/docs/scaling-operations/labs/lab-45-etcd-backup-and-restore",
+   "checklist": [
+    "lab-45:step-1-find-the-etcd-pod",
+    "lab-45:step-2-take-a-snapshot-inside-the-etcd-container",
+    "lab-45:step-3-verify-the-snapshot",
+    "lab-45:step-4-copy-the-snapshot-to-the-host",
+    "lab-45:step-5-rehearse-the-restore-exam-walkthrough",
+    "lab-45:verification",
+    "lab-45:cleanup"
+   ],
+   "related": []
+  },
+  {
+   "id": "lab-46",
+   "kind": "lab",
+   "phase": "production-platform",
+   "title": "Lab 46 - Final Capstone Assessment and Portfolio Project",
+   "url": "/docs/production-platform/labs/lab-46-capstone-assessment",
+   "checklist": [
+    "lab-46:part-a---prefer-the-assessment",
+    "lab-46:part-b---the-portfolio-project",
+    "lab-46:cleanup"
+   ],
+   "related": []
+  }
+ ]
+}

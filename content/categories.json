@@ -1,0 +1,8 @@
+{
+  "categories": [
+    { "id": "cloud-native", "title": "Cloud Native", "description": "Containers, Kubernetes and the platform tooling around them." },
+    { "id": "cloud", "title": "Cloud", "description": "Public cloud services, architecture and operations." },
+    { "id": "ai", "title": "AI Engineering", "description": "Building, evaluating and operating AI-powered systems." },
+    { "id": "languages", "title": "Languages", "description": "Human language skills for work and study." }
+  ]
+}

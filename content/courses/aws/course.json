@@ -1,0 +1,18 @@
+{
+  "id": "aws",
+  "title": "AWS Cloud Foundations",
+  "description": "Core AWS services and architecture: identity, networking, compute, storage and operations. Lessons not written yet.",
+  "categoryId": "cloud",
+  "level": "beginner",
+  "language": "en",
+  "status": "planned",
+  "icon": "Cloud",
+  "tags": ["aws", "cloud"],
+  "modules": [
+    { "id": "iam", "title": "Identity and Access Management", "icon": "KeyRound", "description": "Users, roles, policies and least privilege." },
+    { "id": "networking", "title": "VPC Networking", "icon": "Network", "description": "VPCs, subnets, routing, security groups and load balancers." },
+    { "id": "compute", "title": "Compute", "icon": "Cpu", "description": "EC2, Auto Scaling, Lambda and containers on AWS." },
+    { "id": "storage", "title": "Storage and Databases", "icon": "Database", "description": "S3, EBS, EFS, RDS and DynamoDB." },
+    { "id": "operations", "title": "Operations and Cost", "icon": "Activity", "description": "CloudWatch, CloudTrail, tagging and cost management." }
+  ]
+}

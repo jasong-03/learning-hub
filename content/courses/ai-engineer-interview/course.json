@@ -1,0 +1,34 @@
+{
+  "id": "ai-engineer-interview",
+  "title": "AI Engineer Interview Preparation",
+  "description": "The 2026 AI Engineer interview loop: LLM fundamentals, RAG, agents, evals, LLMOps, fine-tuning and system design, with a 267-question bank, 10 worked system designs and 12 company loops. Imported from awesome-ai-engineer-interview (MIT).",
+  "categoryId": "ai",
+  "level": "intermediate",
+  "language": "en",
+  "status": "active",
+  "icon": "BrainCircuit",
+  "tags": ["interview", "llm", "rag", "agents", "evals", "system-design"],
+  "importer": "ai-engineer-interview",
+  "source": {
+    "name": "awesome-ai-engineer-interview",
+    "url": "https://github.com/landedjobs/awesome-ai-engineer-interview",
+    "license": "MIT",
+    "licenseHolder": "Landed (b100x)",
+    "licenseLessonId": "source-and-license"
+  },
+  "modules": [
+    { "id": "llm-fundamentals", "title": "LLM Fundamentals", "icon": "Brain", "description": "Prefill/decode, tokens, context windows, sampling, reasoning models, KV cache, attention and transformer internals." },
+    { "id": "rag", "title": "RAG", "icon": "Search", "description": "Embeddings and ANN, recall@k/precision@k, chunking, hybrid search with RRF, reranking, scale math, evaluation and ACLs." },
+    { "id": "agents-mcp", "title": "Agents & MCP", "icon": "Bot", "description": "Agent vs workflow, ReAct, tool and ACI design, error compounding, MCP, memory and state." },
+    { "id": "evals-reliability", "title": "Evaluation & Reliability", "icon": "ClipboardCheck", "description": "Rings of testing, LLM-as-judge calibration, pass@k vs pass^k, trajectory vs outcome evaluation, error analysis." },
+    { "id": "llmops-cost-latency", "title": "LLMOps, Cost & Latency", "icon": "Gauge", "description": "Prompt and semantic caching, tiered routing, reliable clients, hedging, fallbacks and silent regressions." },
+    { "id": "fine-tuning-inference", "title": "Fine-tuning & Inference", "icon": "SlidersHorizontal", "description": "RAG vs fine-tuning vs prompting, LoRA/QLoRA, RLHF/DPO/GRPO, quantization, PagedAttention, speculative decoding." },
+    { "id": "system-design", "title": "ML / LLM System Design", "icon": "Network", "description": "The reusable design rubric, whiteboard estimation, latency budgets and tradeoff reasoning." },
+    { "id": "prompting-structured-output", "title": "Prompting & Structured Output", "icon": "Braces", "description": "Static contract vs context, chain-of-thought and self-consistency, constrained decoding, schemas." },
+    { "id": "security-guardrails", "title": "Security & Guardrails", "icon": "ShieldAlert", "description": "Prompt injection, the lethal trifecta, EchoLeak, CaMeL/dual-LLM, OWASP LLM Top 10." },
+    { "id": "question-bank", "title": "Interview Question Bank", "icon": "MessagesSquare", "description": "267 questions by topic: 196 multiple-choice checkpoints with per-option explanations and 71 reported questions with sources." },
+    { "id": "worked-system-designs", "title": "Worked System Designs", "icon": "DraftingCompass", "description": "One reusable rubric applied to 10 numeric, worked AI system designs." },
+    { "id": "company-guides", "title": "Company Interview Guides", "icon": "Building2", "description": "Per-company loops for 12 AI companies with sourced questions and signature rounds." },
+    { "id": "study-plans-resources", "title": "Study Plans & Resources", "icon": "CalendarCheck", "description": "The repository guide with 1-week and 1-month study plans, the resource hub, the quality spec, and source attribution." }
+  ]
+}

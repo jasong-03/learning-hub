@@ -1,0 +1,106 @@
+@import 'tailwindcss';
+@import 'fumadocs-ui/css/neutral.css';
+@import 'fumadocs-ui/css/preset.css';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+@import 'katex/dist/katex.min.css';
+
+@custom-variant dark (&:is(.dark *));
+
+html {
+  scrollbar-gutter: stable;
+}
+
+html > body[data-scroll-locked] {
+  margin-right: 0px !important;
+  --removed-body-scroll-bar-size: 0px !important;
+}
+
+/*
+ * One theme: Fumadocs owns the palette (--color-fd-*) and the shadcn/ui tokens
+ * alias it, so custom components match the docs chrome in both modes.
+ * Primary is Kubernetes blue (#326CE5), lightened in dark mode for contrast.
+ */
+:root {
+  --color-fd-primary: oklch(0.55 0.2 264);
+  --color-fd-primary-foreground: oklch(0.985 0 0);
+  --success: oklch(0.56 0.15 155);
+  --destructive: oklch(0.577 0.245 27.325);
+  --radius: 0.625rem;
+}
+
+.dark {
+  --color-fd-primary: oklch(0.72 0.14 264);
+  --color-fd-primary-foreground: oklch(0.18 0.03 264);
+  --success: oklch(0.72 0.16 155);
+  --destructive: oklch(0.704 0.191 22.216);
+}
+
+:root,
+.dark {
+  --background: var(--color-fd-background);
+  --foreground: var(--color-fd-foreground);
+  --card: var(--color-fd-card);
+  --card-foreground: var(--color-fd-card-foreground);
+  --popover: var(--color-fd-popover);
+  --popover-foreground: var(--color-fd-popover-foreground);
+  --primary: var(--color-fd-primary);
+  --primary-foreground: var(--color-fd-primary-foreground);
+  --secondary: var(--color-fd-secondary);
+  --secondary-foreground: var(--color-fd-secondary-foreground);
+  --muted: var(--color-fd-muted);
+  --muted-foreground: var(--color-fd-muted-foreground);
+  --accent: var(--color-fd-accent);
+  --accent-foreground: var(--color-fd-accent-foreground);
+  --border: var(--color-fd-border);
+  --input: var(--color-fd-border);
+  --ring: var(--color-fd-ring);
+}
+
+@theme inline {
+  --font-sans: var(--font-sans);
+  --font-heading: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+/* Display math from the notes scrolls inside the article instead of widening the page on mobile. */
+.katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-block: 0.25rem;
+}
