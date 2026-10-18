@@ -1,5 +1,7 @@
 # Kubernetes Resource Requests & Limits — Tổng ôn kiến thức A–Z
 
+![Kubernetes Note #6 — Resource Requests & Limits](image/Kubernetes%20Note%20%236%20%E2%80%94%20Resource%20Requests%20%26%20Limits.png)
+
 Sau khi học Pod, Deployment, Service và Namespace, phần Resource Requests & Limits giúp bạn hiểu Kubernetes phân bổ CPU/RAM như thế nào, tại sao Pod bị `Pending`, `OOMKilled`, hoặc ứng dụng chạy chậm dù vẫn `Running`.
 
 ## 1. Resource Requests & Limits là gì?

@@ -1,5 +1,7 @@
 # Kubernetes Namespace — Tổng ôn kiến thức từ A–Z
 
+![Kubernetes Note #5 — Namespace](image/Kubernetes%20Note%20%235%20%E2%80%94%20Namespace.png)
+
 Sau khi hiểu Pod, Deployment và Service, bạn cần nắm chắc Namespace, vì đây là cách Kubernetes tổ chức và quản lý tài nguyên trong cùng một Cluster.
 
 ## 1. Namespace là gì?

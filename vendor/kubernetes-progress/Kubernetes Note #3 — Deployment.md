@@ -1,4 +1,7 @@
 # Kubernetes Deployment — Tổng ôn kiến thức từ A–Z
+
+![Kubernetes Note #3 — Deployment](image/Kubernetes%20Note%20%233%20%E2%80%94%20Deployment.png)
+
 ## 1. Deployment là gì?
 
 Deployment là Kubernetes resource dùng để quản lý và cập nhật các ứng dụng stateless thông qua ReplicaSet và Pod.

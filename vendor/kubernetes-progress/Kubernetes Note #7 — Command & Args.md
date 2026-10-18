@@ -1,5 +1,7 @@
 # Kubernetes Command &amp; Args — Tổng ôn kiến thức A–Z
 
+![Kubernetes Note #7 — Command & Args](image/Kubernetes%20Note%20%237%20%E2%80%94%20Command%20%26%20Args.png)
+
 Sau khi học Requests & Limits, chúng ta tiếp tục với Command & Args — cách Kubernetes xác định container sẽ chạy chương trình gì và truyền tham số như thế nào khi khởi động.
 
 Đây là kiến thức quan trọng khi bạn deploy backend, chạy worker, CronJob, database migration hoặc debug container bị `CrashLoopBackOff`.

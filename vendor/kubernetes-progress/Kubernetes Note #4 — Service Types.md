@@ -1,5 +1,7 @@
 # Kubernetes Service Types — Tổng ôn kiến thức từ A–Z
 
+![Kubernetes Note #4 — Service Types](image/Kubernetes%20Note%20%234%20%E2%80%94%20Service%20Types.png)
+
 Sau khi hiểu Deployment, ReplicaSet và Pod, kiến thức tiếp theo rất quan trọng là Service.
 
 Nếu Deployment trả lời câu hỏi:
