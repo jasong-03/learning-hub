@@ -1,1652 +1,330 @@
-# Kubernetes Note #3 — Deployment
-
-![Kubernetes Note #3 — Deployment](image/Kubernetes%20Note%20%233%20%E2%80%94%20Deployment.png)
-
+# Kubernetes Deployment — Tổng ôn kiến thức từ A–Z
 ## 1. Deployment là gì?
 
-**Deployment quản lý ReplicaSet, và ReplicaSet quản lý Pod.**
+Deployment là Kubernetes resource dùng để quản lý và cập nhật các ứng dụng stateless thông qua ReplicaSet và Pod.
 
-Flow:
+Nó giải quyết 4 vấn đề chính:
 
-```text
+- Duy trì số lượng Pod mong muốn.
+- Tự thay thế Pod bị mất.
+- Scale ứng dụng lên hoặc xuống.
+- Cập nhật phiên bản và rollback.
+
 Deployment
-    ↓
+
+Quản lý rollout và ReplicaSets
+
 ReplicaSet
-    ↓
-Pods
+
+Duy trì số lượng Pod
+
+Pod 1
+
+Container
+
+Pod 2
+
+Container
+
+Pod 3
+
+Container
+
+| Resource   | Trách nhiệm                             |
+| ---------- | --------------------------------------- |
+| Container  | Chạy ứng dụng                           |
+| Pod        | Đơn vị triển khai nhỏ nhất              |
+| ReplicaSet | Duy trì số lượng Pod                    |
+| Deployment | Quản lý ReplicaSet, rollout và rollback |
+
+Ghi nhớ: Deployment không trực tiếp tạo container. Deployment quản lý ReplicaSet → ReplicaSet quản lý Pod → Pod chứa container.
+
+## 2. Deployment Manifest
+
+Đây là cấu trúc YAML bạn phải hiểu:
+
 ```
 
-Ví dụ:
-
-```text
-Deployment: app1
-    ↓
-ReplicaSet
-    ↓
-Pod
-Pod
-Pod
-```
-
-Điểm quan trọng:
-
-> Trong phần lớn ứng dụng stateless thông thường, bạn sẽ tạo **Deployment**, không tạo ReplicaSet trực tiếp.
-
-Deployment bổ sung các khả năng mà ReplicaSet không làm tốt:
-
-```text
-Rolling Update
-Rollback
-Revision history
-Pause / Resume
-Restart
-Deployment strategies
-```
-
-Transcript nhấn mạnh rằng Deployment tạo ReplicaSet bên dưới và dùng ReplicaSet để duy trì Pod. :chatgpt-content-reference{index="1"}
-
----
-
-# 2. Tạo Deployment bằng imperative
-
-Ví dụ:
-
-```bash
-kubectl create deployment app1-deploy \
-  --image=myapp:v1
-```
-
-Có thể chỉ định replicas:
-
-```bash
-kubectl create deployment app1-deploy \
-  --image=myapp:v1 \
-  --replicas=3
-```
-
-Sau đó check:
-
-```bash
-kubectl get deployment
-```
-
-shortcut:
-
-```bash
-kubectl get deploy
-```
-
-Check ReplicaSet:
-
-```bash
-kubectl get rs
-```
-
-Check Pod:
-
-```bash
-kubectl get pods
-```
-
-Bạn sẽ thấy:
-
-```text
-Deployment
-   ↓
-ReplicaSet auto-created
-   ↓
-Pod auto-created
-```
-
----
-
-# 3. Deployment manifest
-
-Ví dụ cơ bản:
-
-```yaml
 apiVersion: apps/v1
 kind: Deployment
 
 metadata:
-  name: app2-deploy
+  name: backend
+  namespace: production
 
 spec:
   replicas: 3
 
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+
   selector:
     matchLabels:
-      app: app2
+      app: backend
 
   template:
     metadata:
       labels:
-        app: app2
+        app: backend
 
     spec:
       containers:
-        - name: simple-app
-          image: myapp:v2
-          ports:
-            - containerPort: 8080
-```
-
-Apply:
-
-```bash
-kubectl apply -f deployment.yaml
-```
-
----
-
-# 4. Cấu trúc Deployment
-
-Có 4 phần bạn cần nhớ:
-
-```text
-metadata
-replicas
-selector
-template
-```
-
-`template` chính là Pod template:
-
-```text
-Deployment
-  │
-  ├── replicas
-  ├── selector
-  │
-  └── template
-        ↓
-       Pod
-```
-
----
-
-# 5. Selector và labels
-
-Cũng giống ReplicaSet:
-
-```yaml
-selector:
-  matchLabels:
-    app: app2
-```
-
-phải match:
-
-```yaml
-template:
-  metadata:
-    labels:
-      app: app2
-```
-
-Tức là:
-
-```text
-selector
-   ↓
-app=app2
-   ↓
-Pods có label app=app2
-```
-
----
-
-# 6. Scale Deployment
-
-Imperative:
-
-```bash
-kubectl scale deployment app1-deploy \
-  --replicas=2
-```
-
-Scale xuống:
-
-```bash
-kubectl scale deployment app1-deploy \
-  --replicas=1
-```
-
-Check:
-
-```bash
-kubectl get deploy
-kubectl get rs
-kubectl get pods
-```
-
-Transcript demo rằng scale Deployment sẽ thay đổi số Pod trong cùng ReplicaSet hiện tại. :chatgpt-content-reference{index="2"}
-
----
-
-# 7. Declarative scaling
-
-Trong thực tế nên sửa manifest:
-
-```yaml
-spec:
-  replicas: 5
-```
-
-rồi:
-
-```bash
-kubectl apply -f deployment.yaml
-```
-
-Thay vì chỉ:
-
-```bash
-kubectl scale ...
-```
-
-Lý do:
-
-```text
-Git / YAML
-=
-source of truth
-```
-
----
-
-# 8. Expose Deployment bằng Service
-
-Ví dụ:
-
-```bash
-kubectl expose deployment app1-deploy \
-  --name=svc-app1 \
-  --type=NodePort \
-  --port=8080
-```
-
-Check:
-
-```bash
-kubectl get svc
-```
-
-Nếu không specify:
-
-```text
---type=NodePort
-```
-
-thì mặc định là:
-
-```text
-ClusterIP
-```
-
-Transcript có demo cả ClusterIP và NodePort. :chatgpt-content-reference{index="3"}
-
----
-
-# 9. Quan hệ thực sự giữa Service và Deployment
-
-Cần nhớ lại từ bài ReplicaSet:
-
-Service không route:
-
-```text
-Service
-  ↓
-Deployment
-```
-
-mà thực tế:
-
-```text
-Service
-  ↓
-label selector
-  ↓
-Pods
-```
-
-Trong khi Deployment:
-
-```text
-Deployment
-  ↓
-ReplicaSet
-  ↓
-Pods
-```
-
-Hai controller cùng gặp nhau ở Pod thông qua labels.
-
----
-
-# 10. Update image
-
-Đây là một trong những điểm mạnh nhất của Deployment.
-
-Ví dụ đang chạy:
-
-```text
-v1
-```
-
-update sang:
-
-```text
-v2
-```
-
-Command:
-
-```bash
-kubectl set image deployment/app1-deploy \
-  simple-app=myapp:v2
-```
-
-Syntax:
-
-```text
-kubectl set image deployment/<deployment>
-container-name=new-image
-```
-
-Điểm rất quan trọng:
-
-```text
-simple-app
-```
-
-là **container name**, không phải Deployment name.
-
-Transcript demo update image và cho thấy Kubernetes tạo ReplicaSet mới thay vì sửa ReplicaSet cũ trực tiếp. :chatgpt-content-reference{index="4"}
-
----
-
-# 11. Khi update image thì chuyện gì xảy ra?
-
-Giả sử:
-
-```text
-Deployment
-  ↓
-ReplicaSet A
-  ↓
-Pods v1
-```
-
-Update:
-
-```text
-v1 → v2
-```
-
-Deployment tạo:
-
-```text
-Deployment
- ├── ReplicaSet A
- │      ↓
- │    Pods v1
- │
- └── ReplicaSet B
-        ↓
-      Pods v2
-```
-
-Sau đó:
-
-```text
-scale up ReplicaSet B
-scale down ReplicaSet A
-```
-
-ReplicaSet cũ thường vẫn được giữ lại để phục vụ rollback.
-
----
-
-# 12. Đây chính là lý do Deployment hơn ReplicaSet
-
-ReplicaSet:
-
-```text
-change template image
-```
-
-không tự replace toàn bộ Pod cũ.
-
-Deployment:
-
-```text
-change Pod template
-     ↓
-new ReplicaSet
-     ↓
-new Pods
-```
-
-=> rollout có kiểm soát.
-
----
-
-# 13. Rollout
-
-`rollout` là quá trình đưa revision mới ra.
-
-Các command quan trọng:
-
-```bash
-kubectl rollout status deployment/app1-deploy
-```
-
-History:
-
-```bash
-kubectl rollout history deployment/app1-deploy
-```
-
-Transcript demo các revision tương ứng với các lần thay đổi image/version. :chatgpt-content-reference{index="5"}
-
----
-
-# 14. Revision
-
-Ví dụ:
-
-```text
-Revision 1 → v1
-Revision 2 → v2
-Revision 3 → v3
-```
-
-Check:
-
-```bash
-kubectl rollout history deployment/app1-deploy
-```
-
-Check cụ thể revision:
-
-```bash
-kubectl rollout history deployment/app1-deploy \
-  --revision=2
-```
-
-Bạn có thể dùng revision để biết:
-
-```text
-version nào
-image nào
-template nào
-```
-
----
-
-# 15. Rolling Update
-
-Default strategy của Deployment là:
-
-```text
-RollingUpdate
-```
-
-Flow:
-
-```text
-Old Pods
-↓
-Create some New Pods
-↓
-Wait New Pods ready
-↓
-Terminate some Old Pods
-↓
-Repeat
-```
-
-Ví dụ:
-
-```text
-v2 v2
-```
-
-transition:
-
-```text
-v2 v2 v3
-```
-
-rồi:
-
-```text
-v2 v3
-```
-
-rồi:
-
-```text
-v3 v3
-```
-
-Transcript mô tả rõ rằng Pod mới được tạo và chạy trước khi Pod cũ bị terminate trong rolling update. :chatgpt-content-reference{index="6"}
-
----
-
-# 16. Tại sao RollingUpdate quan trọng?
-
-Giúp hạn chế downtime.
-
-Nếu app đang có:
-
-```text
-10 Pods
-```
-
-không cần:
-
-```text
-delete all 10
-```
-
-rồi mới tạo mới.
-
-Thay vào đó:
-
-```text
-old + new coexist temporarily
-```
-
----
-
-# 17. Rollback
-
-Nếu release mới lỗi:
-
-```text
-v3 ❌
-```
-
-có thể rollback.
-
-Rollback về revision trước:
-
-```bash
-kubectl rollout undo deployment/app1-deploy
-```
-
-Rollback revision cụ thể:
-
-```bash
-kubectl rollout undo deployment/app1-deploy \
-  --to-revision=2
-```
-
-Transcript demo cả rollback về previous version và rollback về một revision cụ thể. :chatgpt-content-reference{index="7"}
-
----
-
-# 18. Rollback hoạt động thế nào?
-
-Giả sử:
-
-```text
-RS-v1
-RS-v2
-RS-v3 ← current
-```
-
-Rollback về v2:
-
-```text
-scale RS-v2 up
-scale RS-v3 down
-```
-
-Kubernetes có thể reuse ReplicaSet cũ thay vì tạo lại mọi thứ từ đầu.
-
----
-
-# 19. Revision sau rollback
-
-Điểm hơi dễ nhầm:
-
-Rollback không có nghĩa history trở thành:
-
-```text
-1 → 2 → 3 → 2
-```
-
-theo cách bạn nghĩ đơn giản.
-
-Kubernetes xem rollback là **một deployment change mới**.
-
-Ví dụ có thể thành:
-
-```text
-Revision 1 → v1
-Revision 2 → v2
-Revision 3 → v3
-Revision 4 → template của v2
-```
-
-Nên revision tăng tiếp.
-
-Transcript có demo behaviour này. :chatgpt-content-reference{index="8"}
-
----
-
-# 20. Pause Deployment
-
-Khi muốn thay đổi nhiều thứ nhưng **chưa rollout ngay**:
-
-```bash
-kubectl rollout pause deployment/app1-deploy
-```
-
-Sau đó có thể thay đổi:
-
-```text
-image
-CPU
-RAM
-other Pod template properties
-```
-
-Ví dụ:
-
-```bash
-kubectl set image deployment/app1-deploy \
-  simple-app=myapp:v4
-```
-
-và resource:
-
-```bash
-kubectl set resources deployment app1-deploy \
-  -c simple-app \
-  --requests=cpu=200m,memory=512Mi \
-  --limits=cpu=200m,memory=512Mi
-```
-
----
-
-# 21. Resume
-
-Sau khi thay đổi xong:
-
-```bash
-kubectl rollout resume deployment/app1-deploy
-```
-
-Kubernetes mới rollout các thay đổi.
-
-Flow:
-
-```text
-pause
- ↓
-change image
- ↓
-change CPU/RAM
- ↓
-resume
- ↓
-one rollout
-```
-
-Transcript dùng pause/resume để gom nhiều thay đổi trước khi rollout. :chatgpt-content-reference{index="9"}
-
----
-
-# 22. CPU đơn vị `m`
-
-Ví dụ:
-
-```text
-1000m = 1 CPU
-500m = 0.5 CPU
-200m = 0.2 CPU
-```
-
-Ví dụ:
-
-```yaml
-resources:
-  requests:
-    cpu: 200m
-    memory: 512Mi
-
-  limits:
-    cpu: 200m
-    memory: 512Mi
-```
-
-Phần resources chúng ta sẽ note kỹ hơn trong bài riêng.
-
----
-
-# 23. Annotation và change-cause
-
-Transcript giới thiệu annotation để thêm mô tả cho rollout history.
-
-Ví dụ:
-
-```bash
-kubectl annotate deployment app1-deploy \
-  kubernetes.io/change-cause="Update image to v4"
-```
-
-Annotation là metadata bổ sung.
-
-Ví dụ:
-
-```yaml
-metadata:
-  annotations:
-    kubernetes.io/change-cause: "Update image to v4"
-```
-
-Khi check history:
-
-```bash
-kubectl rollout history deployment/app1-deploy
-```
-
-sẽ dễ biết revision đó thay đổi gì. :chatgpt-content-reference{index="10"}
-
-### Lưu ý thực tế
-
-Bạn nên ưu tiên:
-
-```text
-Git commit
-PR
-CI/CD deployment record
-image tag / digest
-```
-
-làm audit trail chính.
-
-Annotation rất hữu ích, nhưng không nên là nơi duy nhất để tracking production releases.
-
----
-
-# 24. Deployment Strategy
-
-Transcript giới thiệu 2 strategy:
-
-```text
-RollingUpdate
-Recreate
-```
-
-Deployment mặc định:
-
-```yaml
-strategy:
-  type: RollingUpdate
-```
-
-:chatgpt-content-reference{index="11"}
-
----
-
-# 25. Recreate
-
-```yaml
-strategy:
-  type: Recreate
-```
-
-Flow:
-
-```text
-Old Pods
-   ↓
-DELETE ALL
-   ↓
-New Pods
-```
-
-Ví dụ:
-
-```text
-v4 v4 v4 v4
-
-↓ terminate all
-
-nothing running
-
-↓ create
-
-v5 v5 v5 v5
-```
-
----
-
-# 26. Recreate ưu nhược điểm
-
-### Advantage
-
-Không cần giữ extra capacity để old/new Pod coexist.
-
-```text
-resource efficient
-simple
-```
-
-### Disadvantage
-
-```text
-downtime
-```
-
-Do đó phù hợp hơn khi:
-
-```text
-dev
-test
-non-critical system
-```
-
-hoặc app thực sự không cho phép hai version cùng chạy.
-
-Không nên coi nó là strategy mặc định cho production.
-
----
-
-# 27. RollingUpdate configuration
-
-Ví dụ:
-
-```yaml
-strategy:
-  type: RollingUpdate
-
-  rollingUpdate:
-    maxUnavailable: 1
-    maxSurge: 2
-```
-
-Hai parameter cực kỳ quan trọng:
-
-```text
-maxUnavailable
-maxSurge
-```
-
----
-
-# 28. maxUnavailable
-
-Số Pod tối đa được phép unavailable trong rollout.
-
-Ví dụ:
-
-```yaml
-maxUnavailable: 1
-```
-
-Với desired:
-
-```text
-10 Pods
-```
-
-thì về nguyên tắc rollout phải giữ ít nhất khoảng:
-
-```text
-9 available
-```
-
-Có thể dùng percentage:
-
-```yaml
-maxUnavailable: 25%
-```
-
----
-
-# 29. maxSurge
-
-Số Pod vượt quá desired replicas được phép tạo tạm thời.
-
-Ví dụ:
-
-```yaml
-replicas: 10
-
-maxSurge: 2
-```
-
-Trong rollout có thể tạm thời có:
-
-```text
-12 Pods
-```
-
-Flow:
-
-```text
-10 old
-↓
-+2 new
-↓
-new ready
-↓
-remove old
-↓
-repeat
-```
-
----
-
-# 30. maxSurge vs maxUnavailable
-
-Đây là trade-off giữa:
-
-```text
-Speed
-Availability
-Resources
-```
-
-Ví dụ cực an toàn:
-
-```yaml
-maxUnavailable: 0
-maxSurge: 1
-```
-
-=> ít risk nhưng rollout chậm.
-
-Nhanh hơn:
-
-```yaml
-maxUnavailable: 20%
-maxSurge: 20%
-```
-
-=> rollout nhanh nhưng nhiều thay đổi cùng lúc.
-
----
-
-# 31. Visualize RollingUpdate
-
-Giả sử:
-
-```text
-replicas = 4
-maxUnavailable = 1
-maxSurge = 1
-```
-
-Initial:
-
-```text
-v1 v1 v1 v1
-```
-
-Step 1:
-
-```text
-v1 v1 v1 v1 v2
-```
-
-Step 2:
-
-```text
-v1 v1 v1 v2
-```
-
-Step 3:
-
-```text
-v1 v1 v1 v2 v2
-```
-
-...
-
-Final:
-
-```text
-v2 v2 v2 v2
-```
-
----
-
-# 32. Mixed versions trong rollout
-
-Một điểm rất quan trọng:
-
-Trong rolling deployment có thời điểm:
-
-```text
-User A → v1
-User B → v2
-```
-
-Vì Service có thể route tới cả old và new Pods.
-
-Do đó API/database changes nên backward-compatible trong quá trình rollout.
-
-Ví dụ release nguy hiểm:
-
-```text
-v2 removes DB column
-```
-
-trong khi:
-
-```text
-v1 still needs column
-```
-
-=> có thể lỗi trong thời gian rolling update.
-
-Đây là vấn đề production rất thực tế.
-
----
-
-# 33. Progress Deadline
-
-Deployment có:
-
-```yaml
-progressDeadlineSeconds:
-```
-
-Ví dụ:
-
-```yaml
-spec:
-  progressDeadlineSeconds: 200
-```
-
-Nếu rollout không progress trong khoảng đó, Deployment sẽ báo lỗi progress deadline.
-
-Transcript demo bằng cách deploy một image version không tồn tại, khiến Pod không tạo thành công. :chatgpt-content-reference{index="12"}
-
----
-
-# 34. Ví dụ rollout lỗi
-
-Giả sử:
-
-```text
-image: myapp:v10
-```
-
-nhưng image không tồn tại.
-
-Pod có thể rơi vào:
-
-```text
-ImagePullBackOff
-```
-
-Deployment cũ vẫn còn:
-
-```text
-10 healthy Pods
-```
-
-trong khi:
-
-```text
-new Pods fail
-```
-
-RollingUpdate sẽ không ngay lập tức giết hết healthy old Pods.
-
-Điều này giúp application tiếp tục phục vụ traffic.
-
----
-
-# 35. Check rollout failure
-
-```bash
-kubectl rollout status deployment/app1-deploy
-```
-
-Check:
-
-```bash
-kubectl describe deployment app1-deploy
-```
-
-Xem:
-
-```text
-Conditions
-Progressing
-Available
-Events
-```
-
----
-
-# 36. Restart Deployment
-
-Restart:
-
-```bash
-kubectl rollout restart deployment/app1-deploy
-```
-
-Điều này trigger một rollout mới của Pods.
-
-Check:
-
-```bash
-kubectl get pods -w
-```
-
-Transcript cho thấy restart tạo ra Pod mới và ReplicaSet/revision mới tương ứng với thay đổi Pod template. :chatgpt-content-reference{index="13"}
-
-Use cases:
-
-```text
-restart app
-reload mounted config scenario
-recover from strange state
-force Pods recreation
-```
-
----
-
-# 37. Delete Deployment
-
-```bash
-kubectl delete deployment app1-deploy
-```
-
-Thông thường Kubernetes sẽ garbage-collect:
-
-```text
-Deployment
-↓
-ReplicaSet
-↓
-Pods
-```
-
-Tức là delete Deployment sẽ dẫn tới xóa workload do nó sở hữu.
-
-Service là resource riêng:
-
-```text
-Service
-```
-
-nên nếu bạn tạo riêng Service, cần check/delete nó riêng.
-
----
-
-# 38. `kubectl describe deployment`
-
-Một command cực kỳ quan trọng:
-
-```bash
-kubectl describe deployment app1-deploy
-```
-
-Bạn nên nhìn:
-
-```text
-Replicas
-StrategyType
-RollingUpdateStrategy
-Pod Template
-Conditions
-OldReplicaSets
-NewReplicaSet
-Events
-```
-
-Đặc biệt khi troubleshooting:
-
-```text
-Conditions
-Events
-```
-
----
-
-# 39. Deployment lifecycle tổng thể
-
-Đây là flow quan trọng nhất của section:
-
-```text
-deployment.yaml
-      ↓
-kubectl apply
-      ↓
-Deployment
-      ↓
-ReplicaSet V1
-      ↓
-Pods V1
-```
-
-Release mới:
-
-```text
-image V1 → V2
-      ↓
-Deployment detects template change
-      ↓
-ReplicaSet V2
-      ↓
-Pods V2
-      ↓
-scale V2 up
-      ↓
-scale V1 down
-```
-
-Rollback:
-
-```text
-V2 has bug
-   ↓
-kubectl rollout undo
-   ↓
-old ReplicaSet scaled up
-   ↓
-bad ReplicaSet scaled down
-```
-
-Nếu bạn hiểu flow này thì Deployment coi như hiểu được khoảng 70–80%.
-
----
-
-# 40. Commands bắt buộc phải thuộc
-
-```bash
-kubectl get deploy
-```
-
-```bash
-kubectl describe deployment <name>
-```
-
-```bash
-kubectl create deployment <name> --image=<image>
-```
-
-```bash
-kubectl apply -f deployment.yaml
-```
-
-```bash
-kubectl scale deployment <name> --replicas=3
-```
-
-```bash
-kubectl set image deployment/<name> \
-  <container>=<image>
-```
-
-```bash
-kubectl rollout status deployment/<name>
-```
-
-```bash
-kubectl rollout history deployment/<name>
-```
-
-```bash
-kubectl rollout history deployment/<name> \
-  --revision=2
-```
-
-```bash
-kubectl rollout undo deployment/<name>
-```
-
-```bash
-kubectl rollout undo deployment/<name> \
-  --to-revision=2
-```
-
-```bash
-kubectl rollout pause deployment/<name>
-```
-
-```bash
-kubectl rollout resume deployment/<name>
-```
-
-```bash
-kubectl rollout restart deployment/<name>
-```
-
-```bash
-kubectl delete deployment <name>
-```
-
----
-
-# 41. Lab quan trọng nhất — Deployment
-
-## Lab 1 — Create
-
-Tạo:
-
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-
-metadata:
-  name: nginx-deploy
-
-spec:
-  replicas: 3
-
-  selector:
-    matchLabels:
-      app: nginx
-
-  template:
-    metadata:
-      labels:
-        app: nginx
-
-    spec:
-      containers:
-        - name: nginx
-          image: nginx:1.27
+        - name: backend
+          image: nginx:1.27-alpine
           ports:
             - containerPort: 80
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            periodSeconds: 5
+
 ```
 
-Apply:
+### Những field bắt buộc phải nhớ
 
-```bash
-kubectl apply -f deployment.yaml
+| Field                      | Ý nghĩa                               |
+| -------------------------- | ------------------------------------- |
+| `replicas`                 | Số Pod mong muốn                      |
+| `selector.matchLabels`     | Deployment chọn Pod theo labels       |
+| `template.metadata.labels` | Labels của Pod được tạo               |
+| `template.spec.containers` | Container chạy trong Pod              |
+| `image`                    | Image của ứng dụng                    |
+| `strategy`                 | Cách Deployment cập nhật Pod          |
+| `readinessProbe`           | Kiểm tra Pod đã sẵn sàng nhận traffic |
+
+`selector` phải khớp với labels trong `template`. Selector của Deployment cũng không thể tùy tiện thay đổi sau khi tạo.
+
+## 3. Deployment Reconciliation & Self-healing
+
+Kubernetes vận hành theo nguyên tắc:
+
+\\[ \text{Desired State} \longrightarrow \text{Actual State} \\]
+
+Ví dụ:
+
+- Desired: 3 Pods.
+- Actual: 2 Pods.
+- ReplicaSet tạo thêm 1 Pod để quay về 3.
+
+```
+kubectl delete pod <pod-name> -n production
 ```
 
-Check:
+Nếu Pod thuộc Deployment, Kubernetes sẽ tạo Pod thay thế.
 
-```bash
-kubectl get deploy
-kubectl get rs
-kubectl get pods
+Lưu ý: Self-healing không có nghĩa ứng dụng sẽ không bao giờ downtime. Nếu Node lỗi, thiếu tài nguyên hoặc image không pull được, Pod mới có thể không chạy thành công.
+
+## 4. Scaling
+
+Scaling có hai kiểu:
+
+| Kiểu               | Ý nghĩa                                        |
+| ------------------ | ---------------------------------------------- |
+| Horizontal Scaling | Tăng hoặc giảm số Pod                          |
+| Vertical Scaling   | Tăng hoặc giảm tài nguyên CPU/RAM của workload |
+
+Ví dụ Horizontal Scaling:
+
+```
+kubectl scale deployment backend --replicas=5 -n production
 ```
 
-Bạn phải nhìn ra:
+Kubernetes điều chỉnh ReplicaSet từ 3 lên 5 Pods.
 
-```text
-1 Deployment
-1 ReplicaSet
-3 Pods
+Kiểm tra:
+
+```
+kubectl get deploy,rs,pods -n production
 ```
 
----
+Nếu YAML vẫn ghi `replicas: 3`, việc apply lại YAML có thể đưa Deployment về 3 replicas.
 
-# 42. Lab 2 — Scale
+## 5. Rolling Update
 
-```bash
-kubectl scale deployment nginx-deploy \
-  --replicas=5
+Rolling Update là cập nhật ứng dụng từng phần thay vì xóa toàn bộ Pod cũ.
+
+Ví dụ:
+
+```
+kubectl set image deployment/backend \
+  backend=nginx:1.28-alpine -n production
 ```
 
-Expected:
+Kubernetes sẽ:
 
-```text
-5 Pods
+1. Tạo ReplicaSet mới.
+2. Tăng số Pod phiên bản mới.
+3. Chờ các Pod mới Available.
+4. Giảm dần Pod phiên bản cũ.
+5. Hoàn tất rollout khi đạt trạng thái mong muốn.
+
+Ví dụ Rolling Update — 4 Replicas
+
+Bắt đầuĐang updateHoàn tất
+
+v1
+
+v1
+
+v1
+
+v1
+
+4 Pods v1 đang phục vụ. Đây là các trạng thái minh họa, không phải toàn bộ các bước của rollout.
+
+### maxSurge vs maxUnavailable
+
+Giả sử có 4 replicas:
+
+| Cấu hình            | Ý nghĩa                                                               |
+| ------------------- | --------------------------------------------------------------------- |
+| `maxSurge: 1`       | Tối đa 5 Pods trong rollout                                           |
+| `maxUnavailable: 1` | Phải giữ ít nhất 3 Pods Available                                     |
+| `maxSurge: 0`       | Không tạo Pod vượt số replicas                                        |
+| `maxUnavailable: 0` | Không chủ động giảm số Pod Available dưới mức mong muốn trong rollout |
+
+Lưu ý: Các giới hạn này thuộc chiến lược rollout, không bảo đảm số Pod khỏe trong mọi tình huống như Node failure.
+
+## 6. Rollout, Rollback và Restart
+
+Ba lệnh này rất dễ nhầm:
+
+| Thao tác          | Mục đích                                 |
+| ----------------- | ---------------------------------------- |
+| `rollout status`  | Kiểm tra tiến trình rollout              |
+| `rollout history` | Xem lịch sử revision                     |
+| `rollout undo`    | Khôi phục Pod template phiên bản trước   |
+| `rollout restart` | Khởi động lại Pods thông qua rollout mới |
+
+```
+# Kiểm tra trạng thái
+kubectl rollout status deploy/backend -n production
+
+# Xem revision
+kubectl rollout history deploy/backend -n production
+
+# Rollback
+kubectl rollout undo deploy/backend -n production
+
+# Restart tất cả Pods theo chiến lược Deployment
+kubectl rollout restart deploy/backend -n production
 ```
 
-Sau đó về:
+Quan trọng: Rollback không tự động xảy ra chỉ vì Deployment bị lỗi. Kubernetes thường giữ lại những Pod khỏe theo chiến lược rollout, nhưng bạn cần thao tác rollback hoặc có hệ thống tự động hóa riêng.
 
-```bash
-kubectl scale deployment nginx-deploy \
-  --replicas=3
+## 7. Readiness, Liveness và Startup Probe
+
+Đây là phần quan trọng khi vận hành production.
+
+| Probe     | Kiểm tra                      | Khi thất bại                                                                                                         |
+| --------- | ----------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Readiness | App đã sẵn sàng nhận traffic? | Pod bị loại khỏi danh sách endpoint sẵn sàng của Service                                                             |
+| Liveness  | App có còn hoạt động đúng?    | Container bị restart khi vượt ngưỡng lỗi                                                                             |
+| Startup   | App đã khởi động xong?        | Trì hoãn readiness/liveness đến khi startup thành công; có thể restart container nếu startup probe liên tục thất bại |
+
+Một Pod có thể ở trạng thái `Running` nhưng chưa `Ready`.
+
+Vì thế, khi Deployment rollout, cần quan tâm đến READY và AVAILABLE, không chỉ đếm Pod đang Running.
+
+## 8. Troubleshooting Deployment
+
+Các lỗi nên nhận diện ngay:
+
+| Status / Error             | Nguyên nhân thường gặp      | Cách kiểm tra             |
+| -------------------------- | --------------------------- | ------------------------- |
+| `Pending`                  | Thiếu CPU/RAM, scheduling   | `kubectl describe pod`    |
+| `ImagePullBackOff`         | Image/tag sai, registry lỗi | Pod Events                |
+| `CrashLoopBackOff`         | App crash liên tục          | `kubectl logs --previous` |
+| `OOMKilled`                | Container vượt memory limit | `kubectl describe pod`    |
+| `Running` nhưng `0/1`      | Container chưa Ready        | Probe và logs             |
+| `ProgressDeadlineExceeded` | Rollout không đạt tiến độ   | `kubectl describe deploy` |
+
+Quy trình debug nên nhớ:
+
+```
+kubectl get deploy,rs,pods -n production
+
+kubectl describe deployment backend -n production
+
+kubectl describe pod <pod-name> -n production
+
+kubectl logs <pod-name> -n production
+
+kubectl logs <pod-name> --previous -n production
+
+kubectl get events -n production \
+  --sort-by=.metadata.creationTimestamp
 ```
 
----
+## 9. Những hiểu lầm thường gặp
 
-# 43. Lab 3 — Rolling Update
+- Deployment không đồng nghĩa với Service. Deployment quản lý workload, Service tạo điểm truy cập ổn định và định tuyến tới Pods.
+- Running không đồng nghĩa với Ready.
+- Rolling Update không bảo đảm zero downtime tuyệt đối. Phụ thuộc probes, tài nguyên, thời gian khởi động và ứng dụng.
+- Rollback không khôi phục dữ liệu database. Nó chủ yếu khôi phục Pod template của Deployment.
+- Deployment phù hợp nhất với ứng dụng stateless. Database cần tính ổn định về identity/storage thường sử dụng StatefulSet.
 
-```bash
-kubectl set image deployment/nginx-deploy \
-  nginx=nginx:1.28
-```
+## 10. Mini Assessment — Kiểm tra bạn đã cứng Deployment chưa
 
-Ngay lập tức:
+Deployment Knowledge Test
 
-```bash
-kubectl get pods -w
-```
+0/6 đã trả lời
 
-Ở terminal khác:
+1\. Deployment có 3 replicas. Bạn xóa một Pod. Ai chịu trách nhiệm tạo Pod thay thế?
 
-```bash
-kubectl get rs
-```
+Service
 
-Bạn phải quan sát được:
-
-```text
-old RS → scale down
-new RS → scale up
-```
-
----
-
-# 44. Lab 4 — History
-
-```bash
-kubectl rollout history deployment/nginx-deploy
-```
-
-Sau đó:
-
-```bash
-kubectl rollout status deployment/nginx-deploy
-```
-
----
-
-# 45. Lab 5 — Rollback
-
-Update sang một version khác.
-
-Sau đó:
-
-```bash
-kubectl rollout undo deployment/nginx-deploy
-```
-
-Check:
-
-```bash
-kubectl rollout history deployment/nginx-deploy
-kubectl get rs
-kubectl get pods
-```
-
----
-
-# 46. Lab 6 — Break rollout
-
-Đây là lab rất đáng làm.
-
-Set image sai:
-
-```bash
-kubectl set image deployment/nginx-deploy \
-  nginx=nginx:this-tag-does-not-exist
-```
-
-Check:
-
-```bash
-kubectl get pods
-```
-
-Bạn sẽ gặp:
-
-```text
-ImagePullBackOff
-```
-
-Sau đó:
-
-```bash
-kubectl describe pod <bad-pod>
-```
-
-và:
-
-```bash
-kubectl rollout status deployment/nginx-deploy
-```
-
-Cuối cùng:
-
-```bash
-kubectl rollout undo deployment/nginx-deploy
-```
-
-Nếu tự xử lý được lab này thì kiến thức Deployment đã khá chắc.
-
----
-
-# 47. Lab 7 — Rolling strategy
-
-Sửa:
-
-```yaml
-strategy:
-  type: RollingUpdate
-
-  rollingUpdate:
-    maxUnavailable: 0
-    maxSurge: 1
-```
-
-Update image rồi:
-
-```bash
-kubectl get pods -w
-```
-
-Quan sát:
-
-```text
-new Pod created
-↓
-new Pod ready
-↓
-old Pod terminated
-```
-
----
-
-# 48. 10 câu tự kiểm tra
-
-Bạn nên trả lời được:
-
-**1. Deployment khác ReplicaSet ở điểm nào?**
-
-**2. Deployment tạo resource nào bên dưới nó?**
-
-**3. Tại sao update image tạo ReplicaSet mới?**
-
-**4. RollingUpdate hoạt động như thế nào?**
-
-**5. ReplicaSet cũ được giữ lại để làm gì?**
-
-**6. `kubectl rollout undo` làm gì?**
-
-**7. `maxSurge` nghĩa là gì?**
-
-**8. `maxUnavailable` nghĩa là gì?**
-
-**9. `Recreate` khác `RollingUpdate` thế nào?**
-
-**10. Tại sao Service vẫn hoạt động trong lúc Deployment rolling update?**
-
-Nếu trả lời được khoảng **8/10 + hoàn thành lab 1, 3, 5, 6**, mình sẽ đánh dấu:
-
-```text
-✅ Deployment MASTERED
-```
-
-# Tracker cập nhật
-
-```text
-KUBERNETES — 7 DAY TRACKER
-
-FOUNDATION
-✅ Pod
-✅ Service fundamentals
-✅ NodePort
-✅ kubectl logs / exec
-✅ Imperative vs Declarative
-✅ YAML / Manifest
-
-WORKLOAD CONTROLLERS
-✅ ReplicaSet concept
-🟡 ReplicaSet lab
-✅ Deployment concept
-✅ Scaling
-✅ Rolling Update
-✅ Rollback
-✅ Pause / Resume
-✅ Deployment Strategy
-✅ Restart
-🟡 Deployment labs
-
-CONFIGURATION
-⬜ ConfigMap
-⬜ Secret
-
-RELIABILITY
-⬜ Liveness Probe
-⬜ Readiness Probe
-⬜ Startup Probe
-⬜ Requests / Limits
-
-STORAGE
-⬜ Volume
-⬜ PV / PVC
-
-NETWORKING
-⬜ Ingress
-
-SECURITY
-⬜ ServiceAccount
-⬜ RBAC
-
-OPS
-⬜ Helm
-⬜ Troubleshooting
-```
-
-### Quan trọng nhất cần nhớ sau section Deployment
-
-```text
-Deployment
-   ↓ manages
 ReplicaSet
-   ↓ manages
-Pods
-```
 
-và:
+Kube-proxy
 
-```text
-New Pod template
-      ↓
-New ReplicaSet
-      ↓
-Rolling Update
-      ↓
-New Pods
-```
+2\. Bạn update image và thấy 2 ReplicaSets. Điều này có bình thường?
+
+Có, Deployment sử dụng ReplicaSet mới khi Pod template thay đổi
+
+Không, cluster đang lỗi
+
+3\. Ứng dụng có 4 replicas, maxSurge=1. Tối đa bao nhiêu Pods được phép tồn tại trong rollout?
+
+3
+
+4
+
+5
+
+4\. Pod Running nhưng readinessProbe thất bại. Điều gì xảy ra?
+
+Pod luôn bị xóa ngay
+
+Pod không được coi là Ready để nhận traffic qua Service
+
+Deployment tự rollback
+
+5\. Developer deploy nhầm nginx:invalid-tag. Kubernetes có tự rollback không?
+
+Có
+
+Không
+
+6\. Sự khác nhau giữa rollout restart và rollout undo?
+
+Restart khởi động lại Pods, undo khôi phục revision trước
+
+Hai lệnh giống nhau
+
+### Chốt lại: 5 điều bạn phải nhớ khi đi làm
+
+Deployment quản lý ReplicaSet, ReplicaSet quản lý Pod. Bạn khai báo desired state, Kubernetes liên tục reconcile để tiến tới trạng thái đó.
+
+Rolling Update thay thế Pod từ từ, còn rollback khôi phục phiên bản trước. `maxSurge` kiểm soát Pod tạo thêm, `maxUnavailable` kiểm soát mức giảm availability trong rollout.
+
+Khi Deployment gặp lỗi, đừng vội restart. Hãy kiểm tra Deployment → ReplicaSet → Pod → Events → Logs để tìm nguyên nhân.
+
+Nếu bạn có thể tự viết Deployment YAML, thực hiện scale, cập nhật image, giải thích rolling update và tự debug `ImagePullBackOff` mà không nhìn tài liệu, thì bạn đã khá vững Deployment ở mức nền tảng đến trung cấp.
+
+Bước học tiếp theo trong giáo trình là Lab 8 — StatefulSet, giúp bạn hiểu cách Kubernetes vận hành database và các ứng dụng cần giữ dữ liệu.

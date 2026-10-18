@@ -1,326 +1,328 @@
-# Kubernetes Note #5 — Namespace
+# Kubernetes Namespace — Tổng ôn kiến thức từ A–Z
 
-![Kubernetes Note #5 — Namespace](image/Kubernetes%20Note%20%235%20%E2%80%94%20Namespace.png)
-
-- Namespace là cách tổ chức các resource logic bên trong một Kubernetes Cluster.
-- Context xác định cluster, user và namespace mặc định cho kubectl.
-- ResourceQuota giới hạn tổng tài nguyên được yêu cầu trong namespace.
-- Namespace không tự động cô lập network hay bảo mật. Cần kết hợp RBAC, NetworkPolicy.
-- Xóa namespace sẽ xóa các resource bên trong. Luôn kiểm tra trước khi xóa.
+Sau khi hiểu Pod, Deployment và Service, bạn cần nắm chắc Namespace, vì đây là cách Kubernetes tổ chức và quản lý tài nguyên trong cùng một Cluster.
 
 ## 1. Namespace là gì?
 
-Namespace là cơ chế **logical grouping/isolation** resource trong một cluster.
+Namespace là một không gian logic bên trong Kubernetes Cluster, dùng để phân chia và quản lý các resource theo nhóm.
 
-```text
+Ví dụ, công ty có ba môi trường Development, Staging và Production.
+
 Kubernetes Cluster
+
+Một cluster, nhiều namespaces
+
+development
+
+Deployment
+
+Service
+
+Pods
+
+staging
+
+Deployment
+
+Service
+
+Pods
+
+production
+
+Deployment
+
+Service
+
+Pods
+
+Ví dụ trong cùng một Cluster:
+
+```
+Cluster: kind-lab
 │
-├── Namespace: dev
-│   ├── Pods
-│   ├── Services
-│   └── Deployments
+├── Namespace: development
+│   ├── Deployment: backend
+│   └── Service: backend-svc
+│
+├── Namespace: staging
+│   ├── Deployment: backend
+│   └── Service: backend-svc
 │
 └── Namespace: production
-    ├── Pods
-    ├── Services
-    └── Deployments
+    ├── Deployment: backend
+    └── Service: backend-svc
 ```
 
-Namespace là phạm vi (scope) cho:
+Cả ba namespace đều có thể có Deployment tên `backend` mà không bị trùng, vì tên resource chỉ cần duy nhất trong phạm vi namespace của nó (đối với resource thuộc namespace).
 
-```text
-tên resource
-RBAC permission
-ResourceQuota
-LimitRange
-NetworkPolicy
+## 2. Namespace giải quyết vấn đề gì?
+
+| Vấn đề                                    | Giải pháp                           |
+| ----------------------------------------- | ----------------------------------- |
+| Nhiều team dùng chung Cluster             | Chia namespace theo team            |
+| Development và Production cùng cluster    | Phân chia resource theo môi trường  |
+| Trùng tên Deployment                      | Cho phép trùng tên ở namespace khác |
+| Team dùng quá nhiều CPU/RAM               | ResourceQuota                       |
+| Không muốn team A quản lý resource team B | RBAC                                |
+| Muốn hạn chế kết nối mạng                 | NetworkPolicy                       |
+
+Lưu ý cực kỳ quan trọng: Namespace không phải máy ảo hay cluster riêng. Các namespace vẫn dùng chung hạ tầng Node và control plane. Namespace cũng không tự động cô lập network hoặc bảo mật.
+
+## 3. Các Namespace mặc định
+
+Khi tạo Kubernetes Cluster, bạn thường thấy:
+
 ```
-
----
-
-## 2. Cluster vs Namespace
-
-Đây là điểm phải hiểu rất rõ.
-
-### Cluster
-
-Physical/infrastructure boundary:
-
-```text
-Control Plane
-Nodes
-CPU
-RAM
-Storage
-Networking
-```
-
-### Namespace
-
-Logical boundary:
-
-```text
-dev
-staging
-prod
-team-a
-team-b
-customer-a
-customer-b
-```
-
-Namespace **không gắn cố định với một Node**. Resource trong cùng Namespace có thể chạy trên nhiều Node, và một Node chạy Pod của nhiều Namespace.
-
----
-
-## 3. Cùng tên resource ở namespace khác nhau
-
-Có thể:
-
-```text
-dev/app1
-prod/app1
-```
-
-Nhưng không thể có:
-
-```text
-dev/app1
-dev/app1
-```
-
-Hai resource **cùng loại + cùng namespace** không thể trùng tên.
-
-(Khác loại thì được: Deployment `app1` và Service `app1` trong cùng namespace là bình thường.)
-
----
-
-## 4. Default Namespace
-
-Nếu không specify:
-
-```bash
-kubectl get pods
-```
-
-hoặc manifest không có:
-
-```yaml
-metadata:
-  namespace:
-```
-
-thì resource đi vào namespace hiện tại của kubeconfig context, mặc định là:
-
-```text
-default
-```
-
-> **Bổ sung:** đổi namespace mặc định cho context hiện tại để khỏi gõ `-n` liên tục:
->
-> ```bash
-> kubectl config set-context --current --namespace=dev
-> kubectl config view --minify | grep namespace
-> ```
-
----
-
-## 5. Các Namespace hệ thống
-
-```text
-default
-kube-system
-kube-public
-kube-node-lease
-```
-
-### `default`
-
-Nơi resource rơi vào nếu không chỉ định namespace.
-
-### `kube-system`
-
-Chứa Kubernetes system components.
-
-Ví dụ:
-
-```text
-CoreDNS
-kube-proxy
-metrics-server
-scheduler / controller-manager / apiserver / etcd
-```
-
-> **Lưu ý:** scheduler, controller-manager, apiserver, etcd chỉ thấy trong `kube-system` khi bạn tự chạy control plane (Minikube, kubeadm, kind). Trên managed cluster như EKS/GKE, control plane do cloud quản lý nên **không** thấy các Pod này.
-
-### `kube-public`
-
-Đọc được bởi mọi người, kể cả client chưa xác thực. Chủ yếu chứa ConfigMap `cluster-info` dùng cho bootstrap.
-
-### `kube-node-lease`
-
-Chứa Lease object của mỗi Node, dùng làm heartbeat để control plane biết Node còn sống.
-
----
-
-## 6. Commands
-
-```bash
 kubectl get namespaces
 ```
 
-shortcut:
+| Namespace         | Vai trò                                                 |
+| ----------------- | ------------------------------------------------------- |
+| `default`         | Namespace mặc định cho resource chưa chỉ định namespace |
+| `kube-system`     | Thành phần hệ thống Kubernetes như CoreDNS              |
+| `kube-public`     | Một số thông tin cluster có thể được công khai          |
+| `kube-node-lease` | Chứa Lease objects hỗ trợ theo dõi trạng thái Node      |
 
-```bash
-kubectl get ns
+Khi thực hành, bạn nên tạo namespace riêng thay vì tạo mọi resource trong `default`.
+
+## 4. Namespace và Context khác nhau thế nào?
+
+Đây là điểm dễ nhầm nhất.
+
+- Cluster: Hệ thống Kubernetes bạn đang kết nối.
+- Namespace: Không gian quản lý resource bên trong cluster.
+- Context: Cấu hình kubectl xác định cluster, user và namespace mặc định.
+
+Ví dụ terminal của bạn:
+
+```
+(ctx:kind-lab)
 ```
 
-Tạo:
+Có nghĩa là bạn đang sử dụng context `kind-lab`, không có nghĩa namespace của bạn là `kind-lab`.
 
-```bash
-kubectl create namespace dev
+Bạn có thể dùng context `kind-lab` nhưng thao tác trên namespace `deployment-lab`.
+
+```
+kubectl config current-context
+
+kubectl config view --minify \
+  -o jsonpath='{..namespace}{"\n"}'
 ```
 
-Check Pod trong Namespace:
+Muốn thay đổi namespace mặc định trong context hiện tại:
 
-```bash
-kubectl get pods -n dev
+```
+kubectl config set-context --current \
+  --namespace=development
 ```
 
-Tất cả namespace:
+Hoặc tốt hơn khi làm lab, chỉ định namespace trong từng lệnh:
 
-```bash
-kubectl get pods -A
+```
+kubectl get pods -n development
+kubectl get pods -n production
 ```
 
-(`-A` = `--all-namespaces`)
+Cách thứ hai giúp giảm khả năng thao tác nhầm môi trường.
 
-Apply manifest vào namespace cụ thể:
+## 5. Namespace Manifest
 
-```bash
-kubectl apply -f deployment.yaml -n dev
+Tạo namespace bằng YAML:
+
 ```
 
----
-
-## 7. Namespace manifest
-
-```yaml
 apiVersion: v1
 kind: Namespace
-
 metadata:
-  name: dev
+  name: team-alpha
+  labels:
+    environment: development
+    team: alpha
+
 ```
 
 Apply:
 
-```bash
+```
 kubectl apply -f namespace.yaml
 ```
 
-Resource đặt namespace trong manifest:
+Hoặc tạo nhanh:
 
-```yaml
+```
+kubectl create namespace team-alpha
+```
+
+Tạo Deployment trong namespace:
+
+```
 metadata:
-  name: app1
-  namespace: dev
+  name: backend
+  namespace: team-alpha
 ```
 
----
+Nếu không khai báo `metadata.namespace`, Kubernetes sẽ dùng namespace mặc định của context hoặc namespace chỉ định qua `-n`.
 
-## 8. Resource namespaced hay cluster-scoped?
+## 6. ResourceQuota — Giới hạn tài nguyên Namespace
 
-Command cực hữu ích:
+Trong Lab 2 của tài liệu GitHub bạn gửi, phần quan trọng nhất là tạo ResourceQuota rồi thử vượt giới hạn CPU/RAM.&#x20;
 
-```bash
-kubectl api-resources
-```
+Pasted text.txt
 
-Cột `NAMESPACED` cho biết `true/false`.
 
-Lọc nhanh:
-
-```bash
-kubectl api-resources --namespaced=true
-kubectl api-resources --namespaced=false
-```
 
 Ví dụ:
 
-| Namespaced | Cluster-scoped |
-|---|---|
-| Pod | Node |
-| Service | Namespace |
-| Deployment / ReplicaSet | PersistentVolume (PV) |
-| ConfigMap / Secret | StorageClass |
-| PersistentVolumeClaim (PVC) | ClusterRole / ClusterRoleBinding |
-| ResourceQuota / LimitRange | CustomResourceDefinition |
+```
 
----
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: compute-quota
+  namespace: team-alpha
+spec:
+  hard:
+    requests.cpu: "1"
+    requests.memory: 1Gi
+    limits.cpu: "2"
+    limits.memory: 2Gi
 
-## 9. Namespace không tự chặn networking
+```
 
-Cực kỳ quan trọng:
+Ý nghĩa:
 
-> Namespace mặc định **không phải network security boundary**.
+| Field                  | Giới hạn                         |
+| ---------------------- | -------------------------------- |
+| `requests.cpu: "1"`    | Tổng CPU request tối đa 1 core   |
+| `requests.memory: 1Gi` | Tổng memory request tối đa 1 GiB |
+| `limits.cpu: "2"`      | Tổng CPU limit tối đa 2 cores    |
+| `limits.memory: 2Gi`   | Tổng memory limit tối đa 2 GiB   |
 
 Ví dụ:
 
-```text
-Pod in dev
-    ↓
-Pod/Service in prod
+```
+Namespace: team-alpha
+CPU requests quota: 1000m
+
+Pod A request: 500m → Accepted
+Pod B request: 1000m → Rejected
 ```
 
-vẫn giao tiếp được.
+Vì tổng CPU request là `1500m`, vượt quota `1000m`.
 
-Muốn chặn phải dùng **NetworkPolicy**, và CNI plugin phải hỗ trợ NetworkPolicy (ví dụ Calico, Cilium). Trên CNI không hỗ trợ, NetworkPolicy được tạo nhưng không có tác dụng.
+Khi đó Kubernetes có thể trả về:
 
----
-
-## 10. Cross-namespace DNS
-
-Service FQDN:
-
-```text
-<service>.<namespace>.svc.cluster.local
+```
+Error from server (Forbidden):
+exceeded quota
 ```
 
-Ví dụ:
+ResourceQuota kiểm soát tổng tài nguyên được khai báo/request trong namespace, không phải cơ chế trực tiếp giới hạn CPU/RAM sử dụng thực tế của toàn namespace.
 
-```text
-backend.dev.svc.cluster.local
+## 7. Namespace có cô lập hoàn toàn không?
+
+Không. Đây là điểm rất hay gặp trong phỏng vấn.
+
+| Thành phần                   | Namespace có tự cô lập?         |
+| ---------------------------- | ------------------------------- |
+| Tên Pod, Deployment, Service | Có                              |
+| RBAC permissions             | Cần cấu hình                    |
+| CPU/RAM quota                | Cần ResourceQuota               |
+| Network traffic              | Cần NetworkPolicy và CNI hỗ trợ |
+| Worker Nodes                 | Không                           |
+| Cluster control plane        | Không                           |
+
+Ví dụ, Pod ở namespace `frontend` vẫn có thể gọi Service ở namespace `backend` thông qua:
+
+```
+backend-svc.backend.svc.cluster.local
 ```
 
-| Client ở đâu | Có thể gọi |
-|---|---|
-| Cùng namespace `dev` | `backend` |
-| Namespace khác | `backend.dev` |
-| Bất kỳ đâu trong cluster | `backend.dev.svc.cluster.local` |
+Miễn là DNS, networking và các chính sách liên quan cho phép.
 
-> **Bổ sung:** tên ngắn hoạt động nhờ `search` domains trong `/etc/resolv.conf` của Pod (`dev.svc.cluster.local svc.cluster.local cluster.local`). `cluster.local` là cluster domain mặc định, có thể được cấu hình khác.
->
-> ```bash
-> kubectl exec -it <pod> -- cat /etc/resolv.conf
-> ```
+## 8. Kubectl Namespace Cheat Sheet
 
----
+```
+# Xem namespaces
+kubectl get ns
 
-## 11. Delete Namespace
+# Tạo namespace
+kubectl create ns demo
 
-```bash
-kubectl delete namespace dev
+# Xem Pods trong namespace
+kubectl get pods -n demo
+
+# Xem Pods trong tất cả namespaces
+kubectl get pods -A
+
+# Xem chi tiết namespace
+kubectl describe ns demo
+
+# Xem quota
+kubectl get resourcequota -n demo
+
+# Xem namespace mặc định hiện tại
+kubectl config view --minify \
+  -o jsonpath='{..namespace}{"\n"}'
+
+# Xóa namespace (xóa cả resources bên trong)
+kubectl delete ns demo
 ```
 
-Lệnh này xóa **toàn bộ** resource namespaced trong namespace đó (Deployment, Pod, Service, Secret, PVC...).
+Cẩn thận với `kubectl delete ns`: lệnh này xóa toàn bộ resource thuộc namespace đó, không chỉ xóa tên namespace.
 
-=> phải cực kỳ cẩn thận với production.
+## 9. Kiểm tra kiến thức Namespace
 
-> **Bổ sung:** namespace có thể bị kẹt ở trạng thái `Terminating` nếu còn resource có finalizer chưa xử lý xong. Kiểm tra bằng:
->
-> ```bash
-> kubectl get namespace dev -o yaml
-> ```
->
-> và xem phần `status.conditions`.
+Namespace Knowledge Test
+
+0/5 câu
+
+1\. Trong cùng một cluster, hai namespace có thể có Deployment cùng tên backend không?
+
+Có
+
+Không
+
+2\. Context kind-lab nghĩa là gì?
+
+Namespace tên kind-lab
+
+Một cấu hình kết nối Kubernetes
+
+Một Pod
+
+3\. Namespace có mặc định ngăn mọi kết nối giữa các Pod thuộc namespace khác nhau không?
+
+Có
+
+Không
+
+4\. Khi ResourceQuota bị vượt, Kubernetes có thể từ chối request ở đâu?
+
+API Server admission
+
+Sau khi container đã chạy
+
+Trong DNS
+
+5\. Xóa namespace thì điều gì xảy ra?
+
+Chỉ xóa tên namespace
+
+Xóa các tài nguyên thuộc namespace
+
+Xóa toàn bộ cluster
+
+## 10. Chốt kiến thức — 5 điều cần nhớ
+
+1. Namespace là cách tổ chức các resource logic bên trong một Kubernetes Cluster.
+2. Context xác định cluster, user và namespace mặc định cho kubectl.
+3. ResourceQuota giới hạn tổng tài nguyên được yêu cầu trong namespace.
+4. Namespace không tự động cô lập network hay bảo mật. Cần kết hợp RBAC, NetworkPolicy.
+5. Xóa namespace sẽ xóa các resource bên trong. Luôn kiểm tra trước khi xóa.
+
+Nếu bạn hiểu được 5 điểm trên, tự tạo Namespace, triển khai Deployment vào đúng namespace và debug lỗi `exceeded quota`, thì kiến thức Namespace nền tảng đã khá chắc.
+
+Bài tương ứng là Lab 2 — Namespaces and Contexts, thời gian khoảng 15 phút.
