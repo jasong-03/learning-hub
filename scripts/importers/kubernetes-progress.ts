@@ -152,11 +152,7 @@ function takeTitle(lines: MarkdownLine[], file: string): { title: string; rest: 
 
 function extractSingle(source: SingleSource): DraftLesson[] {
   const { title, rest } = takeTitle(classifyLines(readSource(source.file)), source.file);
-  let slug = source.slugBase;
-  if (source.slugPrefix) {
-    if (!title.startsWith(source.slugPrefix)) fail(`Title "${title}" lacks prefix "${source.slugPrefix}"`);
-    slug = `${source.slugBase}-${slugifyTitle(title.slice(source.slugPrefix.length))}`;
-  }
+  const slug = source.slug;
   return [
     {
       type: 'lesson',

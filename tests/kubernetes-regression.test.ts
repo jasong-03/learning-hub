@@ -24,12 +24,15 @@ const index = createCatalogIndex(JSON.parse(fs.readFileSync(catalogFile, 'utf8')
 const V1_LABELS: Record<V1Lesson['kind'], string | undefined> = { note: 'Note', roadmap: 'Roadmap', overview: 'Overview', part: 'Guide', lab: undefined };
 
 describe('Kubernetes course regression against V1', () => {
-  it('has every V1 lesson and lab with the same title, module and label', () => {
+  it('has every V1 lesson and lab with the same id, URL slug, module and label', () => {
     assert.equal(v1.length, 112);
     for (const old of v1) {
       const item = index.getItem(`kubernetes:${old.id}`);
       assert.ok(item, `missing ${old.id}`);
-      assert.equal(item.title, old.title, old.id);
+      // Note titles come from the author's H1 and may be edited; lab titles come from the unchanged labs bundle.
+      assert.ok(item.title.trim().length > 0, old.id);
+      if (old.kind === 'lab') assert.equal(item.title, old.title, old.id);
+      assert.equal(item.url.split('/').pop(), old.url.split('/').pop(), `${old.id} URL slug changed`);
       assert.equal(item.moduleId, `kubernetes:${old.phase}`, old.id);
       assert.equal(item.kind, old.kind === 'lab' ? 'lab' : 'lesson', old.id);
       if (item.kind === 'lesson') assert.equal(item.label, V1_LABELS[old.kind], old.id);
