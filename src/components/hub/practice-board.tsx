@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { FilterGroup } from '@/components/hub/course-catalog';
 import { ItemStatusIcon } from '@/components/progress/item-status-icon';
-import { catalog } from '@/lib/catalog';
+import { catalog, itemTitle } from '@/lib/catalog';
 import { checklistCompletionOf, itemStatus, type ItemStatus } from '@/lib/progress/stats';
 import { useProgress } from '@/lib/progress/store';
 
@@ -54,7 +54,7 @@ export function PracticeBoard() {
                 <li key={quiz.id}>
                   <Link href={`${lesson?.url ?? '#'}#quiz`} className="flex h-full flex-col gap-1 rounded-xl border bg-card p-4 text-sm hover:border-primary/50">
                     <span className="font-medium">{quiz.title}</span>
-                    <span className="text-xs text-muted-foreground">{lesson?.title}</span>
+                    <span className="text-xs text-muted-foreground">{lesson && itemTitle(lesson)}</span>
                     <span className="mt-1 text-xs tabular-nums">
                       {result ? `Best ${result.bestScore}/${result.total} · last ${result.lastScore}/${result.total}` : `${quiz.questions.length} questions · not attempted`}
                     </span>

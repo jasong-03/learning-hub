@@ -63,6 +63,7 @@ interface DraftLesson {
   label: LessonLabel;
   module: string;
   title: string;
+  navTitle?: string;
   slug: string;
   lang: string;
   sourceFile: string;
@@ -160,6 +161,7 @@ function extractSingle(source: SingleSource): DraftLesson[] {
       label: source.label,
       module: source.module,
       title,
+      navTitle: source.navTitle,
       slug,
       lang: source.lang,
       sourceFile: source.file,
@@ -518,6 +520,7 @@ export function importKubernetesCourse(course: CourseManifest): ImportReport {
       type: 'lesson',
       id: page.id,
       title: page.title,
+      navTitle: page.navTitle,
       module: page.module,
       order,
       label: page.label,

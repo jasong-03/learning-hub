@@ -47,6 +47,8 @@ export interface SingleSource {
   label: LessonLabel;
   /** URL slug, pinned so links and bookmarks survive edits to the note's title. */
   slug: string;
+  /** Short name for the sidebar and lists; the page heading keeps the note's own H1. */
+  navTitle: string;
   lang: string;
 }
 
@@ -67,7 +69,7 @@ export interface LabsBundleSource {
 
 export type Source = SingleSource | GuideSource | LabsBundleSource;
 
-function note(n: number, file: string, slugSuffix: string): SingleSource {
+function note(n: number, file: string, slugSuffix: string, topic: string): SingleSource {
   const id = `note-${String(n).padStart(2, '0')}`;
   return {
     type: 'single',
@@ -76,22 +78,23 @@ function note(n: number, file: string, slugSuffix: string): SingleSource {
     id,
     label: 'Note',
     slug: `${id}-${slugSuffix}`,
+    navTitle: `Note #${n} — ${topic}`,
     lang: 'vi',
   };
 }
 
 /** Order here is the lesson order within each module. Every Markdown file in `progress/` must appear exactly once. */
 export const SOURCES: Source[] = [
-  note(1, 'Kubernetes Note #1 — Pod, Service, kubectl, Manifest & YAML.md', 'pod-service-kubectl-manifest-yaml'),
-  note(2, 'Kubernetes Note #2 — ReplicaSet.md', 'replicaset'),
-  note(3, 'Kubernetes Note #3 — Deployment.md', 'deployment'),
-  note(4, 'Kubernetes Note #4 — Service Types.md', 'service-types'),
-  note(5, 'Kubernetes Note #5 — Namespace.md', 'namespace'),
-  note(6, 'Kubernetes Note #6 — Resource Requests & Limits.md', 'resource-requests-limits'),
-  note(7, 'Kubernetes Note #7 — Command & Args.md', 'command-args'),
-  note(8, 'Kubernetes Note #8 — Metrics Server & kubectl top.md', 'metrics-server-kubectl-top'),
-  note(9, 'Kubernetes Note #9 — ResourceQuota.md', 'resourcequota'),
-  note(10, 'Kubernetes Note #10 — LimitRange.md', 'limitrange'),
+  note(1, 'Kubernetes Note #1 — Pod, Service, kubectl, Manifest & YAML.md', 'pod-service-kubectl-manifest-yaml', 'Pod, Service, kubectl & YAML'),
+  note(2, 'Kubernetes Note #2 — ReplicaSet.md', 'replicaset', 'ReplicaSet'),
+  note(3, 'Kubernetes Note #3 — Deployment.md', 'deployment', 'Deployment'),
+  note(4, 'Kubernetes Note #4 — Service Types.md', 'service-types', 'Service Types'),
+  note(5, 'Kubernetes Note #5 — Namespace.md', 'namespace', 'Namespace'),
+  note(6, 'Kubernetes Note #6 — Resource Requests & Limits.md', 'resource-requests-limits', 'Resource Requests & Limits'),
+  note(7, 'Kubernetes Note #7 — Command & Args.md', 'command-args', 'Command & Args'),
+  note(8, 'Kubernetes Note #8 — Metrics Server & kubectl top.md', 'metrics-server-kubectl-top', 'Metrics Server & kubectl top'),
+  note(9, 'Kubernetes Note #9 — ResourceQuota.md', 'resourcequota', 'ResourceQuota'),
+  note(10, 'Kubernetes Note #10 — LimitRange.md', 'limitrange', 'LimitRange'),
   {
     type: 'single',
     file: 'Lab Roadmap — Note #1–#10.md',
@@ -99,6 +102,7 @@ export const SOURCES: Source[] = [
     id: 'lab-roadmap',
     label: 'Roadmap',
     slug: 'lab-roadmap',
+    navTitle: 'Lab Roadmap — Notes #1–#10',
     lang: 'vi',
   },
   { type: 'guide', file: 'Application Deployment.md', module: 'application-deployment', lang: 'vi' },

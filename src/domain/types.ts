@@ -59,6 +59,8 @@ export interface Lesson {
   courseId: string;
   moduleId: string;
   title: string;
+  /** Short name for navigation and lists, when the title is long or repetitive. */
+  navTitle?: string;
   url: string;
   order: number;
   label?: string;

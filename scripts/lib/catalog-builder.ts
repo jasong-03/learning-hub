@@ -156,6 +156,7 @@ function toLesson(course: CourseManifest, data: LessonFrontmatter, url: string):
     courseId: course.id,
     moduleId: toGlobalId(course.id, data.module),
     title: data.title,
+    navTitle: data.navTitle,
     url,
     order: data.order,
     label: data.label,

@@ -7,6 +7,11 @@ export const catalog = createCatalogIndex(catalogJson as Catalog);
 
 export const LEVEL_LABELS = { beginner: 'Beginner', intermediate: 'Intermediate', advanced: 'Advanced' } as const;
 
+/** Name used in navigation, lists and cards; page headings keep the full title. */
+export function itemTitle(item: { title: string; navTitle?: string }): string {
+  return item.navTitle ?? item.title;
+}
+
 export function itemLabel(item: LearningItem): string {
   return item.kind === 'lab' ? 'Lab' : (item.label ?? 'Lesson');
 }

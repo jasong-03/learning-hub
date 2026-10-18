@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import type { LearningItem } from '@/domain/types';
 import { ItemStatusIcon } from '@/components/progress/item-status-icon';
-import { catalog, itemLabel } from '@/lib/catalog';
+import { catalog, itemLabel, itemTitle } from '@/lib/catalog';
 
 /** Labs for a lesson, or the lessons that point to a lab (relations come from content metadata). */
 export function RelatedItems({ item }: { item: LearningItem }) {
@@ -22,7 +22,7 @@ export function RelatedItems({ item }: { item: LearningItem }) {
             >
               <ItemStatusIcon item={relatedItem} className="mt-0.5" />
               <span className="flex min-w-0 flex-col gap-0.5">
-                <span className="font-medium leading-snug">{relatedItem.title}</span>
+                <span className="font-medium leading-snug">{itemTitle(relatedItem)}</span>
                 <span className="text-xs text-muted-foreground">
                   {itemLabel(relatedItem)} · {catalog.getModule(relatedItem.moduleId)?.title}
                 </span>

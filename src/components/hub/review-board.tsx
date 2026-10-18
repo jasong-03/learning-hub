@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { HtmlContent } from '@/components/practice/html-content';
-import { catalog, itemLabel } from '@/lib/catalog';
+import { catalog, itemLabel, itemTitle } from '@/lib/catalog';
 import { checklistCompletionOf, labsInProgress, needsReview, oldestCompleted, quizzesToRetake } from '@/lib/progress/stats';
 import { useProgress } from '@/lib/progress/store';
 
@@ -51,7 +51,7 @@ export function ReviewBoard({ questions }: { questions: ReviewQuestion[] }) {
           const lesson = catalog.getLesson(quiz.lessonId);
           const result = progress.quizzes[quiz.id];
           return (
-            <ReviewRow key={quiz.id} href={`${lesson?.url ?? '#'}#quiz`} title={quiz.title} detail={lesson?.title}
+            <ReviewRow key={quiz.id} href={`${lesson?.url ?? '#'}#quiz`} title={quiz.title} detail={lesson && itemTitle(lesson)}
               meta={result ? `Last ${result.lastScore}/${result.total} · ${result.incorrectQuestionIds.length} to review` : ''} />
           );
         })}
@@ -67,7 +67,7 @@ export function ReviewBoard({ questions }: { questions: ReviewQuestion[] }) {
       </ReviewSection>
       <ReviewSection title="Revisit" empty="Completed lessons appear here, oldest first, so you can refresh them.">
         {revisit.map((lesson) => (
-          <ReviewRow key={lesson.id} href={lesson.url} title={lesson.title} detail={`${itemLabel(lesson)} · ${catalog.getCourse(lesson.courseId)?.title}`}
+          <ReviewRow key={lesson.id} href={lesson.url} title={itemTitle(lesson)} detail={`${itemLabel(lesson)} · ${catalog.getCourse(lesson.courseId)?.title}`}
             meta={`Completed ${new Date(lesson.completedAt).toLocaleDateString()}`} />
         ))}
       </ReviewSection>

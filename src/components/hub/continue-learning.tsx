@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { ArrowRight, PlayCircle } from 'lucide-react';
 import { buttonVariants } from '@/components/ui/button';
-import { catalog, itemLabel } from '@/lib/catalog';
+import { catalog, itemLabel, itemTitle } from '@/lib/catalog';
 import { nextItem, recentCourseIds } from '@/lib/progress/stats';
 import { useProgress } from '@/lib/progress/store';
 
@@ -34,7 +34,7 @@ export function ContinueLearning({ limit = 3 }: { limit?: number }) {
               <PlayCircle className="size-3.5" />
               {recent.length > 0 ? (index === 0 ? 'Continue' : 'Pick up again') : 'Start'} · {course.title}
             </p>
-            <p className="mt-2 font-semibold leading-snug">{next.title}</p>
+            <p className="mt-2 font-semibold leading-snug">{itemTitle(next)}</p>
             <p className="mt-1 text-xs text-muted-foreground">
               {itemLabel(next)} · {catalog.getModule(next.moduleId)?.title}
             </p>

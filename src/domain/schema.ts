@@ -79,6 +79,8 @@ export const lessonFrontmatterSchema = z.object({
   type: z.literal('lesson'),
   id: localIdSchema,
   title: z.string().min(1),
+  /** Short name for navigation and lists; defaults to the title. */
+  navTitle: z.string().min(1).optional(),
   description: z.string().optional(),
   module: localIdSchema,
   order: z.number().int().nonnegative(),

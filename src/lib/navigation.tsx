@@ -1,7 +1,7 @@
 import type * as PageTree from 'fumadocs-core/page-tree';
 import { LucideIcon } from '@/components/lucide-icon';
 import { SITE_NAME } from '@/config/site';
-import { catalog } from '@/lib/catalog';
+import { catalog, itemTitle } from '@/lib/catalog';
 
 /** Sidebar for hub pages: global sections, then every course and path. */
 export function buildHubTree(): PageTree.Root {
@@ -36,7 +36,7 @@ export function buildCourseTree(courseId: string): PageTree.Root {
   const modules: PageTree.Folder[] = catalog.courseModules(courseId).map((module) => {
     const lessons: PageTree.Item[] = module.lessonIds.flatMap((id) => {
       const lesson = catalog.getLesson(id);
-      return lesson ? [{ type: 'page', name: lesson.title, url: lesson.url }] : [];
+      return lesson ? [{ type: 'page', name: itemTitle(lesson), url: lesson.url }] : [];
     });
     const labs: PageTree.Item[] = module.labIds.flatMap((id) => {
       const lab = catalog.getLab(id);
