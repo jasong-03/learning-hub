@@ -115,7 +115,7 @@
     "Kubernetes Note #10 — LimitRange.md": "6f5a6f3858a164aa31a1c63d5b27c346378bdff7345aa4f11e25d02a73228b68",
     "Kubernetes Note #2 — ReplicaSet.md": "e7fb0af6f41856fd6117e0b87bfcd275fd0482660e78b31c428dffcde8cde3a3",
     "Kubernetes Note #3 — Deployment.md": "ef0e68a292a59b3f503016cd35dce34b1bca0b2493e22c06d2ca1f2790529506",
-    "Kubernetes Note #4 — Service Types.md": "e346a2e1b6d8db2974f5e9ada8a131bc6d5cabd9fe295480affbc25c18f6af78",
+    "Kubernetes Note #4 — Service Types.md": "959d2ba7560c7e59334ed97d404f8ef1606d5b98f0d150be5de73233399a79e6",
     "Kubernetes Note #5 — Namespace.md": "7449c8d76b4b4c7d14cad85284e1e656318e8259586f5d18059f4f69d110611a",
     "Kubernetes Note #6 — Resource Requests & Limits.md": "fe1704800c33b9e46d7d0045141d501fa005bdf8b96113997b8b02cfd5d5f787",
     "Kubernetes Note #7 — Command & Args.md": "c57ec4d72a6a95158ebab0b24c86b9bd84a8cba0c678efd63c092f223648df5b",
@@ -136,6 +136,10 @@
     "image/Kubernetes Note #6 — Resource Requests & Limits.png": "aa5eddedfc35f6275c901aa1b5032c5364109f91418e078b95881ba50f8e4429",
     "image/Kubernetes Note #7 — Command & Args.png": "7a3be850a9e8b0eeeedeadc8fed720a0c76cd84282d1dd01b7f63241e7aa60c8",
     "image/Kubernetes Note #8 — Metrics Server & kubectl top.png": "2cfc2d0d4fbbd197271c1c3e315b2d21346253078740c7a5adc128844751536b",
-    "image/Kubernetes Note #9 — ResourceQuota.png": "c7ddef45f60bff3795f012cab9df8ffcf7b714bf17d438300c85c08c85843107"
+    "image/Kubernetes Note #9 — ResourceQuota.png": "c7ddef45f60bff3795f012cab9df8ffcf7b714bf17d438300c85c08c85843107",
+    "image/note-04-clusterip.jpg": "55bb45c59676cfa508ed7ddf4180d43561461c9a86eca9d8297a40709289f8c3",
+    "image/note-04-externalname.jpg": "65e16d9130aaabce53705a4dcb25c7a9ed2d0c203c2d53971c0dad5732d1e97e",
+    "image/note-04-loadbalancer.jpg": "1933ede349e5e764d74aac9421a36d9b5e5d39b221eb99e85beda844693418a3",
+    "image/note-04-nodeport.jpg": "1bf6907ba31b28288508dd7e27b7bc7aff5f93ec22015bf98fabfbd670a789ce"
   }
 }

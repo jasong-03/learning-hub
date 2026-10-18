@@ -47,7 +47,7 @@ IP chỉ mang tính minh họa. Service phân phối các kết nối đến cá
 
 ### 2.1 ClusterIP
 
-[Designing Your First App with Kubernetes - Mirantis](https://images.openai.com/static-rsc-4/5ECXXL7nu4Pcx6XRYHZqujCqgZCJDi4sn543FtUdBfx3TEbVyz-hFGozcRl3r0aWrBOj6zLo-NsQCe8NGpmV2bYejCmklUw1JjlEvXQEA0CEGZgjHPr_yILNPNcjUJmSSBFnKaa3z29i3Gczq_OK0ABqZ908GJEYEPe0OnfdYJY?purpose=inline)
+![Designing Your First App with Kubernetes - Mirantis](image/note-04-clusterip.jpg)
 
 Chỉ truy cập được từ mạng nội bộ cluster theo cấu hình thông thường.
 
@@ -55,7 +55,7 @@ Chỉ truy cập được từ mạng nội bộ cluster theo cấu hình thông
 
 ### 2.2 NodePort
 
-[iT 邦幫忙::一起幫忙解決難題，拯救 IT 人的一天](https://images.openai.com/static-rsc-4/25XlAA7x9MDlZlI3_JwPeyCsib_ggUq-Vl1fHFImlSXka3Ng0eZUWDZShWuklkgAani4U7kjXnWfAIxM_VD1qWjgwzNwH6aeC5niM0uf-Sxl8xxGvjZfAdSY0TAm4qBDpIqbkjRm3u_a-TWo5-C6Ey6bZ3oS4EFKG8xj9LFtRBc?purpose=inline)
+![iT 邦幫忙::一起幫忙解決難題，拯救 IT 人的一天](image/note-04-nodeport.jpg)
 
 Mở một port trên các Node để truy cập Service qua IP Node và port đó.
 
@@ -63,7 +63,7 @@ Mở một port trên các Node để truy cập Service qua IP Node và port đ
 
 ### 2.3 LoadBalancer
 
-[Kubernetes Service and Ingress-Part 5 | by Dumlu Timuralp | Medium](https://images.openai.com/static-rsc-4/ZifNjuFC9_kd0_jy7CrdwE6tUA6Jh7OLw7JNwTAb6eSE-tGp_ImD-c84ItvtG9ZDuc-JgWaxAmw44RyccVGEX6WruMRrdOTyzmUggpgxm2mq0-o21MHeB-H4QFm1nP6UJEbdcgBioyv1AK3AeFXVXNuDKX65Nv_yDr1psD1x3To?purpose=inline)
+![Kubernetes Service and Ingress-Part 5 | by Dumlu Timuralp | Medium](image/note-04-loadbalancer.jpg)
 
 Yêu cầu tích hợp hạ tầng cấp một load balancer để expose Service.
 
@@ -71,7 +71,7 @@ Yêu cầu tích hợp hạ tầng cấp một load balancer để expose Servic
 
 ### 2.4 ExternalName
 
-[Kubernetes、ExternalName Serviceの検証と利用時の注意事項](https://images.openai.com/static-rsc-4/3mM0WF3q0SczHDHNdOGjrGJHHvAda2Ww9XLp6-ti0_IuJrHC3aP35D8qLu6fV5ERy4UrJ8YD97Z1SfKM7xvm7zrG6WTCeSgv5JWtY8QC3zG5PqXaGLbnPPQl6D1-0E95Ahzguby-fAb-Rvr9AotvsTt_poUyjbw4PPS4tsH8-rQ?purpose=inline)
+![Kubernetes、ExternalName Serviceの検証と利用時の注意事項](image/note-04-externalname.jpg)
 
 Ánh xạ tên Service đến một tên DNS khác, không tạo proxy hay ClusterIP thông thường.
 
