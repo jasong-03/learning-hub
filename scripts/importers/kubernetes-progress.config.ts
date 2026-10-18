@@ -52,7 +52,7 @@ export interface SingleSource {
   lang: string;
 }
 
-/** A phase guide split at its top-level "# Phần N" headings. */
+/** A phase guide rendered as one page; its "# Phần N" parts become sections. */
 export interface GuideSource {
   type: 'guide';
   file: string;
@@ -128,7 +128,7 @@ export const LAB_MODULES: Record<string, number[]> = {
 
 /**
  * Lesson -> related lab numbers. Notes follow the mapping in
- * "Lab Roadmap — Note #1–#10.md"; guide parts are matched by topic.
+ * "Lab Roadmap — Note #1–#10.md"; each phase guide lists the labs matching its parts' topics.
  * The reverse direction (lab -> lessons) is derived by the catalog builder.
  */
 export const RELATED_LABS: Record<string, number[]> = {
@@ -143,43 +143,11 @@ export const RELATED_LABS: Record<string, number[]> = {
   'note-09': [2],
   'lab-roadmap': [1, 2, 6, 7, 14, 21, 24],
 
-  'application-deployment-part-01': [20],
-  'application-deployment-part-02': [20],
-  'application-deployment-part-03': [26],
-  'application-deployment-part-04': [19],
-  'application-deployment-part-05': [19],
-  'application-deployment-part-06': [8, 12],
-  'application-deployment-part-07': [35],
-
-  'networking-security-part-01': [15],
-  'networking-security-part-02': [15],
-  'networking-security-part-03': [13, 14],
-  'networking-security-part-04': [22],
-  'networking-security-part-05': [22],
-  'networking-security-part-06': [16],
-  'networking-security-part-07': [17],
-  'networking-security-part-08': [16],
-
-  'scaling-operations-part-01': [36],
-  'scaling-operations-part-02': [10],
-  'scaling-operations-part-03': [9],
-  'scaling-operations-part-04': [3, 4, 5],
-  'scaling-operations-part-06': [37, 42],
-  'scaling-operations-part-07': [41],
-
-  'production-platform-part-01': [29, 30],
-  'production-platform-part-02': [24, 27],
-  'production-platform-part-03': [25, 28],
-  'production-platform-part-04': [32],
-  'production-platform-part-05': [31, 32],
-  'production-platform-part-06': [40],
-  'production-platform-part-07': [23],
-  'production-platform-part-09': [41],
-
-  'aws-eks-part-03': [22],
-  'aws-eks-part-06': [15],
-  'aws-eks-part-07': [19],
-  'aws-eks-part-08': [36],
+  'application-deployment-overview': [8, 12, 19, 20, 26, 35],
+  'networking-security-overview': [13, 14, 15, 16, 17, 22],
+  'scaling-operations-overview': [3, 4, 5, 9, 10, 36, 37, 41, 42],
+  'production-platform-overview': [23, 24, 25, 27, 28, 29, 30, 31, 32, 40, 41],
+  'aws-eks-overview': [15, 19, 22, 36],
 };
 
 export function labLocalId(labNumber: number): string {

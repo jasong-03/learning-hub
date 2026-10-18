@@ -173,44 +173,34 @@ function extractSingle(source: SingleSource): DraftLesson[] {
 // A top-level guide part heading, e.g. "# Phần 3 — Health Probes".
 const GUIDE_PART_PATTERN = /^Phần\s+(\d+)\s+—\s+(.+)$/;
 
+/**
+ * The whole guide is one page (id and slug kept from when only its intro lived
+ * there, so saved progress and links stay valid); each "# Phần N" part becomes
+ * an H2 section through the usual heading demotion.
+ */
 function extractGuide(source: GuideSource): DraftLesson[] {
   const { title, rest } = takeTitle(classifyLines(readSource(source.file)), source.file);
-  const pages: DraftLesson[] = [
+  let partCount = 0;
+  for (const line of rest) {
+    const heading = line.isCode ? null : parseHeading(line.text);
+    const part = heading?.depth === 1 ? GUIDE_PART_PATTERN.exec(heading.text) : null;
+    if (!part) continue;
+    partCount += 1;
+    if (Number(part[1]) !== partCount) fail(`progress/${source.file}: expected Phần ${partCount}, found Phần ${part[1]}`);
+  }
+  return [
     {
       type: 'lesson',
       id: `${source.module}-overview`,
-      label: 'Overview',
+      label: 'Guide',
       module: source.module,
       title,
       slug: 'overview',
       lang: source.lang,
       sourceFile: source.file,
-      bodyLines: [],
+      bodyLines: rest,
     },
   ];
-
-  for (const line of rest) {
-    const heading = line.isCode ? null : parseHeading(line.text);
-    const part = heading?.depth === 1 ? GUIDE_PART_PATTERN.exec(heading.text) : null;
-    if (!part || !heading) {
-      pages[pages.length - 1].bodyLines.push(line);
-      continue;
-    }
-    const partNumber = Number(part[1]);
-    if (partNumber !== pages.length) fail(`progress/${source.file}: expected Phần ${pages.length}, found Phần ${partNumber}`);
-    pages.push({
-      type: 'lesson',
-      id: `${source.module}-part-${padNumber(partNumber)}`,
-      label: 'Guide',
-      module: source.module,
-      title: decodeHtmlEntities(heading.text),
-      slug: `part-${padNumber(partNumber)}-${slugifyTitle(part[2])}`,
-      lang: source.lang,
-      sourceFile: source.file,
-      bodyLines: [],
-    });
-  }
-  return pages;
 }
 
 // Lab anchor emitted by the bundle generator, e.g. `<a id="lab-07"></a>`.

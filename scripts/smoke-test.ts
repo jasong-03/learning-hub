@@ -68,8 +68,10 @@ async function search(query: string, tag?: string): Promise<string[]> {
 async function main(): Promise<void> {
   const catalog = JSON.parse(fs.readFileSync(CATALOG_JSON, 'utf8')) as Catalog;
   const fixture = JSON.parse(fs.readFileSync(path.resolve(import.meta.dirname, '../tests/fixtures/kubernetes-v1-lessons.json'), 'utf8')) as {
-    lessons: { id: string; url: string }[];
+    lessons: { id: string; kind: string; phase: string; url: string }[];
   };
+  // V1 guide parts now live on their phase's single guide page.
+  const currentId = (old: (typeof fixture.lessons)[number]): string => (old.kind === 'part' ? `${old.phase}-overview` : old.id);
 
   const hubRoutes = ['/dashboard', '/courses', '/paths', '/practice', '/review', '/analytics'];
   const courseRoutes = catalog.courses.flatMap((course) => [
@@ -115,9 +117,10 @@ async function main(): Promise<void> {
 
   await checkRedirect('/', '/dashboard', 307);
   const itemUrl = new Map([...catalog.lessons, ...catalog.labs].map((item) => [item.id, item.url]));
-  await inBatches(fixture.lessons, (old) => checkRedirect(old.url, itemUrl.get(`kubernetes:${old.id}`) ?? '(missing)', 308));
+  await inBatches(fixture.lessons, (old) => checkRedirect(old.url, itemUrl.get(`kubernetes:${currentId(old)}`) ?? '(missing)', 308));
   await checkRedirect('/docs', '/courses/kubernetes', 308);
   await checkRedirect('/docs/labs', '/courses/kubernetes/labs', 308);
+  await checkRedirect('/courses/kubernetes/learn/application-deployment/part-03-health-probes', '/courses/kubernetes/learn/application-deployment/overview', 308);
 
   const all = await search('maxSurge');
   expect(all.some((url) => url.startsWith('/courses/kubernetes/learn/fundamentals/note-03-deployment')), 'search "maxSurge" does not find Note #3');
@@ -126,7 +129,7 @@ async function main(): Promise<void> {
   const otherCourse = await search('Deployment', 'aws');
   expect(otherCourse.length === 0, `search filtered to "aws" returned ${otherCourse.length} Kubernetes results`);
   const vietnamese = await search('khỏe');
-  expect(vietnamese.some((url) => url.includes('/application-deployment/part-03-health-probes')), 'Vietnamese search "khỏe" misses the health probes guide');
+  expect(vietnamese.some((url) => url.includes('/application-deployment/overview')), 'Vietnamese search "khỏe" misses the health probes guide');
   const labs = await search('etcd');
   expect(labs.some((url) => url.startsWith('/courses/kubernetes/labs/lab-45-')), 'search "etcd" misses Lab 45');
 

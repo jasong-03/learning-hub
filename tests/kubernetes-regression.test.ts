@@ -21,12 +21,21 @@ const root = path.resolve(import.meta.dirname, '..');
 const v1 = (JSON.parse(fs.readFileSync(path.join(root, 'tests/fixtures/kubernetes-v1-lessons.json'), 'utf8')) as { lessons: V1Lesson[] }).lessons;
 const catalogFile = path.join(root, 'src/generated/catalog.json');
 const index = createCatalogIndex(JSON.parse(fs.readFileSync(catalogFile, 'utf8')) as Catalog);
-const V1_LABELS: Record<V1Lesson['kind'], string | undefined> = { note: 'Note', roadmap: 'Roadmap', overview: 'Overview', part: 'Guide', lab: undefined };
+const V1_LABELS: Record<V1Lesson['kind'], string | undefined> = { note: 'Note', roadmap: 'Roadmap', overview: 'Guide', part: 'Guide', lab: undefined };
+const v1Kept = v1.filter((lesson) => lesson.kind !== 'part');
+const v1Parts = v1.filter((lesson) => lesson.kind === 'part');
+
+/** Guide parts were merged into their phase's guide page (the V1 overview). */
+function currentId(v1Id: string): string {
+  const old = v1.find((lesson) => lesson.id === v1Id);
+  return old?.kind === 'part' ? `${old.phase}-overview` : v1Id;
+}
 
 describe('Kubernetes course regression against V1', () => {
   it('has every V1 lesson and lab with the same id, URL slug, module and label', () => {
     assert.equal(v1.length, 112);
-    for (const old of v1) {
+    assert.equal(v1Parts.length, 50);
+    for (const old of v1Kept) {
       const item = index.getItem(`kubernetes:${old.id}`);
       assert.ok(item, `missing ${old.id}`);
       // Note titles come from the author's H1 and may be edited; lab titles come from the unchanged labs bundle.
@@ -37,7 +46,14 @@ describe('Kubernetes course regression against V1', () => {
       assert.equal(item.kind, old.kind === 'lab' ? 'lab' : 'lesson', old.id);
       if (item.kind === 'lesson') assert.equal(item.label, V1_LABELS[old.kind], old.id);
     }
-    assert.equal(index.courseItems('kubernetes').length, v1.length, 'no extra Kubernetes items');
+    assert.equal(index.courseItems('kubernetes').length, v1Kept.length, 'no extra Kubernetes items');
+  });
+
+  it('merges every V1 guide part into its phase guide page', () => {
+    for (const part of v1Parts) {
+      assert.equal(index.getItem(`kubernetes:${part.id}`), undefined, part.id);
+      assert.ok(index.getLesson(`kubernetes:${part.phase}-overview`), part.id);
+    }
   });
 
   it('keeps every lab checklist step (same anchors, same order)', () => {
@@ -51,11 +67,18 @@ describe('Kubernetes course regression against V1', () => {
     assert.equal(steps, 349);
   });
 
-  it('keeps lesson <-> lab relations', () => {
+  it('keeps lesson <-> lab relations, with guide parts folded into their guide page', () => {
+    const expected = new Map<string, Set<string>>();
     for (const old of v1) {
-      const item = index.getItem(`kubernetes:${old.id}`)!;
-      const related = item.kind === 'lab' ? item.relatedLessonIds : item.relatedLabIds;
-      assert.deepEqual([...related].sort(), old.related.map((id) => `kubernetes:${id}`).sort(), old.id);
+      const id = `kubernetes:${currentId(old.id)}`;
+      const set = expected.get(id) ?? new Set<string>();
+      for (const related of old.related) set.add(`kubernetes:${currentId(related)}`);
+      expected.set(id, set);
+    }
+    for (const [id, related] of expected) {
+      const item = index.getItem(id)!;
+      const actual = item.kind === 'lab' ? item.relatedLessonIds : item.relatedLabIds;
+      assert.deepEqual([...actual].sort(), [...related].sort(), id);
     }
     const note3 = index.getLesson('kubernetes:note-03')!;
     assert.deepEqual(note3.relatedLabIds, ['kubernetes:lab-06', 'kubernetes:lab-07']);
@@ -63,9 +86,12 @@ describe('Kubernetes course regression against V1', () => {
 
   it('redirects every V1 URL to the new URL of the same item', () => {
     for (const old of v1) {
-      const item = index.getItem(`kubernetes:${old.id}`)!;
+      const item = index.getItem(`kubernetes:${currentId(old.id)}`)!;
       assert.equal(resolveLegacyRedirect(old.url), item.url, old.url);
     }
+    const guide = index.getLesson('kubernetes:application-deployment-overview')!;
+    assert.equal(resolveLegacyRedirect('/courses/kubernetes/learn/application-deployment/part-03-health-probes'), guide.url);
+    assert.equal(resolveLegacyRedirect(guide.url), null);
     assert.equal(resolveLegacyRedirect('/docs'), '/courses/kubernetes');
     assert.equal(resolveLegacyRedirect('/docs/labs'), '/courses/kubernetes/labs');
     assert.equal(resolveLegacyRedirect('/'), '/dashboard');
