@@ -1,42 +1,21 @@
 # Kubernetes — Giai đoạn 1: Application Deployment
 
-Intermediate
-
-6 chủ đề · Lý thuyết + YAML + Troubleshooting + Lab
+*Cấp độ: Intermediate · 6 chủ đề · Lý thuyết + YAML + Troubleshooting + Lab*
 
 Đây là phần kiến thức giúp bạn chuyển từ biết tạo Deployment và Service sang triển khai được ứng dụng thực tế có cấu hình, health checks và lưu trữ dữ liệu.
 
-Mình tổng hợp cả 6 chủ đề trong một lần, dựa trên các phần tương ứng của bộ Kubernetes 46 Labs bạn đã gửi và bổ sung những lưu ý vận hành production.
+Phần này tổng hợp cả 6 chủ đề, dựa trên các phần tương ứng của bộ Kubernetes 46 Labs và bổ sung những lưu ý vận hành production.
 
 ## Lộ trình Giai đoạn 1
 
-Learning Checklist
+Learning checklist (6 chủ đề):
 
-0/6
-
-1\. ConfigMap
-
-Cấu hình ứng dụng không cần rebuild image
-
-2\. Secret
-
-Quản lý password, API keys và thông tin nhạy cảm
-
-3\. Health Probes
-
-Liveness, Readiness, Startup
-
-4\. Volumes, PV & PVC
-
-Lưu trữ dữ liệu cho container
-
-5\. StorageClass
-
-Tự động cấp phát storage
-
-6\. StatefulSet
-
-Triển khai ứng dụng cần identity và storage ổn định
+1. **ConfigMap** — Cấu hình ứng dụng không cần rebuild image.
+2. **Secret** — Quản lý password, API keys và thông tin nhạy cảm.
+3. **Health Probes** — Liveness, Readiness, Startup.
+4. **Volumes, PV & PVC** — Lưu trữ dữ liệu cho container.
+5. **StorageClass** — Tự động cấp phát storage.
+6. **StatefulSet** — Triển khai ứng dụng cần identity và storage ổn định.
 
 # Phần 1 — ConfigMap
 
@@ -46,7 +25,7 @@ ConfigMap dùng để lưu cấu hình không nhạy cảm, tách biệt khỏi 
 
 Ví dụ backend FastAPI cần:
 
-```
+```text
 APP_ENV=production
 LOG_LEVEL=info
 API_TIMEOUT=30
@@ -54,22 +33,19 @@ API_TIMEOUT=30
 
 Thay vì hardcode trong source code hay Dockerfile, bạn đưa chúng vào ConfigMap.
 
-ConfigMap
-
-APP_ENV, LOG_LEVEL, API_TIMEOUT
-
-Environment
-
-Inject vào biến môi trường
-
-Volume
-
-Mount thành file cấu hình
+```text
+            ConfigMap
+  (APP_ENV, LOG_LEVEL, API_TIMEOUT)
+          |                |
+          v                v
+     Environment         Volume
+  Inject vào biến     Mount thành file
+    môi trường          cấu hình
+```
 
 ## 2. Manifest ConfigMap
 
-```
-
+```yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -78,14 +54,13 @@ data:
   APP_ENV: "production"
   LOG_LEVEL: "info"
   API_TIMEOUT: "30"
-
 ```
 
 Các giá trị trong `data` là string. Vì vậy với số `30`, bạn nên đặt trong dấu ngoặc kép.
 
 ### Cách 1: Inject từng biến
 
-```
+```yaml
 env:
   - name: APP_ENV
     valueFrom:
@@ -96,7 +71,7 @@ env:
 
 ### Cách 2: Inject tất cả
 
-```
+```yaml
 envFrom:
   - configMapRef:
       name: backend-config
@@ -104,13 +79,16 @@ envFrom:
 
 Khi container chạy, ứng dụng có thể đọc:
 
-```
-import osenv = os.getenv("APP_ENV")timeout = int(os.getenv("API_TIMEOUT", "30"))
+```python
+import os
+
+env = os.getenv("APP_ENV")
+timeout = int(os.getenv("API_TIMEOUT", "30"))
 ```
 
 ### Cách 3: Mount ConfigMap thành file
 
-```
+```yaml
 volumeMounts:
   - name: config-volume
     mountPath: /etc/app-config
@@ -124,7 +102,7 @@ volumes:
 
 Kết quả có các file:
 
-```
+```text
 /etc/app-config/
 ├── APP_ENV
 ├── LOG_LEVEL
@@ -144,7 +122,7 @@ Kết quả có các file:
 
 Với cấu hình dạng environment variables, thông thường bạn cần rollout lại Deployment:
 
-```
+```bash
 kubectl rollout restart deployment/backend -n production
 ```
 
@@ -172,7 +150,7 @@ ConfigMap và Secret có cấu trúc khá giống nhau, nhưng mục đích sử
 
 ## 5. Secret Manifest
 
-```
+```yaml
 apiVersion: v1
 kind: Secret
 metadata:
@@ -189,7 +167,7 @@ stringData:
 
 ### Inject Secret vào Pod
 
-```
+```yaml
 env:
   - name: DB_PASSWORD
     valueFrom:
@@ -200,8 +178,10 @@ env:
 
 Ứng dụng:
 
-```
-import ospassword = os.environ["DB_PASSWORD"]
+```python
+import os
+
+password = os.environ["DB_PASSWORD"]
 ```
 
 ## 6. Base64 có phải encryption không?
@@ -210,13 +190,13 @@ Không.
 
 Ví dụ:
 
-```
+```bash
 echo -n "mypassword" | base64
 ```
 
 Có thể đảo ngược:
 
-```
+```bash
 echo "bXlwYXNzd29yZA==" | base64 -d
 ```
 
@@ -243,7 +223,7 @@ Kubernetes Secret không mặc định bảo đảm dữ liệu đã được m�
 | `JWT_SIGNING_KEY=...`  | Secret    |
 | TLS private key        | Secret    |
 
-Production note: Environment variable tiện lợi, nhưng Secret được mount dưới dạng file có thể phù hợp hơn trong một số hệ thống cần rotation. Không có nghĩa dùng file tự động giải quyết toàn bộ việc cập nhật credentials.
+> **Production note:** Environment variable tiện lợi, nhưng Secret được mount dưới dạng file có thể phù hợp hơn trong một số hệ thống cần rotation. Điều đó không có nghĩa dùng file sẽ tự động giải quyết toàn bộ việc cập nhật credentials.
 
 # Phần 3 — Health Probes
 
@@ -263,23 +243,11 @@ Kubernetes có thể vẫn nhìn thấy container ở trạng thái `Running`.
 
 Có 3 loại quan trọng:
 
-Startup Probe
-
-Ứng dụng đã khởi động hoàn tất chưa?
-
-Phù hợp app khởi động lâu, load AI model, warm cache.
-
-Readiness Probe
-
-Ứng dụng có sẵn sàng nhận traffic không?
-
-Nếu thất bại, Pod được đánh dấu Not Ready và bị loại khỏi các backend sẵn sàng của Service.
-
-Liveness Probe
-
-Ứng dụng có còn hoạt động không?
-
-Nếu thất bại liên tục đến ngưỡng, kubelet restart container.
+| Probe           | Câu hỏi                                  | Ghi chú                                                                                    |
+| --------------- | ---------------------------------------- | ------------------------------------------------------------------------------------------ |
+| Startup Probe   | Ứng dụng đã khởi động hoàn tất chưa?     | Phù hợp app khởi động lâu, load AI model, warm cache                                       |
+| Readiness Probe | Ứng dụng có sẵn sàng nhận traffic không? | Nếu thất bại, Pod được đánh dấu Not Ready và bị loại khỏi các backend sẵn sàng của Service |
+| Liveness Probe  | Ứng dụng có còn hoạt động không?         | Nếu thất bại liên tục đến ngưỡng, kubelet restart container                                |
 
 ### Bảng so sánh
 
@@ -293,8 +261,7 @@ Nếu thất bại liên tục đến ngưỡng, kubelet restart container.
 
 Ví dụ một API chạy port 8000 và có các endpoint health tương ứng:
 
-```
-
+```yaml
 containers:
   - name: backend
     image: example/backend:v1
@@ -321,21 +288,20 @@ containers:
         port: 8000
       periodSeconds: 10
       failureThreshold: 3
-
 ```
 
-Phải tự triển khai những health endpoints này trong backend; Kubernetes không tự tạo chúng.
+Bạn phải tự triển khai những health endpoints này trong backend; Kubernetes không tự tạo chúng.
 
 ### Giải thích
 
 Startup Probe:
 
-```
+```yaml
 periodSeconds: 5
 failureThreshold: 24
 ```
 
-Cho app khoảng 120 giây để khởi động trong trường hợp probe liên tục thất bại; thời gian thực tế còn phụ thuộc thời điểm probe, timeout và execution.
+5 giây × 24 lần ≈ 120 giây: cho app khoảng 120 giây để khởi động trong trường hợp probe liên tục thất bại; thời gian thực tế còn phụ thuộc thời điểm probe, timeout và execution.
 
 Trong khi startup probe chưa thành công, Kubernetes chưa chạy liveness và readiness probes.
 
@@ -350,13 +316,13 @@ Nếu liveness cũng thất bại mỗi khi database mất kết nối, Kubernet
 
 Nguyên tắc production:
 
-- Liveness: Kiểm tra khả năng sống và phục hồi của process.
-- Readiness: Kiểm tra khả năng phục vụ request.
-- Startup: Cho phép quá trình khởi tạo kéo dài hợp lý.
+- **Liveness** — Kiểm tra khả năng sống và phục hồi của process.
+- **Readiness** — Kiểm tra khả năng phục vụ request.
+- **Startup** — Cho phép quá trình khởi tạo kéo dài hợp lý.
 
 ## 10. Troubleshooting Probes
 
-```
+```bash
 kubectl get pods -n production
 kubectl describe pod <pod-name> -n production
 kubectl logs <pod-name> -n production
@@ -364,7 +330,7 @@ kubectl logs <pod-name> -n production
 
 Ví dụ Events:
 
-```
+```text
 Readiness probe failed:
 connection refused
 ```
@@ -373,7 +339,7 @@ Nghĩa là ứng dụng chưa accept kết nối tại thời điểm probe.
 
 Hoặc:
 
-```
+```text
 Liveness probe failed:
 HTTP probe failed with statuscode: 500
 ```
@@ -401,21 +367,22 @@ Giải pháp: Sử dụng Kubernetes Volumes và persistent storage.
 
 ## 12. Phân biệt Volume, PV, PVC
 
+```text
 Pod / Container
-
-volumeMounts: /data
-
+  volumeMounts: /data
+        |
+        v
 PVC — PersistentVolumeClaim
-
-Yêu cầu một vùng storage
-
+  Yêu cầu một vùng storage
+        |
+        v
 PV — PersistentVolume
-
-Đại diện tài nguyên storage đã cấp
-
+  Đại diện tài nguyên storage đã cấp
+        |
+        v
 Storage Backend
-
-Local disk · EBS · NFS · CSI volume
+  Local disk · EBS · NFS · CSI volume
+```
 
 | Resource     | Trách nhiệm                            |
 | ------------ | -------------------------------------- |
@@ -438,8 +405,7 @@ Quan trọng: `emptyDir` vẫn giữ dữ liệu khi container restart trong cù
 
 ## 13. PersistentVolumeClaim Manifest
 
-```
-
+```yaml
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -450,7 +416,6 @@ spec:
   resources:
     requests:
       storage: 1Gi
-
 ```
 
 Ở đây:
@@ -461,8 +426,7 @@ spec:
 
 ### Pod mount PVC
 
-```
-
+```yaml
 apiVersion: v1
 kind: Pod
 metadata:
@@ -479,12 +443,11 @@ spec:
     - name: app-storage
       persistentVolumeClaim:
         claimName: app-data
-
 ```
 
 Bên trong container:
 
-```
+```bash
 echo "hello" > /data/test.txt
 ```
 
@@ -512,9 +475,9 @@ Phụ thuộc reclaim policy:
 | `Delete` | Storage được provisioner xóa theo cơ chế hỗ trợ   |
 | `Retain` | Giữ lại PV/backing storage để quản trị viên xử lý |
 
-Đặc biệt với database production: Phải kiểm tra reclaim policy và backup trước khi xóa PVC.
-
-PVC không phải backup. Replica cũng không thay thế backup.
+> **Đặc biệt với database production:** Phải kiểm tra reclaim policy và backup trước khi xóa PVC.
+>
+> PVC không phải backup. Replica cũng không thay thế backup.
 
 # Phần 5 — StorageClass
 
@@ -524,18 +487,15 @@ Nếu mỗi lần tạo PVC bạn đều phải tự cấp một ổ đĩa, vi�
 
 StorageClass cho phép Kubernetes dùng một storage provisioner để dynamic provisioning, tức tự tạo PV/backend volume tương ứng khi PVC yêu cầu.
 
-PVC
-
-StorageClass
-
-PV + Disk
+```text
+PVC  -->  StorageClass  -->  PV + Disk
+```
 
 Ví dụ trên AWS EKS, StorageClass có thể sử dụng Amazon EBS CSI Driver để provision EBS volumes.
 
 Một manifest minh họa:
 
-```
-
+```yaml
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
@@ -546,7 +506,6 @@ parameters:
 reclaimPolicy: Delete
 volumeBindingMode: WaitForFirstConsumer
 allowVolumeExpansion: true
-
 ```
 
 Lưu ý đây là ví dụ cho một môi trường EKS có driver tương ứng; không áp dụng trực tiếp trên Kind. Một số môi trường EKS khác sử dụng provisioner khác, chẳng hạn chế độ Auto Mode.
@@ -555,7 +514,7 @@ Lưu ý đây là ví dụ cho một môi trường EKS có driver tương ứng
 
 ### Các lệnh debug storage
 
-```
+```bash
 kubectl get storageclass
 
 kubectl get pvc -A
@@ -575,7 +534,7 @@ Nếu PVC bị `Pending`, hãy kiểm tra:
 4. Có điều kiện topology/availability zone nào không phù hợp không?
 5. Có Pod consumer để kích hoạt `WaitForFirstConsumer` chưa?
 
-Liên hệ AWS: EBS thường ràng buộc với một Availability Zone, nên Pod có thể gặp lỗi attach hoặc scheduling nếu topology không tương thích.
+> **Liên hệ AWS:** EBS thường ràng buộc với một Availability Zone, nên Pod có thể gặp lỗi attach hoặc scheduling nếu topology không tương thích.
 
 # Phần 6 — StatefulSet
 
@@ -585,25 +544,14 @@ StatefulSet dùng để quản lý những Pods cần identity ổn định, sto
 
 Khác với Deployment, StatefulSet cung cấp danh tính có thể dự đoán cho từng Pod.
 
-Deployment
+```text
+Deployment                    StatefulSet
+  backend-7f8d-x2               postgres-0
+  backend-7f8d-q9               postgres-1
+  backend-7f8d-k5               postgres-2
 
-backend-7f8d-x2
-
-backend-7f8d-q9
-
-backend-7f8d-k5
-
-Pod names có thể thay đổi
-
-StatefulSet
-
-postgres-0
-
-postgres-1
-
-postgres-2
-
-Identity cố định theo ordinal
+Pod names có thể thay đổi     Identity cố định theo ordinal
+```
 
 ### Deployment vs StatefulSet
 
@@ -623,7 +571,7 @@ Deployment vẫn có thể dùng PVC, và StatefulSet không tự biến ứng d
 
 Ví dụ PostgreSQL có 3 Pods:
 
-```
+```text
 postgres-0
 postgres-1
 postgres-2
@@ -631,7 +579,7 @@ postgres-2
 
 Với Headless Service `postgres`, Pod có thể có DNS:
 
-```
+```text
 postgres-0.postgres.default.svc.cluster.local
 postgres-1.postgres.default.svc.cluster.local
 postgres-2.postgres.default.svc.cluster.local
@@ -641,7 +589,7 @@ postgres-2.postgres.default.svc.cluster.local
 
 ### Headless Service Manifest
 
-```
+```yaml
 apiVersion: v1
 kind: Service
 metadata:
@@ -658,8 +606,7 @@ spec:
 
 Đây là ví dụ học StatefulSet với Nginx để quan sát stable identity và PVC riêng; chưa phải cấu hình database production.
 
-```
-
+```yaml
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -695,14 +642,13 @@ spec:
         resources:
           requests:
             storage: 1Gi
-
 ```
 
 Cần tạo Headless Service `web-headless` cùng namespace với StatefulSet.
 
 Kubernetes sẽ tạo các PVC tương ứng:
 
-```
+```text
 data-web-0
 data-web-1
 data-web-2
@@ -710,11 +656,11 @@ data-web-2
 
 Mỗi replica có vùng storage riêng.
 
-Quan trọng: `replicas: 3` không tự động tạo PostgreSQL replication hay high availability. Muốn triển khai PostgreSQL HA, bạn cần cơ chế replication, failover, backup hoặc database operator phù hợp.
+> **Quan trọng:** `replicas: 3` không tự động tạo PostgreSQL replication hay high availability. Muốn triển khai PostgreSQL HA, bạn cần cơ chế replication, failover, backup hoặc database operator phù hợp.
 
 ## 19. StatefulSet Scaling & Troubleshooting
 
-```
+```bash
 # Xem StatefulSets
 kubectl get sts -n production
 
@@ -753,35 +699,25 @@ Lab này tập trung vào cơ chế Kubernetes, chưa phải hệ thống FastAP
 
 ## 20. Kiến trúc Lab
 
+```text
 Client — kubectl port-forward
-
-Service: web-svc
-
-ClusterIP :80
-
+        |
+        v
+Service: web-svc (ClusterIP :80)
+        |
+        v
 Deployment: web — 2 replicas
-
-web-pod-1
-
-Probes + Config
-
-web-pod-2
-
-Probes + Config
+  ├── web-pod-1   (Probes + Config)
+  └── web-pod-2   (Probes + Config)
 
 StatefulSet: storage-demo
-
-storage-demo-0
-
-PVC riêng
-
-storage-demo-1
-
-PVC riêng
+  ├── storage-demo-0   (PVC riêng)
+  └── storage-demo-1   (PVC riêng)
+```
 
 ## 21. Setup
 
-```
+```bash
 kubectl config current-context
 kubectl get nodes
 kubectl get storageclass
@@ -799,8 +735,7 @@ Chỉ tiếp tục nếu context đúng `kind-lab` và các Node Ready. Phần S
 
 Lưu vào file `web.yaml`:
 
-```
-
+```yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -890,12 +825,11 @@ spec:
   ports:
     - port: 80
       targetPort: 80
-
 ```
 
 Chạy:
 
-```
+```bash
 kubectl apply -f web.yaml
 
 kubectl rollout status deploy/web \
@@ -909,13 +843,13 @@ kubectl port-forward svc/web-svc 8080:80 \
 
 Ở terminal khác:
 
-```
+```bash
 curl http://localhost:8080
 ```
 
 Expected:
 
-```
+```text
 <h1>Kubernetes Stage 1</h1>
 <p>ConfigMap is working!</p>
 ```
@@ -926,8 +860,7 @@ Bạn cũng có thể cập nhật nội dung ConfigMap rồi quan sát file mou
 
 Lưu vào file `stateful.yaml`:
 
-```
-
+```yaml
 apiVersion: v1
 kind: Service
 metadata:
@@ -981,12 +914,11 @@ spec:
         resources:
           requests:
             storage: 1Gi
-
 ```
 
 Chạy:
 
-```
+```bash
 kubectl apply -f stateful.yaml
 
 kubectl rollout status sts/storage-demo \
@@ -997,7 +929,7 @@ kubectl get sts,pods,pvc -n app-stage1
 
 Expected có:
 
-```
+```text
 storage-demo-0
 storage-demo-1
 
@@ -1007,7 +939,7 @@ data-storage-demo-1
 
 ### Kiểm tra dữ liệu tồn tại sau khi Pod được tạo lại
 
-```
+```bash
 # Ghi dữ liệu
 kubectl exec -n app-stage1 storage-demo-0 \
   -- sh -c 'echo "persistent-data" > /data/test.txt'
@@ -1026,7 +958,7 @@ kubectl exec -n app-stage1 storage-demo-0 \
 
 Expected:
 
-```
+```text
 persistent-data
 ```
 
@@ -1045,7 +977,7 @@ Nếu PVC Pending hoặc Pod không Ready, kiểm tra StorageClass, provisioner,
 
 Các lệnh chung:
 
-```
+```bash
 kubectl get all -n app-stage1
 kubectl get pvc -n app-stage1
 kubectl get events -n app-stage1 \
@@ -1060,59 +992,60 @@ kubectl describe pvc data-storage-demo-0 -n app-stage1
 
 Đây là lab dùng namespace riêng, không xóa Kind cluster.
 
-```
+```bash
 kubectl delete namespace app-stage1
 ```
 
-Cảnh báo: Với PVC do StorageClass có `reclaimPolicy: Delete` cấp phát, xóa namespace có thể dẫn đến xóa backing volume và mất dữ liệu. Chỉ cleanup sau khi bạn không còn cần dữ liệu lab và đã hiểu chính sách storage.
+> **Cảnh báo:** Với PVC do StorageClass có `reclaimPolicy: Delete` cấp phát, xóa namespace có thể dẫn đến xóa backing volume và mất dữ liệu. Chỉ cleanup sau khi bạn không còn cần dữ liệu lab và đã hiểu chính sách storage.
 
 # Phần 8 — Tự kiểm tra kiến thức
 
-Application Deployment Test
+Application Deployment Test — 6 câu.
 
-0/6 câu
+**1. Bạn đổi `LOG_LEVEL` trong ConfigMap được inject bằng `envFrom`. Container đang chạy có tự nhận giá trị mới không?**
 
-1\. Bạn đổi LOG_LEVEL trong ConfigMap được inject bằng envFrom. Container đang chạy có tự nhận giá trị mới không?
+- A. Có, ngay lập tức
+- B. Không, thường phải restart/recreate container
 
-Có, ngay lập tức
+> **Đáp án:** B — Biến môi trường chỉ được đọc khi container khởi động; cần `kubectl rollout restart` hoặc tạo lại Pod.
 
-Không, thường phải restart/recreate container
+**2. Kubernetes Secret lưu base64. Điều đó có nghĩa dữ liệu đã được encrypt an toàn?**
 
-2\. Kubernetes Secret lưu base64. Điều đó có nghĩa dữ liệu đã được encrypt an toàn?
+- A. Đúng
+- B. Không, base64 chỉ là encoding
 
-Đúng
+> **Đáp án:** B — Base64 đảo ngược được bằng `base64 -d`; muốn bảo vệ cần encryption at rest, RBAC và quy trình quản lý Secret.
 
-Không, base64 chỉ là encoding
+**3. Ứng dụng chưa kết nối được dependency nên chưa thể nhận request, nhưng process vẫn sống. Probe nào phù hợp?**
 
-3\. Ứng dụng chưa kết nối được dependency nên chưa thể nhận request, nhưng process vẫn sống. Probe nào phù hợp?
+- A. Readiness
+- B. Liveness
+- C. Chỉ Startup
 
-Readiness
+> **Đáp án:** A — Readiness thất bại sẽ loại Pod khỏi backend của Service mà không restart container; dùng Liveness ở đây có thể gây restart hàng loạt vô ích.
 
-Liveness
+**4. Muốn dữ liệu tồn tại sau khi Pod bị xóa rồi tạo lại, chọn gì?**
 
-Chỉ Startup
+- A. `emptyDir`
+- B. PersistentVolumeClaim
+- C. Container writable layer
 
-4\. Muốn dữ liệu tồn tại sau khi Pod bị xóa rồi tạo lại, chọn gì?
+> **Đáp án:** B — `emptyDir` và writable layer mất dữ liệu khi Pod bị thay thế; PVC giữ dữ liệu theo PV và reclaim policy.
 
-emptyDir
+**5. StatefulSet có 3 replicas với `volumeClaimTemplates`. Thông thường sẽ có bao nhiêu PVC riêng?**
 
-PersistentVolumeClaim
+- A. 1
+- B. 3
+- C. 0
 
-Container writable layer
+> **Đáp án:** B — Mỗi replica có một PVC riêng, ví dụ `data-web-0`, `data-web-1`, `data-web-2`.
 
-5\. StatefulSet có 3 replicas với volumeClaimTemplates. Thông thường sẽ có bao nhiêu PVC riêng?
+**6. StatefulSet 3 replicas tự động cung cấp PostgreSQL HA và failover?**
 
-1
+- A. Có
+- B. Không
 
-3
-
-0
-
-6\. StatefulSet 3 replicas tự động cung cấp PostgreSQL HA và failover?
-
-Có
-
-Không
+> **Đáp án:** B — StatefulSet chỉ cung cấp identity và storage ổn định; HA cần cơ chế replication, failover, backup hoặc database operator.
 
 ## Tổng kết Giai đoạn 1
 
@@ -1129,6 +1062,6 @@ Không
 | StorageClass    | Cấp phát storage động theo policy                      |
 | StatefulSet     | Quản lý Pod identity và storage riêng ổn định          |
 
-Mục tiêu hoàn thành thực sự: Bạn không chỉ đọc hiểu YAML mà còn có thể tự deploy, thay đổi ConfigMap, kiểm tra probe, tạo PVC, xóa Pod StatefulSet và xác minh dữ liệu vẫn tồn tại.
+**Mục tiêu hoàn thành thực sự:** Bạn không chỉ đọc hiểu YAML mà còn có thể tự deploy, thay đổi ConfigMap, kiểm tra probe, tạo PVC, xóa Pod StatefulSet và xác minh dữ liệu vẫn tồn tại.
 
 Sau khi thực hành được toàn bộ những nội dung trên, bạn đã có nền tảng để chuyển sang Giai đoạn 2 — Networking & Security, gồm Ingress, Gateway API, CoreDNS, RBAC, ServiceAccount và NetworkPolicy.

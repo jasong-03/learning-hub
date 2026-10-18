@@ -1,8 +1,6 @@
 # Kubernetes — Giai đoạn 2: Networking & Security
 
-Intermediate → Advanced
-
-6 chủ đề · Architecture · YAML · Troubleshooting · Hands-on
+*Intermediate → Advanced · 6 chủ đề · Architecture · YAML · Troubleshooting · Hands-on*
 
 Ở Giai đoạn 1, bạn đã học cách triển khai ứng dụng có ConfigMap, Secret, Health Probes, PVC và StatefulSet.
 
@@ -13,35 +11,14 @@ Giai đoạn 2 sẽ trả lời hai câu hỏi lớn:
 
 ## Lộ trình học
 
-Learning Checklist
+1. **Ingress & Ingress Controller** — Expose HTTP/HTTPS, hostname, path, TLS
+2. **Gateway API** — Định tuyến hiện đại với GatewayClass, Gateway, HTTPRoute
+3. **CoreDNS & Kubernetes Networking** — DNS, Service discovery, EndpointSlice, CNI
+4. **RBAC** — Role, ClusterRole, RoleBinding, ClusterRoleBinding
+5. **ServiceAccount** — Định danh của workload và quyền truy cập API
+6. **NetworkPolicy** — Kiểm soát lưu lượng Ingress và Egress của Pod
 
-0/6
-
-1\. Ingress & Ingress Controller
-
-Expose HTTP/HTTPS, hostname, path, TLS
-
-2\. Gateway API
-
-Định tuyến hiện đại với GatewayClass, Gateway, HTTPRoute
-
-3\. CoreDNS & Kubernetes Networking
-
-DNS, Service discovery, EndpointSlice, CNI
-
-4\. RBAC
-
-Role, ClusterRole, RoleBinding, ClusterRoleBinding
-
-5\. ServiceAccount
-
-Định danh của workload và quyền truy cập API
-
-6\. NetworkPolicy
-
-Kiểm soát lưu lượng Ingress và Egress của Pod
-
-Các nội dung liên quan trực tiếp đến bộ tài liệu 46 Labs bạn gửi gồm Lab 14 (Service Networking), Lab 15 (Ingress), Lab 16 (NetworkPolicy), Lab 17 (502 Bad Gateway) và Lab 22 (RBAC/ServiceAccount). Phần Gateway API và một số kiến thức security production là nội dung mở rộng.
+Các nội dung liên quan trực tiếp đến bộ tài liệu 46 Labs gồm Lab 14 (Service Networking), Lab 15 (Ingress), Lab 16 (NetworkPolicy), Lab 17 (502 Bad Gateway) và Lab 22 (RBAC/ServiceAccount). Phần Gateway API và một số kiến thức security production là nội dung mở rộng.
 
 # Phần 1 — Ingress & Ingress Controller
 
@@ -49,7 +26,7 @@ Các nội dung liên quan trực tiếp đến bộ tài liệu 46 Labs bạn g
 
 Giả sử bạn có ba ứng dụng:
 
-```
+```text
 frontend  → port 3000
 backend   → port 8000
 admin     → port 8080
@@ -59,21 +36,18 @@ Nếu expose từng ứng dụng bằng Service `LoadBalancer`, bạn có thể 
 
 Ingress cho phép định tuyến HTTP/HTTPS tới nhiều Service bằng hostname hoặc URL path.
 
+```text
 Internet / Client
-
-app.example.com · api.example.com
-
+(app.example.com · api.example.com)
+        │
+        ▼
 Ingress Controller
-
-HTTP host/path routing · TLS termination
-
-frontend-svc
-
-Service → Frontend Pods
-
-backend-svc
-
-Service → Backend Pods
+(HTTP host/path routing · TLS termination)
+        │
+        ├──► frontend-svc  (Service → Frontend Pods)
+        │
+        └──► backend-svc   (Service → Backend Pods)
+```
 
 ### Ingress khác Service thế nào?
 
@@ -95,8 +69,7 @@ Giả sử đã có:
 - Service `backend-svc` port 80.
 - Ingress Controller đã cài đặt và hỗ trợ class `nginx`.
 
-```
-
+```yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -126,12 +99,11 @@ spec:
                 name: backend-svc
                 port:
                   number: 80
-
 ```
 
 Khi DNS và ingress controller được cấu hình đúng:
 
-```
+```text
 app.example.com → frontend-svc
 api.example.com → backend-svc
 ```
@@ -151,7 +123,7 @@ api.example.com → backend-svc
 
 Ví dụ:
 
-```
+```yaml
 spec:
   tls:
     - hosts:
@@ -163,7 +135,7 @@ Secret `api-tls` phải chứa chứng chỉ và private key tương ứng.
 
 Tạo từ certificate files:
 
-```
+```bash
 kubectl create secret tls api-tls \
   --cert=tls.crt \
   --key=tls.key \
@@ -174,7 +146,7 @@ Trong production, thường kết hợp với certificate management như cert-m
 
 ## 4. Troubleshooting Ingress
 
-```
+```bash
 kubectl get ingress -n production
 
 kubectl describe ingress app-ingress -n production
@@ -217,19 +189,18 @@ Gateway API cung cấp các resource như:
 
 So với Ingress truyền thống, Gateway API thể hiện trực tiếp hơn sự phân chia trách nhiệm giữa platform team và application team.
 
-GatewayClass
-
-Controller implementation
-
-Gateway
-
-Listeners: HTTP :80 / HTTPS :443
-
-HTTPRoute
-
-/api → backend-svc
-
+```text
+GatewayClass      Controller implementation
+     │
+     ▼
+Gateway           Listeners: HTTP :80 / HTTPS :443
+     │
+     ▼
+HTTPRoute         /api → backend-svc
+     │
+     ▼
 Backend Service → Pods
+```
 
 ## 6. Gateway API Manifest
 
@@ -237,8 +208,7 @@ Ví dụ sau yêu cầu Gateway API CRDs và một controller có hỗ trợ `Ga
 
 ### Gateway
 
-```
-
+```yaml
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
@@ -253,13 +223,11 @@ spec:
       allowedRoutes:
         namespaces:
           from: Same
-
 ```
 
 ### HTTPRoute
 
-```
-
+```yaml
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
@@ -278,12 +246,11 @@ spec:
       backendRefs:
         - name: backend-svc
           port: 80
-
 ```
 
 Request:
 
-```
+```text
 GET http://api.example.com/api/users
 ```
 
@@ -312,14 +279,14 @@ Kubernetes thường cung cấp DNS cho Services thông qua CoreDNS.
 
 Ví dụ:
 
-```
+```text
 Namespace: production
 Service: backend-svc
 ```
 
 Tên DNS đầy đủ:
 
-```
+```text
 backend-svc.production.svc.cluster.local
 ```
 
@@ -334,35 +301,33 @@ Trong đó:
 
 Nếu Pod client và Service cùng namespace, thường có thể gọi bằng tên ngắn:
 
-```
+```bash
 curl http://backend-svc:8000
 ```
 
 Nếu khác namespace:
 
-```
+```bash
 curl http://backend-svc.production.svc.cluster.local:8000
 ```
 
 ## 9. Luồng request trong cluster
 
-Frontend Pod
-
-GET [http://backend-svc:8000](http://backend-svc:8000)
-
-CoreDNS
-
-Phân giải Service name → ClusterIP
-
-Service Virtual IP
-
-ClusterIP + Service port
-
-Service Dataplane
-
-Chọn endpoint và chuyển kết nối
-
+```text
+Frontend Pod          GET http://backend-svc:8000
+     │
+     ▼
+CoreDNS               Phân giải Service name → ClusterIP
+     │
+     ▼
+Service Virtual IP    ClusterIP + Service port
+     │
+     ▼
+Service Dataplane     Chọn endpoint và chuyển kết nối
+     │
+     ▼
 Backend Pod :8000
+```
 
 Cần phân biệt:
 
@@ -378,7 +343,7 @@ Một số CNI/eBPF dataplane có thể thay thế chức năng Service routing 
 
 Giả sử Service:
 
-```
+```yaml
 spec:
   selector:
     app: backend
@@ -391,7 +356,7 @@ Kubernetes tìm những Pod có label `app=backend`, sau đó EndpointSlice cont
 
 Nếu label không khớp:
 
-```
+```text
 Service selector: app=backend
 Pod label:        app=api
 ```
@@ -402,7 +367,7 @@ Lỗi này là một trong những nguyên nhân phổ biến khiến applicatio
 
 ### Debug từ DNS đến Pod
 
-```
+```bash
 # Kiểm tra CoreDNS
 kubectl get pods -n kube-system
 
@@ -421,7 +386,7 @@ kubectl describe svc backend-svc -n production
 
 Test DNS bằng một debug Pod tạm thời:
 
-```
+```bash
 kubectl run dns-debug \
   -n production \
   --image=busybox:1.36 \
@@ -434,7 +399,7 @@ kubectl exec -n production dns-debug -- \
 
 Sau khi test:
 
-```
+```bash
 kubectl delete pod dns-debug -n production
 ```
 
@@ -453,7 +418,7 @@ Nếu DNS resolve được nhưng curl đến Service thất bại, cần xem ti
 
 Quy trình trace cần thuộc:
 
-```
+```text
 Client
   ↓
 DNS
@@ -488,26 +453,16 @@ RBAC không phải cơ chế kiểm soát HTTP traffic giữa các Pod. Nó ki�
 
 ## 13. Bốn Resource RBAC
 
-Role
-
-Quyền trong một namespace
-
-ClusterRole
-
-Bộ quyền có thể dùng cluster-wide hoặc bind trong namespace
-
-RoleBinding
-
-Gán Role hoặc ClusterRole trong namespace
-
-ClusterRoleBinding
-
-Gán ClusterRole ở phạm vi cluster
+| Resource             | Vai trò                                                     |
+| -------------------- | ----------------------------------------------------------- |
+| `Role`               | Quyền trong một namespace                                   |
+| `ClusterRole`        | Bộ quyền có thể dùng cluster-wide hoặc bind trong namespace |
+| `RoleBinding`        | Gán Role hoặc ClusterRole trong namespace                   |
+| `ClusterRoleBinding` | Gán ClusterRole ở phạm vi cluster                           |
 
 ### Ví dụ Role chỉ được đọc Pods
 
-```
-
+```yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
@@ -517,7 +472,6 @@ rules:
   - apiGroups: [""]
     resources: ["pods", "pods/log"]
     verbs: ["get", "list", "watch"]
-
 ```
 
 Giải thích:
@@ -528,7 +482,7 @@ Giải thích:
 
 ### Gán quyền cho ServiceAccount
 
-```
+```yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
@@ -550,13 +504,13 @@ Lúc này, ServiceAccount `app-reader` được gán quyền đọc Pods/logs tr
 
 Lệnh quan trọng nhất:
 
-```
+```bash
 kubectl auth can-i
 ```
 
 Ví dụ:
 
-```
+```bash
 kubectl auth can-i get pods -n development
 
 kubectl auth can-i delete pods -n production
@@ -564,7 +518,7 @@ kubectl auth can-i delete pods -n production
 
 Để kiểm tra quyền của ServiceAccount (khi danh tính hiện tại có quyền impersonate):
 
-```
+```bash
 kubectl auth can-i list pods \
   --as=system:serviceaccount:development:app-reader \
   -n development
@@ -601,21 +555,22 @@ Phân biệt:
 
 Ví dụ một controller cần gọi Kubernetes API để đọc Pods. Thay vì dùng credentials quản trị viên, bạn tạo ServiceAccount riêng và cấp đúng RBAC permissions.
 
-Application Pod
-
-serviceAccountName: app-reader
-
+```text
+Application Pod          serviceAccountName: app-reader
+     │
+     ▼
 ServiceAccount Identity
-
-RBAC Authorization
-
-Role + RoleBinding
-
+     │
+     ▼
+RBAC Authorization       Role + RoleBinding
+     │
+     ▼
 Kubernetes API Server
+```
 
 ## 16. Tạo ServiceAccount
 
-```
+```yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -625,7 +580,7 @@ metadata:
 
 Sử dụng trong Pod:
 
-```
+```yaml
 spec:
   serviceAccountName: app-reader
   containers:
@@ -637,7 +592,7 @@ ServiceAccount không tự có quyền đọc mọi tài nguyên. Bạn phải g
 
 ### automountServiceAccountToken
 
-```
+```yaml
 spec:
   automountServiceAccountToken: false
 ```
@@ -670,19 +625,17 @@ Ví dụ:
 - Frontend không được kết nối trực tiếp PostgreSQL.
 - Backend chỉ được kết nối ra ngoài tới những destination cần thiết.
 
-Ví dụ: Network Segmentation
+Ví dụ Network Segmentation:
 
-Frontend
+```text
+Frontend ──────► Backend ──────► Database
+    │                               ▲
+    └────────── X (bị chặn) ────────┘
 
-Backend
-
-Database
-
-Frontend → Backend
-
-Backend → DB
-
-Frontend → DB bị chặn
+Frontend → Backend       được phép
+Backend  → DB            được phép
+Frontend → DB            bị chặn
+```
 
 Đây là chính sách mục tiêu. Muốn thực thi cần cấu hình NetworkPolicy và một network plugin hỗ trợ nó.
 
@@ -703,8 +656,7 @@ Khi một policy chọn Pod và áp dụng cho `Ingress`, chỉ những ingress 
 
 ### Default Deny Ingress
 
-```
-
+```yaml
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -714,7 +666,6 @@ spec:
   podSelector: {}
   policyTypes:
     - Ingress
-
 ```
 
 Ý nghĩa:
@@ -727,7 +678,7 @@ Policy này không tự chặn Egress.
 
 ### Default Deny All
 
-```
+```yaml
 spec:
   podSelector: {}
   policyTypes:
@@ -743,8 +694,7 @@ Cảnh báo: Trên production, áp dụng Default Deny Egress mà không có ch�
 
 Giả sử Frontend Pod có label `app: frontend`, Backend Pod có label `app: backend` cùng namespace.
 
-```
-
+```yaml
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -766,7 +716,6 @@ spec:
       ports:
         - protocol: TCP
           port: 8000
-
 ```
 
 Ý nghĩa: Backend Pods được phép nhận TCP connections tới port 8000 từ các Frontend Pods cùng namespace.
@@ -779,7 +728,7 @@ Bạn có thể cho phép traffic từ Pods thuộc namespace khác.
 
 Ví dụ yêu cầu cả namespace label và pod label:
 
-```
+```yaml
 ingress:
   - from:
       - namespaceSelector:
@@ -792,7 +741,7 @@ ingress:
 
 Hai selector trong cùng một phần tử `from` mang ý nghĩa AND:
 
-```
+```text
 Namespace phải có team=frontend
             AND
 Pod phải có app=web
@@ -823,7 +772,7 @@ Những yêu cầu đó thường cần kết hợp application security, Gatewa
 
 Giả sử:
 
-```
+```text
 Client → Ingress → backend-svc → backend Pod
 ```
 
@@ -831,7 +780,7 @@ Bạn nhận alert 502.
 
 Thực hiện theo thứ tự:
 
-```
+```bash
 # 1. Xem Ingress
 kubectl get ingress -n production
 kubectl describe ingress -n production
@@ -875,7 +824,7 @@ Bài lab này giúp bạn thực hành DNS, Service, RBAC, ServiceAccount và Ne
 
 Giữ nguyên cluster `kind-lab`, tạo namespace riêng.
 
-```
+```bash
 kubectl config current-context
 kubectl get nodes
 
@@ -892,8 +841,7 @@ cd ~/work/networking-lab
 
 Lưu thành `apps.yaml`:
 
-```
-
+```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -957,12 +905,11 @@ spec:
     - name: client
       image: busybox:1.36
       command: ["sleep", "3600"]
-
 ```
 
 Apply:
 
-```
+```bash
 kubectl apply -f apps.yaml
 
 kubectl rollout status deploy/backend \
@@ -977,7 +924,7 @@ kubectl get pods,svc,endpointslice -n networking-lab
 
 ### Test DNS + Service
 
-```
+```bash
 kubectl exec frontend -n networking-lab -- \
   nslookup backend-svc.networking-lab.svc.cluster.local
 
@@ -993,8 +940,7 @@ Trước khi test, xác minh CNI của cluster có thực thi NetworkPolicy. Kh�
 
 Tạo `policy.yaml`:
 
-```
-
+```yaml
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -1014,18 +960,17 @@ spec:
       ports:
         - protocol: TCP
           port: 80
-
 ```
 
 Apply:
 
-```
+```bash
 kubectl apply -f policy.yaml
 ```
 
 Test từ Frontend:
 
-```
+```bash
 kubectl exec frontend -n networking-lab -- \
   wget -qO- -T 5 http://backend-svc
 ```
@@ -1034,7 +979,7 @@ Expected: Thành công.
 
 Test từ client không được phép:
 
-```
+```bash
 kubectl exec unauthorized-client -n networking-lab -- \
   wget -qO- -T 5 http://backend-svc
 ```
@@ -1047,8 +992,7 @@ Nếu cả hai client đều truy cập được, đừng kết luận NetworkPo
 
 Lưu thành `rbac.yaml`:
 
-```
-
+```yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -1078,18 +1022,17 @@ roleRef:
   kind: Role
   name: read-pods
   apiGroup: rbac.authorization.k8s.io
-
 ```
 
 Apply:
 
-```
+```bash
 kubectl apply -f rbac.yaml
 ```
 
 Kiểm tra quyền (cần quyền impersonation ở context hiện tại):
 
-```
+```bash
 # Được phép
 kubectl auth can-i list pods \
   --as=system:serviceaccount:networking-lab:pod-reader \
@@ -1103,7 +1046,7 @@ kubectl auth can-i delete pods \
 
 Expected:
 
-```
+```text
 yes
 no
 ```
@@ -1112,7 +1055,7 @@ Lệnh trên kiểm tra authorization, không tự tạo Pod sử dụng Service
 
 ## 27. Cleanup
 
-```
+```bash
 kubectl delete namespace networking-lab
 ```
 
@@ -1120,53 +1063,53 @@ Chỉ xóa resources trong namespace lab. Không xóa cluster `kind-lab`.
 
 # Phần 9 — Mini Assessment
 
-Networking & Security Test
+*Networking & Security Test · 6 câu*
 
-0/6 câu
+**1. Ingress YAML đã apply nhưng không route được traffic. Nguyên nhân nền tảng có thể là gì?**
 
-1\. Ingress YAML đã apply nhưng không route được traffic. Nguyên nhân nền tảng có thể là gì?
+- A. Chưa có Ingress Controller phù hợp
+- B. Chưa tạo StatefulSet
+- C. Thiếu PVC
 
-Chưa có Ingress Controller phù hợp
+> **Đáp án:** A — Ingress chỉ là cấu hình; cần Ingress Controller phù hợp đang chạy để thực thi các quy tắc routing.
 
-Chưa tạo StatefulSet
+**2. Pod A gọi `backend-svc` ở namespace `production`. DNS đầy đủ phổ biến là gì?**
 
-Thiếu PVC
+- A. `backend-svc.local`
+- B. `backend-svc.production.svc.cluster.local`
+- C. `production.backend-svc`
 
-2\. Pod A gọi backend-svc ở namespace production. DNS đầy đủ phổ biến là gì?
+> **Đáp án:** B — Định dạng là `<service>.<namespace>.svc.<cluster-domain>`, với cluster domain mặc định phổ biến là `cluster.local`.
 
-backend-svc.local
+**3. Service không có backend endpoints. Kiểm tra gì đầu tiên?**
 
-backend-svc.production.svc.cluster.local
+- A. Pod labels, Service selector, readiness
+- B. CPU limits
+- C. Helm version
 
-production.backend-svc
+> **Đáp án:** A — EndpointSlice chỉ chứa ready endpoints của các Pod có label khớp selector của Service.
 
-3\. Service không có backend endpoints. Kiểm tra gì đầu tiên?
+**4. Muốn ứng dụng chỉ đọc Pods trong namespace `development`, dùng gì?**
 
-Pod labels, Service selector, readiness
+- A. ClusterRoleBinding `cluster-admin`
+- B. Role + RoleBinding
+- C. NetworkPolicy
 
-CPU limits
+> **Đáp án:** B — Role + RoleBinding cấp quyền trong phạm vi một namespace theo nguyên tắc Least Privilege; NetworkPolicy không kiểm soát quyền Kubernetes API.
 
-Helm version
+**5. NetworkPolicy Default Deny Egress có thể ảnh hưởng DNS không?**
 
-4\. Muốn ứng dụng chỉ đọc Pods trong namespace development, dùng gì?
+- A. Có
+- B. Không
 
-ClusterRoleBinding cluster-admin
+> **Đáp án:** A — DNS queries cũng là egress traffic; nếu không mở riêng, Pod sẽ không resolve được tên Service.
 
-Role + RoleBinding
+**6. ServiceAccount có RBAC quyền đọc Pods thì tự động có quyền đọc AWS S3 không?**
 
-NetworkPolicy
+- A. Có
+- B. Không, AWS IAM là lớp quyền riêng
 
-5\. NetworkPolicy Default Deny Egress có thể ảnh hưởng DNS không?
-
-Có
-
-Không
-
-6\. ServiceAccount có RBAC quyền đọc Pods thì tự động có quyền đọc AWS S3 không?
-
-Có
-
-Không, AWS IAM là lớp quyền riêng
+> **Đáp án:** B — Kubernetes RBAC chỉ kiểm soát Kubernetes API; quyền AWS cần cơ chế như EKS Pod Identity hoặc IRSA.
 
 ## Tổng kết Giai đoạn 2 — Những gì phải thuộc
 

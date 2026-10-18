@@ -1,8 +1,6 @@
 # Kubernetes — Giai đoạn 5: AWS EKS Production
 
-Advanced → Production
-
-AWS · Kubernetes · Terraform · DevOps · Capstone
+*Advanced → Production · AWS · Kubernetes · Terraform · DevOps · Capstone*
 
 Đây là giai đoạn cuối trong lộ trình Kubernetes 5 giai đoạn của bạn.
 
@@ -20,51 +18,20 @@ Mục tiêu sau khi học là có thể tự triển khai:
 
 ## Lộ trình Giai đoạn 5
 
-AWS EKS Learning Checklist
+AWS EKS Learning Checklist (10 chủ đề):
 
-0/10
+1. **AWS EKS Architecture** — Control plane, data plane, cluster lifecycle.
+2. **VPC & Networking** — Subnets, NAT, routes, CNI, security groups.
+3. **IAM & EKS Pod Identity** — Human access, workload IAM, IRSA.
+4. **Terraform** — Provision AWS infrastructure bằng Infrastructure as Code.
+5. **ECR & CI/CD** — Container registry và image delivery.
+6. **ALB / NLB / Ingress** — Public traffic, DNS, HTTPS, target groups.
+7. **EBS CSI & Persistent Storage** — PVC, StorageClass và EBS volumes.
+8. **Karpenter & Autoscaling** — HPA, Node provisioning, capacity.
+9. **Observability & Security** — CloudWatch, Prometheus, audit và hardening.
+10. **Production Operations** — Deploy, incident response, upgrades, DR và cost.
 
-1\. AWS EKS Architecture
-
-Control plane, data plane, cluster lifecycle
-
-2\. VPC & Networking
-
-Subnets, NAT, routes, CNI, security groups
-
-3\. IAM & EKS Pod Identity
-
-Human access, workload IAM, IRSA
-
-4\. Terraform
-
-Provision AWS infrastructure bằng Infrastructure as Code
-
-5\. ECR & CI/CD
-
-Container registry và image delivery
-
-6\. ALB / NLB / Ingress
-
-Public traffic, DNS, HTTPS, target groups
-
-7\. EBS CSI & Persistent Storage
-
-PVC, StorageClass và EBS volumes
-
-8\. Karpenter & Autoscaling
-
-HPA, Node provisioning, capacity
-
-9\. Observability & Security
-
-CloudWatch, Prometheus, audit và hardening
-
-10\. Production Operations
-
-Deploy, incident response, upgrades, DR và cost
-
-Phần này là kiến thức AWS/EKS mở rộng cho Capstone, không phải một Lab riêng nguyên bản trong bộ 46 Labs. Một số chi tiết về EKS Auto Mode, IAM và giá được đối chiếu với tài liệu AWS hiện hành.
+> Phần này là kiến thức AWS/EKS mở rộng cho Capstone, không phải một Lab riêng nguyên bản trong bộ 46 Labs. Một số chi tiết về EKS Auto Mode, IAM và giá được đối chiếu với tài liệu AWS hiện hành.
 
 # Phần 1 — Amazon EKS Architecture
 
@@ -74,7 +41,7 @@ Amazon EKS (Elastic Kubernetes Service) là dịch vụ Kubernetes được AWS 
 
 Bạn vẫn sử dụng những lệnh quen thuộc:
 
-```
+```bash
 kubectl get nodes
 kubectl get pods -A
 kubectl apply -f deployment.yaml
@@ -85,29 +52,26 @@ kubectl rollout status deployment/backend
 
 ## 2. Kiến trúc EKS
 
-AWS-managed Control Plane
-
-API Server
-
-Scheduler
-
-Controllers
-
-AWS cũng quản lý backing datastore của control plane.
-
-Customer VPC — Data Plane
-
-Worker Node 1
-
-Pod
-
-Pod
-
-Worker Node 2
-
-Pod
-
-Pod
+```text
++---------------------------------------------------+
+| AWS-managed Control Plane                         |
+|                                                   |
+|   [ API Server ]   [ Scheduler ]   [ Controllers ]|
+|                                                   |
+|   AWS cũng quản lý backing datastore              |
+|   của control plane.                              |
++---------------------------------------------------+
+                         |
+                         v
++---------------------------------------------------+
+| Customer VPC — Data Plane                         |
+|                                                   |
+|   +-------------------+   +-------------------+   |
+|   | Worker Node 1     |   | Worker Node 2     |   |
+|   |   [ Pod ] [ Pod ] |   |   [ Pod ] [ Pod ] |   |
+|   +-------------------+   +-------------------+   |
++---------------------------------------------------+
+```
 
 ### Control Plane vs Data Plane
 
@@ -119,13 +83,9 @@ Pod
 | Backing datastore                 | Application Pods                                 |
 | AWS quản lý hạ tầng control plane | Tùy compute mode, AWS và bạn chia sẻ trách nhiệm |
 
-AWS vận hành control plane trong hạ tầng do AWS quản lý, tách khỏi VPC nơi các worker nodes của bạn chạy.&#x20;
+AWS vận hành control plane trong hạ tầng do AWS quản lý, tách khỏi VPC nơi các worker nodes của bạn chạy.
 
-[image](https://www.google.com/s2/favicons?domain=https://docs.aws.amazon.com\&sz=32)
-
-Amazon EKS
-
-
+*Nguồn: Amazon EKS*
 
 ## 3. Các mô hình Compute trên EKS
 
@@ -138,17 +98,11 @@ Amazon EKS
 
 ### EKS Auto Mode khác gì?
 
-EKS Auto Mode tích hợp việc quản lý compute scaling, load balancing, networking và block storage trong mô hình AWS-managed. Một số thành phần trước đây cần cài controller riêng sẽ được AWS quản lý bên ngoài cluster.&#x20;
+EKS Auto Mode tích hợp việc quản lý compute scaling, load balancing, networking và block storage trong mô hình AWS-managed. Một số thành phần trước đây cần cài controller riêng sẽ được AWS quản lý bên ngoài cluster.
 
-[image](https://www.google.com/s2/favicons?domain=https://docs.aws.amazon.com\&sz=32)
+*Nguồn: Amazon EKS*
 
-Amazon EKS
-
-+1
-
-
-
-Đề xuất cho việc học: Bắt đầu với Managed Node Groups để hiểu cách EKS hoạt động. Sau đó học EKS Auto Mode để hiểu mô hình giảm gánh nặng vận hành.
+> **Đề xuất cho việc học:** Bắt đầu với Managed Node Groups để hiểu cách EKS hoạt động. Sau đó học EKS Auto Mode để hiểu mô hình giảm gánh nặng vận hành.
 
 # Phần 2 — AWS VPC & EKS Networking
 
@@ -158,49 +112,32 @@ VPC là mạng ảo nơi các worker nodes, load balancers và những tài nguy
 
 Một kiến trúc production phổ biến sử dụng ít nhất hai Availability Zones.
 
-Internet
-
-Internet Gateway
-
-VPC: 10.0.0.0/16
-
-Availability Zone A
-
-Public Subnet
-
-10.0.1.0/24
-
-ALB / NAT
-
-Private Subnet
-
-10.0.11.0/24
-
-EKS Nodes / Pods
-
-Availability Zone B
-
-Public Subnet
-
-10.0.2.0/24
-
-ALB / NAT
-
-Private Subnet
-
-10.0.12.0/24
-
-EKS Nodes / Pods
+```text
+                         Internet
+                            |
+                     Internet Gateway
+                            |
++-----------------------------------------------------------+
+| VPC: 10.0.0.0/16                                          |
+|                                                           |
+|  Availability Zone A           Availability Zone B        |
+|  +-----------------------+     +-----------------------+  |
+|  | Public Subnet         |     | Public Subnet         |  |
+|  | 10.0.1.0/24           |     | 10.0.2.0/24           |  |
+|  | ALB / NAT             |     | ALB / NAT             |  |
+|  +-----------------------+     +-----------------------+  |
+|  | Private Subnet        |     | Private Subnet        |  |
+|  | 10.0.11.0/24          |     | 10.0.12.0/24          |  |
+|  | EKS Nodes / Pods      |     | EKS Nodes / Pods      |  |
+|  +-----------------------+     +-----------------------+  |
++-----------------------------------------------------------+
+```
 
 CIDRs và placement chỉ là minh họa. Route tables, subnet sizing và AWS controller configuration quyết định kiến trúc thực tế.
 
-AWS khuyến nghị kiến trúc gồm public và private subnets trên nhiều Availability Zones; đặt worker nodes trong private subnets phù hợp với phần lớn ứng dụng.&#x20;
+AWS khuyến nghị kiến trúc gồm public và private subnets trên nhiều Availability Zones; đặt worker nodes trong private subnets phù hợp với phần lớn ứng dụng.
 
-[image](https://www.google.com/s2/favicons?domain=https://docs.aws.amazon.com\&sz=32)
-
-Amazon EKS
-
-
+*Nguồn: Amazon EKS*
 
 ## 5. Public vs Private Subnet
 
@@ -241,16 +178,16 @@ Bạn phải hiểu:
 
 Một lỗi EKS thực tế:
 
-```
+```text
 FailedCreatePodSandBox
 failed to assign an IP address to container
 ```
 
-Có thể liên quan đến thiếu Pod IP capacity, subnet addresses hoặc giới hạn ENI/IP của Node.
+Lỗi này có thể liên quan đến thiếu Pod IP capacity, subnet addresses hoặc giới hạn ENI/IP của Node.
 
 ### Trace Networking trên AWS
 
-```
+```text
 Internet
   ↓
 Route 53
@@ -264,7 +201,7 @@ Pod IP hoặc Node IP:NodePort
 Application Container
 ```
 
-Nếu API 502, bạn cần kiểm tra cả hai lớp:
+Nếu API trả 502, bạn cần kiểm tra cả hai lớp:
 
 1. AWS: ALB listeners, target groups, target health, security groups.
 2. Kubernetes: Ingress, Service, EndpointSlices, Pod readiness, application logs.
@@ -288,7 +225,7 @@ Ví dụ một DevOps Engineer dùng AWS CLI và kubectl.
 
 Luồng cơ bản:
 
-```
+```text
 Developer AWS identity
         ↓
 AWS CLI / EKS authentication
@@ -300,23 +237,19 @@ Kubernetes API Server
 kubectl get pods
 ```
 
-EKS Access Entries là cách AWS khuyến nghị để cấp quyền truy cập Kubernetes cho IAM principals trong các cluster hỗ trợ, thay cho việc phụ thuộc hoàn toàn vào `aws-auth` ConfigMap kiểu cũ.&#x20;
+EKS Access Entries là cách AWS khuyến nghị để cấp quyền truy cập Kubernetes cho IAM principals trong các cluster hỗ trợ, thay cho việc phụ thuộc hoàn toàn vào `aws-auth` ConfigMap kiểu cũ.
 
-[image](https://www.google.com/s2/favicons?domain=https://docs.aws.amazon.com\&sz=32)
-
-Amazon EKS
-
-
+*Nguồn: Amazon EKS*
 
 ### Kiểm tra AWS identity
 
-```
+```bash
 aws sts get-caller-identity --profile <lab-profile>
 ```
 
 ### Cập nhật kubeconfig
 
-```
+```bash
 aws eks update-kubeconfig \
   --region ap-southeast-1 \
   --name <cluster-name> \
@@ -325,32 +258,32 @@ aws eks update-kubeconfig \
 
 Kiểm tra:
 
-```
+```bash
 kubectl config current-context
 kubectl get nodes
 ```
 
-Lưu ý: Có credentials AWS hợp lệ không đồng nghĩa chắc chắn được `kubectl get nodes`. IAM identity còn phải được cấp quyền Kubernetes tương ứng.
+> **Lưu ý:** Có credentials AWS hợp lệ không đồng nghĩa chắc chắn chạy được `kubectl get nodes`. IAM identity còn phải được cấp quyền Kubernetes tương ứng.
 
 ## 9. EKS Pod Identity
 
 Ví dụ backend cần đọc dữ liệu từ S3.
 
-Không nên đưa AWS_ACCESS_KEY_ID và AWS_SECRET_ACCESS_KEY vào Kubernetes Secret để làm cách cấp quyền chính.
+Không nên đưa `AWS_ACCESS_KEY_ID` và `AWS_SECRET_ACCESS_KEY` vào Kubernetes Secret để làm cách cấp quyền chính.
 
 Thay vào đó, dùng EKS Pod Identity hoặc IRSA.
 
+```text
 Backend Pod
-
-serviceAccountName: backend-s3-reader
-
+  serviceAccountName: backend-s3-reader
+        ↓
 EKS Pod Identity Association
-
+        ↓
 IAM Role
-
-Chỉ có s3:GetObject trên bucket cần thiết
-
+  Chỉ có s3:GetObject trên bucket cần thiết
+        ↓
 Amazon S3
+```
 
 Cách hoạt động:
 
@@ -360,19 +293,13 @@ Cách hoạt động:
 4. Pod dùng AWS SDK credential provider chain để nhận temporary credentials.
 5. Ứng dụng gọi AWS APIs.
 
-EKS Pod Identity không yêu cầu service account annotation như IRSA, nhưng với EC2 nodes truyền thống nó cần Pod Identity Agent. Trong EKS Auto Mode, thành phần cần thiết được AWS quản lý.&#x20;
+EKS Pod Identity không yêu cầu service account annotation như IRSA, nhưng với EC2 nodes truyền thống nó cần Pod Identity Agent. Trong EKS Auto Mode, thành phần cần thiết được AWS quản lý.
 
-[image](https://www.google.com/s2/favicons?domain=https://docs.aws.amazon.com\&sz=32)
-
-Amazon EKS
-
-+1
-
-
+*Nguồn: Amazon EKS*
 
 ### ServiceAccount YAML
 
-```
+```yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -382,7 +309,7 @@ metadata:
 
 ### Pod sử dụng identity
 
-```
+```yaml
 spec:
   serviceAccountName: backend-s3-reader
   containers:
@@ -392,7 +319,7 @@ spec:
 
 Ví dụ association sau khi IAM role đã được tạo, trust policy và agent đã được cấu hình đúng:
 
-```
+```bash
 aws eks create-pod-identity-association \
   --cluster-name <cluster-name> \
   --namespace production \
@@ -409,7 +336,7 @@ aws eks create-pod-identity-association \
 | Agent                     | Cần agent trên EC2 nodes truyền thống | Không cần Pod Identity Agent      |
 | Sử dụng                   | Nhiều workloads trên EKS EC2          | Workloads phù hợp OIDC federation |
 
-Quan trọng: IAM role cho ứng dụng không nên reuse node IAM role hoặc cấp `AdministratorAccess`.
+> **Quan trọng:** IAM role cho ứng dụng không nên reuse node IAM role hoặc cấp `AdministratorAccess`.
 
 # Phần 4 — Terraform: Infrastructure as Code
 
@@ -419,7 +346,7 @@ Terraform giúp bạn khai báo AWS infrastructure bằng code, có thể review
 
 Thay vì tạo thủ công:
 
-```
+```text
 VPC → Subnets → Route Tables → IAM → EKS → Node Groups
 ```
 
@@ -427,23 +354,19 @@ Bạn viết Terraform configuration, sau đó Terraform tạo và quản lý re
 
 ### Terraform Workflow
 
+```text
 Terraform Code
-
-terraform plan
-
-Xem những resources sẽ thay đổi
-
-terraform apply
-
-Tạo hoặc cập nhật AWS resources
-
-Terraform State
-
-Theo dõi resources đang quản lý
+      ↓
+terraform plan   → Xem những resources sẽ thay đổi
+      ↓
+terraform apply  → Tạo hoặc cập nhật AWS resources
+      ↓
+Terraform State  → Theo dõi resources đang quản lý
+```
 
 ## 11. Cấu trúc Terraform project
 
-```
+```text
 eks-infrastructure/
 ├── versions.tf
 ├── providers.tf
@@ -458,10 +381,9 @@ eks-infrastructure/
 
 ### Ví dụ Terraform với VPC và EKS
 
-Ví dụ rút gọn sau dùng các module Terraform AWS phổ biến. Đây là khung học kiến trúc, chưa phải cấu hình hoàn chỉnh, đã xác minh tương thích phiên bản và an toàn để `apply` trực tiếp.
+Ví dụ rút gọn sau dùng các module Terraform AWS phổ biến. Đây là khung học kiến trúc, chưa phải cấu hình hoàn chỉnh, chưa được xác minh tương thích phiên bản và chưa an toàn để `apply` trực tiếp.
 
-```
-
+```hcl
 provider "aws" {
   region = var.aws_region
 }
@@ -506,7 +428,6 @@ module "eks" {
   # Kubernetes, node group, add-on and access settings
   # before planning or applying.
 }
-
 ```
 
 Tại sao không nên copy code mẫu trên và apply ngay?
@@ -519,7 +440,7 @@ Tại sao không nên copy code mẫu trên và apply ngay?
 
 ### Lệnh Terraform phải thuộc
 
-```
+```bash
 terraform init
 terraform fmt -check
 terraform validate
@@ -531,12 +452,12 @@ terraform state list
 
 Cleanup lab khi đã xác nhận toàn bộ resources và hậu quả:
 
-```
+```bash
 terraform plan -destroy
 terraform destroy
 ```
 
-Cảnh báo: `terraform destroy` không tự bảo đảm dọn hết mọi tài nguyên được controllers tạo bên ngoài Terraform, chẳng hạn load balancers và volumes. Cũng không nên chạy destroy khi còn dữ liệu cần giữ.
+> **Cảnh báo:** `terraform destroy` không tự bảo đảm dọn hết mọi tài nguyên được controllers tạo bên ngoài Terraform, chẳng hạn load balancers và volumes. Cũng không nên chạy destroy khi còn dữ liệu cần giữ.
 
 ## 12. Terraform State
 
@@ -563,7 +484,7 @@ ECR (Elastic Container Registry) là container image registry của AWS.
 
 Luồng triển khai:
 
-```
+```text
 Source Code
    ↓
 GitHub Actions
@@ -581,7 +502,7 @@ Kubernetes Pods
 
 Ví dụ lệnh học tập, sau khi bạn đã tạo ECR repository và xác định đúng account, region:
 
-```
+```bash
 aws sts get-caller-identity \
   --profile <lab-profile>
 
@@ -593,7 +514,7 @@ aws ecr describe-repositories \
 
 Login ECR:
 
-```
+```bash
 aws ecr get-login-password \
   --region ap-southeast-1 \
   --profile <lab-profile> \
@@ -605,7 +526,7 @@ aws ecr get-login-password \
 
 Build và push:
 
-```
+```bash
 docker build -t backend:v1 .
 
 docker tag backend:v1 \
@@ -619,47 +540,15 @@ Sau đó Deployment sử dụng image URI trên ECR.
 
 ## 15. CI/CD Production Workflow
 
-1
-
-Developer Push
-
-GitHub Pull Request / main
-
-2
-
-CI
-
-Lint, test, SAST, dependency checks
-
-3
-
-Container Build
-
-Image tagged with commit SHA
-
-4
-
-Registry
-
-Push immutable artifact lên ECR
-
-5
-
-GitOps Update
-
-PR cập nhật image digest
-
-6
-
-ArgoCD
-
-Sync EKS cluster từ Git
-
-7
-
-Verify
-
-Health, smoke tests, metrics, rollback
+| Bước | Giai đoạn       | Nội dung                               |
+| ---- | --------------- | -------------------------------------- |
+| 1    | Developer Push  | GitHub Pull Request / main             |
+| 2    | CI              | Lint, test, SAST, dependency checks    |
+| 3    | Container Build | Image tagged with commit SHA           |
+| 4    | Registry        | Push immutable artifact lên ECR        |
+| 5    | GitOps Update   | PR cập nhật image digest               |
+| 6    | ArgoCD          | Sync EKS cluster từ Git                |
+| 7    | Verify          | Health, smoke tests, metrics, rollback |
 
 ### Vì sao nên dùng GitHub OIDC thay vì long-lived AWS keys?
 
@@ -686,20 +575,15 @@ Trong production:
 | Thường dùng với Ingress | Thường dùng với Service LoadBalancer    |
 | Phù hợp web/API         | Phù hợp TCP services, network use cases |
 
-Trong EKS truyền thống, AWS Load Balancer Controller có thể tạo ALB từ Ingress và NLB từ Service `LoadBalancer`, tùy cấu hình.&#x20;
+Trong EKS truyền thống, AWS Load Balancer Controller có thể tạo ALB từ Ingress và NLB từ Service `LoadBalancer`, tùy cấu hình.
 
-[image](https://www.google.com/s2/favicons?domain=https://docs.aws.amazon.com\&sz=32)
-
-Amazon EKS
-
-
+*Nguồn: Amazon EKS*
 
 ## 17. AWS ALB Ingress
 
 Ví dụ:
 
-```
-
+```yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -721,46 +605,30 @@ spec:
                 name: backend-svc
                 port:
                   number: 80
-
 ```
 
 Đây là ví dụ cho cluster dùng AWS Load Balancer Controller truyền thống, đã cấu hình IAM, controller và subnet discovery. Auto Mode dùng integration/controller-specific configuration khác.
 
 ### ALB Target Types
 
-Instance Mode
+| Target type   | Luồng traffic          | Thành phần                |
+| ------------- | ---------------------- | ------------------------- |
+| Instance Mode | ALB → NodePort → Pod   | EC2 Node → Pod            |
+| IP Mode       | ALB → Pod IP trực tiếp | ALB IP Target → Pod       |
 
-ALB → NodePort → Pod
+AWS mô tả `instance` target mode dùng NodePort, còn `ip` mode định tuyến đến Pod IP trực tiếp.
 
-EC2 Node
-
-Pod
-
-IP Mode
-
-ALB → Pod IP trực tiếp
-
-ALB IP Target
-
-Pod
-
-AWS mô tả `instance` target mode dùng NodePort, còn `ip` mode định tuyến đến Pod IP trực tiếp.&#x20;
-
-[image](https://www.google.com/s2/favicons?domain=https://docs.aws.amazon.com\&sz=32)
-
-Amazon EKS
-
-
+*Nguồn: Amazon EKS*
 
 ### HTTPS Production
 
 Để có HTTPS, bạn thường kết hợp:
 
-- Route 53: DNS.
-- AWS Certificate Manager: TLS certificate.
-- ALB Listener 443.
-- Target Group: Backend target registration và health checks.
-- Security Groups: Cho phép luồng traffic cần thiết.
+- **Route 53** — DNS.
+- **AWS Certificate Manager** — TLS certificate.
+- **ALB Listener 443**.
+- **Target Group** — Backend target registration và health checks.
+- **Security Groups** — Cho phép luồng traffic cần thiết.
 
 Không nên tự động expose mọi Kubernetes Service ra Internet.
 
@@ -768,7 +636,7 @@ Không nên tự động expose mọi Kubernetes Service ra Internet.
 
 Luồng trace:
 
-```
+```text
 Client
   ↓
 Route 53
@@ -796,13 +664,13 @@ Application
 
 Ví dụ truy vấn targets:
 
-```
+```bash
 aws elbv2 describe-target-health \
   --target-group-arn <target-group-arn> \
   --profile <lab-profile>
 ```
 
-Cảnh báo: Trong một incident, tăng memory limit của backend hoặc restart toàn bộ Pods trước khi kiểm tra target health, OOM và rollout có thể làm sự cố nặng hơn.
+> **Cảnh báo:** Trong một incident, tăng memory limit của backend hoặc restart toàn bộ Pods trước khi kiểm tra target health, OOM và rollout có thể làm sự cố nặng hơn.
 
 # Phần 7 — EBS CSI Driver & Persistent Storage
 
@@ -810,21 +678,21 @@ Cảnh báo: Trong một incident, tăng memory limit của backend hoặc resta
 
 Bạn đã học PV/PVC ở Giai đoạn 1. Trên EKS, Amazon EBS có thể là backing storage của PVC.
 
+```text
 Database Pod
-
-Mount: /var/lib/database
-
+  Mount: /var/lib/database
+        ↓
 PVC
-
+        ↓
 StorageClass + EBS CSI Driver
-
+        ↓
 Amazon EBS Volume
-
-Gắn vào EC2 Node tương thích
+  Gắn vào EC2 Node tương thích
+```
 
 ### StorageClass — EKS truyền thống
 
-```
+```yaml
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
@@ -841,7 +709,7 @@ Cấu hình này yêu cầu Amazon EBS CSI Driver tương thích đã cài và c
 
 ### PVC
 
-```
+```yaml
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -875,17 +743,18 @@ Một trong những kiến thức quan trọng nhất khi làm EKS:
 
 HPA tăng số Pods, còn Karpenter hoặc một node autoscaler khác cung cấp thêm compute capacity khi cần.
 
+```text
 Traffic tăng
-
+     ↓
 HPA tăng replicas 3 → 8
-
+     ↓
 Pods Pending
-
-Insufficient CPU / Memory
-
+  Insufficient CPU / Memory
+     ↓
 Karpenter provision thêm EC2 Nodes
-
+     ↓
 Pending Pods được schedule
+```
 
 Đây là luồng điển hình. Karpenter không bắt buộc phải đợi HPA; nó phản ứng với nhu cầu scheduling/capacity của Pods.
 
@@ -901,8 +770,7 @@ Trong self-managed Karpenter trên EKS, bạn thường gặp:
 
 Ví dụ NodePool minh họa:
 
-```
-
+```yaml
 apiVersion: karpenter.sh/v1
 kind: NodePool
 metadata:
@@ -923,7 +791,6 @@ spec:
           values: ["on-demand"]
   limits:
     cpu: "100"
-
 ```
 
 Đây là manifest minh họa, chưa thể apply nếu không có Karpenter Controller, EC2NodeClass, IAM và discovery configuration tương ứng.
@@ -959,19 +826,19 @@ Nhưng:
 
 Kết quả: Pods Pending dù HPA hoạt động đúng.
 
-Trace: HPA → Pod Scheduling Events → Karpenter NodeClaims/Events → EC2 capacity/quota → VPC networking.
+Trace:
+
+```text
+HPA → Pod Scheduling Events → Karpenter NodeClaims/Events → EC2 capacity/quota → VPC networking
+```
 
 ## 23. EKS Auto Mode và Karpenter
 
 EKS Auto Mode sử dụng cơ chế Karpenter-based scaling do AWS quản lý, nên bạn không nhất thiết cài và vận hành self-managed Karpenter Controller. Bạn vẫn cấu hình compute policies thông qua các resource được Auto Mode hỗ trợ.
 
-AWS cũng quản lý node replacement và một số thành phần quan trọng ngoài cluster.&#x20;
+AWS cũng quản lý node replacement và một số thành phần quan trọng ngoài cluster.
 
-[image](https://www.google.com/s2/favicons?domain=https://docs.aws.amazon.com\&sz=32)
-
-Amazon EKS
-
-
+*Nguồn: Amazon EKS*
 
 # Phần 9 — Production Observability & Security
 
@@ -1003,7 +870,7 @@ Bạn cần giám sát theo nhiều lớp.
 
 ## 25. Monitoring Architecture
 
-```
+```text
 EKS Workloads
     ├── Application Metrics → Prometheus
     ├── Container Logs → Loki / CloudWatch
@@ -1037,16 +904,16 @@ AWS Infrastructure
 
 Các lớp security quan trọng:
 
-1. IAM: Least privilege, temporary credentials, phân tách quyền.
-2. EKS Access: Access Entries, hạn chế cluster-admin.
-3. Workload Identity: Pod Identity hoặc IRSA.
-4. Network: Private subnets, security groups, NetworkPolicy.
-5. Kubernetes: RBAC, ServiceAccounts, Pod Security.
-6. Container: Non-root, seccomp, image scanning, read-only root filesystem khi phù hợp.
-7. Secrets: AWS Secrets Manager và cơ chế tích hợp an toàn.
-8. Supply Chain: Image digest, scanning, signed artifacts/provenance khi triển khai.
-9. Audit: CloudTrail, EKS audit logs và logging retention.
-10. Recovery: Backups và tested restore procedure.
+1. **IAM** — Least privilege, temporary credentials, phân tách quyền.
+2. **EKS Access** — Access Entries, hạn chế cluster-admin.
+3. **Workload Identity** — Pod Identity hoặc IRSA.
+4. **Network** — Private subnets, security groups, NetworkPolicy.
+5. **Kubernetes** — RBAC, ServiceAccounts, Pod Security.
+6. **Container** — Non-root, seccomp, image scanning, read-only root filesystem khi phù hợp.
+7. **Secrets** — AWS Secrets Manager và cơ chế tích hợp an toàn.
+8. **Supply Chain** — Image digest, scanning, signed artifacts/provenance khi triển khai.
+9. **Audit** — CloudTrail, EKS audit logs và logging retention.
+10. **Recovery** — Backups và tested restore procedure.
 
 ### Đặc biệt: Security Groups vs NetworkPolicy
 
@@ -1090,7 +957,7 @@ Cần phân biệt:
 
 Quy trình khuyến nghị:
 
-```
+```text
 Assess compatibility
        ↓
 Test non-production
@@ -1122,7 +989,7 @@ Với EKS, disaster recovery gồm nhiều lớp:
 - IAM roles, certificates, secrets và network infrastructure.
 - Runbook khôi phục.
 
-Điểm phải nhớ: Khôi phục Kubernetes manifests không đồng nghĩa khôi phục dữ liệu ứng dụng.
+> **Điểm phải nhớ:** Khôi phục Kubernetes manifests không đồng nghĩa khôi phục dữ liệu ứng dụng.
 
 Ví dụ PostgreSQL vẫn cần backup/restore hoặc cơ chế replication thích hợp.
 
@@ -1132,25 +999,20 @@ Ví dụ PostgreSQL vẫn cần backup/restore hoặc cơ chế replication thí
 
 Có. Đây là phần đặc biệt quan trọng vì EKS không giống Kind chạy local miễn phí.
 
-Theo bảng giá AWS hiện hành, EKS cluster với Kubernetes version trong standard support có phí control plane khoảng $0.10/giờ, chưa bao gồm EC2, load balancer, storage, NAT Gateway và các dịch vụ khác. Extended support có giá cao hơn.&#x20;
+Theo bảng giá AWS hiện hành, EKS cluster với Kubernetes version trong standard support có phí control plane khoảng $0.10/giờ, chưa bao gồm EC2, load balancer, storage, NAT Gateway và các dịch vụ khác. Extended support có giá cao hơn.
 
-[image](https://www.google.com/s2/favicons?domain=https://aws.amazon.com\&sz=32)
+*Nguồn: Amazon Web Services, Inc.*
 
-Amazon Web Services, Inc.
+### Ước tính riêng EKS Control Plane
 
+| Thông số               | Giá trị                               |
+| ---------------------- | ------------------------------------- |
+| Thời gian chạy cluster | 24 giờ                                |
+| Phạm vi                | Standard support · Control plane only |
+| Đơn giá                | $0.10/giờ                             |
+| Ước tính               | **$2.40**                             |
 
-
-Ước tính riêng EKS Control Plane
-
-Thời gian chạy cluster
-
-24 giờ
-
-Standard support · Control plane only
-
-# $2.40
-
-\= 24 giờ × $0.10/giờ
+Cách tính: 24 giờ × $0.10/giờ = $2.40.
 
 Chưa bao gồm EC2, EBS, ALB/NLB, NAT, public IPv4, data transfer, logs và các phí phát sinh khác. Số tiền thực tế phụ thuộc region và kiến trúc.
 
@@ -1169,19 +1031,11 @@ Chưa bao gồm EC2, EBS, ALB/NLB, NAT, public IPv4, data transfer, logs và cá
 
 ### Chiến lược học tiết kiệm
 
-Giai đoạn A — Local Kind
+- **Giai đoạn A — Local Kind** — Học Helm, ArgoCD, HPA, probes, scheduling, monitoring và troubleshooting trên cluster hiện tại. Không cần tạo EKS.
+- **Giai đoạn B — EKS Lab ngắn hạn** — Tạo cluster bằng IaC sau khi review estimated cost, thực hành AWS-specific features trong vài giờ, rồi dọn resources khi đã xác minh dữ liệu không còn cần.
+- **Giai đoạn C — Production Architecture** — Thiết kế Multi-AZ, IAM, autoscaling, monitoring, backup và CI/CD theo chuẩn production, không nhất thiết chạy cluster 24/7 chỉ để học.
 
-Học Helm, ArgoCD, HPA, probes, scheduling, monitoring và troubleshooting trên cluster hiện tại. Không cần tạo EKS.
-
-Giai đoạn B — EKS Lab ngắn hạn
-
-Tạo cluster bằng IaC sau khi review estimated cost, thực hành AWS-specific features trong vài giờ, rồi dọn resources khi đã xác minh dữ liệu không còn cần.
-
-Giai đoạn C — Production Architecture
-
-Thiết kế Multi-AZ, IAM, autoscaling, monitoring, backup và CI/CD theo chuẩn production, không nhất thiết chạy cluster 24/7 chỉ để học.
-
-Nếu tài khoản AWS của bạn còn credit, hãy kiểm tra phạm vi áp dụng, ngày hết hạn và dịch vụ được cover trong Billing trước khi dựa vào credit để triển khai. Credit không làm tài nguyên tự dừng khi hết.
+> Nếu tài khoản AWS của bạn còn credit, hãy kiểm tra phạm vi áp dụng, ngày hết hạn và dịch vụ được cover trong Billing trước khi dựa vào credit để triển khai. Credit không làm tài nguyên tự dừng khi hết.
 
 # Phần 12 — Capstone: AWS EKS Production Platform
 
@@ -1189,7 +1043,7 @@ Nếu tài khoản AWS của bạn còn credit, hãy kiểm tra phạm vi áp d�
 
 ## 31. Xây dựng hệ thống gì?
 
-Production-Style FastAPI Platform on AWS EKS
+**Production-Style FastAPI Platform on AWS EKS**
 
 Ứng dụng mẫu có:
 
@@ -1204,35 +1058,25 @@ Production-Style FastAPI Platform on AWS EKS
 - Prometheus + Grafana và tập trung logs.
 - Terraform quản lý AWS resources.
 
+```text
 User — api.example.com
-
+          ↓
 Route 53 + ACM + ALB
+  DNS · HTTPS · Routing
+          ↓
++-------------------------------------------+
+| Amazon EKS                                |
+|   [ API 1 ]   [ API 2 ]   [ API 3 ]       |
+|   Deployment · HPA · Probes · Service     |
+|                                           |
+|   [ Prometheus ]   [ Logs ]               |
++-------------------------------------------+
+          ↓                     ↓
+RDS PostgreSQL              Redis
+  Managed Database            Cache / Queue
 
-DNS · HTTPS · Routing
-
-Amazon EKS
-
-API 1
-
-API 2
-
-API 3
-
-Deployment · HPA · Probes · Service
-
-Prometheus
-
-Logs
-
-RDS PostgreSQL
-
-Managed Database
-
-Redis
-
-Cache / Queue
-
-GitHub Actions → ECR → GitOps → ArgoCD → EKS
+Delivery: GitHub Actions → ECR → GitOps → ArgoCD → EKS
+```
 
 ## 32. Yêu cầu hoàn thành Capstone
 
@@ -1262,9 +1106,11 @@ Khi Capstone chạy được, hãy chủ động giả lập trong môi trườn
 7. Phát hành image lỗi → rollback.
 8. Kiểm tra backup và restore bằng dữ liệu thử nghiệm.
 
-Không thực hiện các thử nghiệm phá hoại này trên production đang có người dùng thật.
+> Không thực hiện các thử nghiệm phá hoại này trên production đang có người dùng thật.
 
 # Phần 13 — EKS Troubleshooting Cheat Sheet
+
+## 33. Triệu chứng và kiểm tra đầu tiên
 
 | Triệu chứng               | Kiểm tra đầu tiên                                       |
 | ------------------------- | ------------------------------------------------------- |
@@ -1284,7 +1130,7 @@ Không thực hiện các thử nghiệm phá hoại này trên production đang
 
 ### Các lệnh cần nhớ
 
-```
+```bash
 # AWS identity
 aws sts get-caller-identity
 
@@ -1316,59 +1162,66 @@ kubectl get storageclass
 
 # Phần 14 — Kiểm tra kiến thức EKS
 
-AWS EKS Knowledge Test
+## 34. AWS EKS Knowledge Test
 
-0/8 câu
+*8 câu hỏi*
 
-1\. Trong EKS Managed Node Groups, AWS quản lý gì rõ nhất?
+**1. Trong EKS Managed Node Groups, AWS quản lý gì rõ nhất?**
 
-Kubernetes control plane và một phần vòng đời node group
+- A. Kubernetes control plane và một phần vòng đời node group
+- B. Toàn bộ application logic và database
 
-Toàn bộ application logic và database
+> **Đáp án:** A — AWS vận hành control plane và quản lý vòng đời node group; application logic và database vẫn là trách nhiệm của bạn.
 
-2\. Pod trên private subnet cần truy cập public Internet theo kiến trúc IPv4 thông thường. Cần gì?
+**2. Pod trên private subnet cần truy cập public Internet theo kiến trúc IPv4 thông thường. Cần gì?**
 
-Chỉ cần ClusterIP
+- A. Chỉ cần ClusterIP
+- B. Outbound route qua NAT hoặc giải pháp phù hợp
+- C. Ingress
 
-Outbound route qua NAT hoặc giải pháp phù hợp
+> **Đáp án:** B — Private subnet không có route trực tiếp đến Internet Gateway; outbound đi qua NAT Gateway hoặc giải pháp tương đương. ClusterIP và Ingress chỉ xử lý traffic trong cluster hoặc traffic đi vào.
 
-Ingress
+**3. Backend Pod cần đọc S3. Cách cấp quyền phù hợp nhất?**
 
-3\. Backend Pod cần đọc S3. Cách cấp quyền phù hợp nhất?
+- A. Lưu AWS root key trong Secret
+- B. Pod Identity hoặc IRSA và least-privilege IAM role
 
-Lưu AWS root key trong Secret
+> **Đáp án:** B — Pod Identity/IRSA cấp temporary credentials qua IAM role tối thiểu, không cần lưu long-lived keys trong Secret.
 
-Pod Identity hoặc IRSA và least-privilege IAM role
+**4. HPA tăng replicas nhưng Pods Pending vì Insufficient CPU. Bạn cần điều tra gì?**
 
-4\. HPA tăng replicas nhưng Pods Pending vì Insufficient CPU. Bạn cần điều tra gì?
+- A. Node capacity và node autoscaler
+- B. Chỉ tăng memory limit
 
-Node capacity và node autoscaler
+> **Đáp án:** A — HPA chỉ tăng số Pods; thiếu CPU để schedule là vấn đề capacity, cần kiểm tra Node và Karpenter/node autoscaler.
 
-Chỉ tăng memory limit
+**5. ALB target-type ip khác instance như thế nào?**
 
-5\. ALB target-type ip khác instance như thế nào?
+- A. IP trực tiếp tới Pod IP; instance thông qua NodePort
+- B. Không có gì khác
 
-IP trực tiếp tới Pod IP; instance thông qua NodePort
+> **Đáp án:** A — `ip` mode định tuyến đến Pod IP trực tiếp, còn `instance` mode đi qua NodePort trên Node.
 
-Không có gì khác
+**6. PVC dùng EBS tại AZ A, Pod phải chạy AZ B. Nguy cơ gì?**
 
-6\. PVC dùng EBS tại AZ A, Pod phải chạy AZ B. Nguy cơ gì?
+- A. Volume topology/attachment mismatch
+- B. CoreDNS tự sửa mọi thứ
 
-Volume topology/attachment mismatch
+> **Đáp án:** A — EBS volume gắn với một Availability Zone nên không thể attach vào Node ở AZ khác.
 
-CoreDNS tự sửa mọi thứ
+**7. ArgoCD hiển thị Synced nhưng ALB trả 502. Bạn nên làm gì?**
 
-7\. ArgoCD hiển thị Synced nhưng ALB trả 502. Bạn nên làm gì?
+- A. Xem target health, Service endpoints, Pods và logs
+- B. Kết luận ArgoCD bị lỗi
 
-Xem target health, Service endpoints, Pods và logs
+> **Đáp án:** A — Synced chỉ cho biết manifests khớp Git; lỗi 502 cần trace qua target health, endpoints, readiness và logs ứng dụng.
 
-Kết luận ArgoCD bị lỗi
+**8. Khi xóa EKS cluster, điều gì cần kiểm tra?**
 
-8\. Khi xóa EKS cluster, điều gì cần kiểm tra?
+- A. Chỉ cần cluster biến mất khỏi console
+- B. Load balancers, EC2, EBS, NAT, VPC, logs và Terraform-managed resources
 
-Chỉ cần cluster biến mất khỏi console
-
-Load balancers, EC2, EBS, NAT, VPC, logs và Terraform-managed resources
+> **Đáp án:** B — Nhiều tài nguyên do controllers hoặc Terraform tạo có thể còn tồn tại và tiếp tục phát sinh phí sau khi cluster bị xóa.
 
 ## Tổng kết toàn bộ 5 giai đoạn Kubernetes
 
@@ -1380,6 +1233,6 @@ Load balancers, EC2, EBS, NAT, VPC, logs và Terraform-managed resources
 | 4. Production Platform    | Helm, Prometheus, Loki, GitOps, CI/CD, Security              |
 | 5. AWS EKS                | Terraform, AWS Networking/IAM, EKS, ECR, ALB, EBS, Karpenter |
 
-Mốc hoàn thành thực sự: Bạn có thể tự provision EKS bằng Terraform, deploy một backend qua CI/CD và GitOps, expose HTTPS, cấu hình autoscaling và IAM, theo dõi metrics/logs, xử lý 502/OOM/Pending, đồng thời quản lý được backup và chi phí.
+> **Mốc hoàn thành thực sự:** Bạn có thể tự provision EKS bằng Terraform, deploy một backend qua CI/CD và GitOps, expose HTTPS, cấu hình autoscaling và IAM, theo dõi metrics/logs, xử lý 502/OOM/Pending, đồng thời quản lý được backup và chi phí.
 
 Đến đây, bạn đã có bản đồ kiến thức Kubernetes từ cơ bản đến production. Bước học giá trị nhất tiếp theo không phải thêm lý thuyết, mà là làm Capstone end-to-end, trước trên Kind và sau đó thực hành các thành phần đặc thù AWS trên EKS với ngân sách được kiểm soát.

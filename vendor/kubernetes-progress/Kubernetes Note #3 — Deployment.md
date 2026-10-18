@@ -10,25 +10,16 @@ Nó giải quyết 4 vấn đề chính:
 - Scale ứng dụng lên hoặc xuống.
 - Cập nhật phiên bản và rollback.
 
-Deployment
-
-Quản lý rollout và ReplicaSets
-
-ReplicaSet
-
-Duy trì số lượng Pod
-
-Pod 1
-
-Container
-
-Pod 2
-
-Container
-
-Pod 3
-
-Container
+```text
+Deployment            (Quản lý rollout và ReplicaSets)
+  └── ReplicaSet      (Duy trì số lượng Pod)
+        ├── Pod 1
+        │     └── Container
+        ├── Pod 2
+        │     └── Container
+        └── Pod 3
+              └── Container
+```
 
 | Resource   | Trách nhiệm                             |
 | ---------- | --------------------------------------- |
@@ -37,14 +28,13 @@ Container
 | ReplicaSet | Duy trì số lượng Pod                    |
 | Deployment | Quản lý ReplicaSet, rollout và rollback |
 
-Ghi nhớ: Deployment không trực tiếp tạo container. Deployment quản lý ReplicaSet → ReplicaSet quản lý Pod → Pod chứa container.
+> **Ghi nhớ:** Deployment không trực tiếp tạo container. Deployment quản lý ReplicaSet → ReplicaSet quản lý Pod → Pod chứa container.
 
 ## 2. Deployment Manifest
 
 Đây là cấu trúc YAML bạn phải hiểu:
 
-```
-
+```yaml
 apiVersion: apps/v1
 kind: Deployment
 
@@ -82,7 +72,6 @@ spec:
               path: /
               port: 80
             periodSeconds: 5
-
 ```
 
 ### Những field bắt buộc phải nhớ
@@ -103,7 +92,9 @@ spec:
 
 Kubernetes vận hành theo nguyên tắc:
 
-\\[ \text{Desired State} \longrightarrow \text{Actual State} \\]
+```text
+Desired State ──> Actual State
+```
 
 Ví dụ:
 
@@ -111,13 +102,13 @@ Ví dụ:
 - Actual: 2 Pods.
 - ReplicaSet tạo thêm 1 Pod để quay về 3.
 
-```
+```bash
 kubectl delete pod <pod-name> -n production
 ```
 
 Nếu Pod thuộc Deployment, Kubernetes sẽ tạo Pod thay thế.
 
-Lưu ý: Self-healing không có nghĩa ứng dụng sẽ không bao giờ downtime. Nếu Node lỗi, thiếu tài nguyên hoặc image không pull được, Pod mới có thể không chạy thành công.
+> **Lưu ý:** Self-healing không có nghĩa ứng dụng sẽ không bao giờ downtime. Nếu Node lỗi, thiếu tài nguyên hoặc image không pull được, Pod mới có thể không chạy thành công.
 
 ## 4. Scaling
 
@@ -130,7 +121,7 @@ Scaling có hai kiểu:
 
 Ví dụ Horizontal Scaling:
 
-```
+```bash
 kubectl scale deployment backend --replicas=5 -n production
 ```
 
@@ -138,7 +129,7 @@ Kubernetes điều chỉnh ReplicaSet từ 3 lên 5 Pods.
 
 Kiểm tra:
 
-```
+```bash
 kubectl get deploy,rs,pods -n production
 ```
 
@@ -150,7 +141,7 @@ Rolling Update là cập nhật ứng dụng từng phần thay vì xóa toàn b
 
 Ví dụ:
 
-```
+```bash
 kubectl set image deployment/backend \
   backend=nginx:1.28-alpine -n production
 ```
@@ -163,17 +154,15 @@ Kubernetes sẽ:
 4. Giảm dần Pod phiên bản cũ.
 5. Hoàn tất rollout khi đạt trạng thái mong muốn.
 
-Ví dụ Rolling Update — 4 Replicas
+### Ví dụ Rolling Update — 4 Replicas
 
-Bắt đầuĐang updateHoàn tất
+Các trạng thái minh họa: **Bắt đầu → Đang update → Hoàn tất**.
 
-v1
+Trạng thái **Bắt đầu**:
 
-v1
-
-v1
-
-v1
+```text
+[v1] [v1] [v1] [v1]
+```
 
 4 Pods v1 đang phục vụ. Đây là các trạng thái minh họa, không phải toàn bộ các bước của rollout.
 
@@ -188,7 +177,7 @@ Giả sử có 4 replicas:
 | `maxSurge: 0`       | Không tạo Pod vượt số replicas                                        |
 | `maxUnavailable: 0` | Không chủ động giảm số Pod Available dưới mức mong muốn trong rollout |
 
-Lưu ý: Các giới hạn này thuộc chiến lược rollout, không bảo đảm số Pod khỏe trong mọi tình huống như Node failure.
+> **Lưu ý:** Các giới hạn này thuộc chiến lược rollout, không bảo đảm số Pod khỏe trong mọi tình huống như Node failure.
 
 ## 6. Rollout, Rollback và Restart
 
@@ -201,7 +190,7 @@ Ba lệnh này rất dễ nhầm:
 | `rollout undo`    | Khôi phục Pod template phiên bản trước   |
 | `rollout restart` | Khởi động lại Pods thông qua rollout mới |
 
-```
+```bash
 # Kiểm tra trạng thái
 kubectl rollout status deploy/backend -n production
 
@@ -215,7 +204,7 @@ kubectl rollout undo deploy/backend -n production
 kubectl rollout restart deploy/backend -n production
 ```
 
-Quan trọng: Rollback không tự động xảy ra chỉ vì Deployment bị lỗi. Kubernetes thường giữ lại những Pod khỏe theo chiến lược rollout, nhưng bạn cần thao tác rollback hoặc có hệ thống tự động hóa riêng.
+> **Quan trọng:** Rollback không tự động xảy ra chỉ vì Deployment bị lỗi. Kubernetes thường giữ lại những Pod khỏe theo chiến lược rollout, nhưng bạn cần thao tác rollback hoặc có hệ thống tự động hóa riêng.
 
 ## 7. Readiness, Liveness và Startup Probe
 
@@ -246,7 +235,7 @@ Các lỗi nên nhận diện ngay:
 
 Quy trình debug nên nhớ:
 
-```
+```bash
 kubectl get deploy,rs,pods -n production
 
 kubectl describe deployment backend -n production
@@ -271,60 +260,59 @@ kubectl get events -n production \
 
 ## 10. Mini Assessment — Kiểm tra bạn đã cứng Deployment chưa
 
-Deployment Knowledge Test
+### Deployment Knowledge Test
 
-0/6 đã trả lời
+Gồm 6 câu hỏi.
 
-1\. Deployment có 3 replicas. Bạn xóa một Pod. Ai chịu trách nhiệm tạo Pod thay thế?
+**1. Deployment có 3 replicas. Bạn xóa một Pod. Ai chịu trách nhiệm tạo Pod thay thế?**
 
-Service
+- A. Service
+- B. ReplicaSet
+- C. Kube-proxy
 
-ReplicaSet
+> **Đáp án:** B — ReplicaSet duy trì số lượng Pod mong muốn nên tạo Pod thay thế.
 
-Kube-proxy
+**2. Bạn update image và thấy 2 ReplicaSets. Điều này có bình thường?**
 
-2\. Bạn update image và thấy 2 ReplicaSets. Điều này có bình thường?
+- A. Có, Deployment sử dụng ReplicaSet mới khi Pod template thay đổi
+- B. Không, cluster đang lỗi
 
-Có, Deployment sử dụng ReplicaSet mới khi Pod template thay đổi
+> **Đáp án:** A — Rolling Update tạo ReplicaSet mới cho Pod template mới và giảm dần ReplicaSet cũ.
 
-Không, cluster đang lỗi
+**3. Ứng dụng có 4 replicas, maxSurge=1. Tối đa bao nhiêu Pods được phép tồn tại trong rollout?**
 
-3\. Ứng dụng có 4 replicas, maxSurge=1. Tối đa bao nhiêu Pods được phép tồn tại trong rollout?
+- A. 3
+- B. 4
+- C. 5
 
-3
+> **Đáp án:** C — 4 replicas + maxSurge 1 = tối đa 5 Pods trong rollout.
 
-4
+**4. Pod Running nhưng readinessProbe thất bại. Điều gì xảy ra?**
 
-5
+- A. Pod luôn bị xóa ngay
+- B. Pod không được coi là Ready để nhận traffic qua Service
+- C. Deployment tự rollback
 
-4\. Pod Running nhưng readinessProbe thất bại. Điều gì xảy ra?
+> **Đáp án:** B — Readiness thất bại khiến Pod bị loại khỏi danh sách endpoint sẵn sàng của Service, không bị xóa hay restart.
 
-Pod luôn bị xóa ngay
+**5. Developer deploy nhầm `nginx:invalid-tag`. Kubernetes có tự rollback không?**
 
-Pod không được coi là Ready để nhận traffic qua Service
+- A. Có
+- B. Không
 
-Deployment tự rollback
+> **Đáp án:** B — Rollback không tự động xảy ra; bạn cần chạy `rollout undo` hoặc có hệ thống tự động hóa riêng.
 
-5\. Developer deploy nhầm nginx:invalid-tag. Kubernetes có tự rollback không?
+**6. Sự khác nhau giữa rollout restart và rollout undo?**
 
-Có
+- A. Restart khởi động lại Pods, undo khôi phục revision trước
+- B. Hai lệnh giống nhau
 
-Không
-
-6\. Sự khác nhau giữa rollout restart và rollout undo?
-
-Restart khởi động lại Pods, undo khôi phục revision trước
-
-Hai lệnh giống nhau
+> **Đáp án:** A — `rollout restart` tạo rollout mới để khởi động lại Pods; `rollout undo` khôi phục Pod template của revision trước.
 
 ### Chốt lại: 5 điều bạn phải nhớ khi đi làm
 
-Deployment quản lý ReplicaSet, ReplicaSet quản lý Pod. Bạn khai báo desired state, Kubernetes liên tục reconcile để tiến tới trạng thái đó.
-
-Rolling Update thay thế Pod từ từ, còn rollback khôi phục phiên bản trước. `maxSurge` kiểm soát Pod tạo thêm, `maxUnavailable` kiểm soát mức giảm availability trong rollout.
-
-Khi Deployment gặp lỗi, đừng vội restart. Hãy kiểm tra Deployment → ReplicaSet → Pod → Events → Logs để tìm nguyên nhân.
-
-Nếu bạn có thể tự viết Deployment YAML, thực hiện scale, cập nhật image, giải thích rolling update và tự debug `ImagePullBackOff` mà không nhìn tài liệu, thì bạn đã khá vững Deployment ở mức nền tảng đến trung cấp.
-
-Bước học tiếp theo trong giáo trình là Lab 8 — StatefulSet, giúp bạn hiểu cách Kubernetes vận hành database và các ứng dụng cần giữ dữ liệu.
+1. Deployment quản lý ReplicaSet, ReplicaSet quản lý Pod. Bạn khai báo desired state, Kubernetes liên tục reconcile để tiến tới trạng thái đó.
+2. Rolling Update thay thế Pod từ từ, còn rollback khôi phục phiên bản trước. `maxSurge` kiểm soát Pod tạo thêm, `maxUnavailable` kiểm soát mức giảm availability trong rollout.
+3. Khi Deployment gặp lỗi, đừng vội restart. Hãy kiểm tra Deployment → ReplicaSet → Pod → Events → Logs để tìm nguyên nhân.
+4. Nếu bạn có thể tự viết Deployment YAML, thực hiện scale, cập nhật image, giải thích rolling update và tự debug `ImagePullBackOff` mà không nhìn tài liệu, thì bạn đã khá vững Deployment ở mức nền tảng đến trung cấp.
+5. Bước học tiếp theo trong giáo trình là Lab 8 — StatefulSet, giúp bạn hiểu cách Kubernetes vận hành database và các ứng dụng cần giữ dữ liệu.

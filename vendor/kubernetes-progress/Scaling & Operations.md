@@ -1,8 +1,6 @@
 # Kubernetes — Giai đoạn 3: Scaling & Operations
 
-Intermediate → Advanced
-
-7 chủ đề · Scaling · Scheduling · Reliability · Troubleshooting
+*Intermediate → Advanced · 7 chủ đề · Scaling · Scheduling · Reliability · Troubleshooting*
 
 Sau Giai đoạn 1 (Application Deployment) và Giai đoạn 2 (Networking & Security), đây là giai đoạn bạn học cách Kubernetes tự động mở rộng ứng dụng, phân phối workload và vận hành hệ thống khi xảy ra sự cố.
 
@@ -16,39 +14,15 @@ Mục tiêu là bạn trả lời được những câu hỏi thực tế:
 
 ## Lộ trình Giai đoạn 3
 
-Learning Progress
+1. **HPA — Horizontal Pod Autoscaler** — Auto scale theo CPU, memory và metrics.
+2. **Job & CronJob** — Batch processing, migration, scheduled tasks.
+3. **DaemonSet** — Chạy node agents.
+4. **Advanced Scheduling** — NodeSelector, Affinity, Taints, Tolerations.
+5. **Pod Lifecycle & Graceful Shutdown** — SIGTERM, preStop, `terminationGracePeriodSeconds`.
+6. **Reliability & Node Operations** — PDB, cordon, drain, cluster capacity.
+7. **Production Troubleshooting** — Pending, CrashLoopBackOff, OOMKilled, HPA, rollout.
 
-0/7 chủ đề
-
-1\. HPA — Horizontal Pod Autoscaler
-
-Auto scale theo CPU, memory và metrics
-
-2\. Job & CronJob
-
-Batch processing, migration, scheduled tasks
-
-3\. DaemonSet
-
-Chạy node agents
-
-4\. Advanced Scheduling
-
-NodeSelector, Affinity, Taints, Tolerations
-
-5\. Pod Lifecycle & Graceful Shutdown
-
-SIGTERM, preStop, terminationGracePeriodSeconds
-
-6\. Reliability & Node Operations
-
-PDB, cordon, drain, cluster capacity
-
-7\. Production Troubleshooting
-
-Pending, CrashLoopBackOff, OOMKilled, HPA, rollout
-
-Trong bộ 46 Labs bạn gửi, các bài liên quan nhất là Lab 3–5 (Scheduling), Lab 9 (DaemonSet), Lab 10 (Job/CronJob), Lab 36 (HPA) và các bài về Node Operations. Phần graceful shutdown và production runbook bên dưới có bổ sung kiến thức vận hành để bạn ứng dụng thực tế.
+Trong bộ 46 Labs, các bài liên quan nhất là Lab 3–5 (Scheduling), Lab 9 (DaemonSet), Lab 10 (Job/CronJob), Lab 36 (HPA) và các bài về Node Operations. Phần graceful shutdown và production runbook bên dưới có bổ sung kiến thức vận hành để bạn ứng dụng thực tế.
 
 # Phần 1 — HPA: Horizontal Pod Autoscaler
 
@@ -58,39 +32,27 @@ HPA tự động điều chỉnh số lượng replicas của một workload d�
 
 Ví dụ một Deployment có 3 Pods, CPU usage tăng quá mức mục tiêu thì HPA có thể tăng replicas lên 4, 5 hoặc nhiều hơn, trong giới hạn đã cấu hình.
 
-Metrics API
-
-CPU, memory, custom/external metrics
-
-HPA Controller
-
-Tính số replicas mong muốn
-
+```text
+Metrics API          (CPU, memory, custom/external metrics)
+     │
+     ▼
+HPA Controller       (tính số replicas mong muốn)
+     │
+     ▼
 Deployment → ReplicaSet → Pods
+```
 
-Low traffic
+| Mức traffic  | Replicas |
+| ------------ | -------- |
+| Low traffic  | 2        |
+| Normal       | 3        |
+| High traffic | 6        |
 
-## 2
-
-Replicas
-
-Normal
-
-## 3
-
-Replicas
-
-High traffic
-
-## 6
-
-Replicas
-
-Ví dụ minh họa, không phải HPA luôn tăng replicas theo ba mức cố định.
+> Đây chỉ là ví dụ minh họa; HPA không luôn tăng replicas theo ba mức cố định.
 
 ### HPA khác việc scale thủ công thế nào?
 
-```
+```bash
 kubectl scale deployment backend --replicas=5
 ```
 
@@ -116,30 +78,26 @@ HPA có thể đề xuất tăng từ 3 lên 5 Pods, trước khi xét thêm cá
 
 ### Tự thử tính HPA
 
-Current replicas
+Ví dụ tính toán từng bước:
 
-3
+| Thông số                | Giá trị |
+| ----------------------- | ------- |
+| Current replicas        | 3       |
+| Current CPU utilization | 90%     |
+| Target CPU utilization  | 60%     |
+| Giới hạn replicas       | 1–10    |
 
-Current CPU utilization
+1. Nhân số replicas hiện tại với tỷ lệ metric: 3 × 90% / 60% = 4,5.
+2. Làm tròn lên (ceil): 4,5 → 5.
+3. Kiểm tra giới hạn 1–10: 5 nằm trong khoảng nên giữ nguyên.
 
-90%
+Kết quả: **Desired replicas = 5**.
 
-Target CPU utilization
-
-60%
-
-Desired replicas — giới hạn 1–10
-
-# 5
-
-3 × 90% / 60% → ceil → 5
-
-Mô hình học công thức cơ bản. HPA thực tế áp dụng thêm các điều kiện và chính sách điều chỉnh.
+> Đây là mô hình để học công thức cơ bản. HPA thực tế áp dụng thêm các điều kiện và chính sách điều chỉnh.
 
 ## 3. HPA Manifest
 
-```
-
+```yaml
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
@@ -165,7 +123,6 @@ spec:
   behavior:
     scaleDown:
       stabilizationWindowSeconds: 300
-
 ```
 
 Giải thích:
@@ -191,7 +148,7 @@ Ví dụ CPU request 200m và thực tế dùng 160m thì utilization khoảng 8
 3. Deployment có thể scale được.
 4. Cluster có đủ Node capacity để chạy thêm Pods.
 
-```
+```bash
 kubectl get hpa -n production
 kubectl describe hpa backend-hpa -n production
 kubectl top pods -n production
@@ -230,26 +187,19 @@ Ví dụ:
 
 Job quản lý một hoặc nhiều Pods thực hiện công việc cho đến khi đạt điều kiện hoàn thành.
 
+```text
 Job: import-data
 
-Attempt 1
+Attempt 1 → Failed
+Attempt 2 → Succeeded
+Job       → Complete
+```
 
-Failed
-
-Attempt 2
-
-Succeeded
-
-Job
-
-Complete
-
-Một ví dụ retry; cách retry thực tế phụ thuộc restartPolicy và Job configuration.
+> Đây là một ví dụ retry; cách retry thực tế phụ thuộc `restartPolicy` và cấu hình Job.
 
 ### Job Manifest
 
-```
-
+```yaml
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -272,7 +222,6 @@ spec:
               echo "Import started"
               sleep 3
               echo "Import completed"
-
 ```
 
 Các cấu hình quan trọng:
@@ -285,7 +234,7 @@ Các cấu hình quan trọng:
 
 ### Debug Job
 
-```
+```bash
 kubectl get jobs
 kubectl describe job data-import
 kubectl get pods -l job-name=data-import
@@ -296,7 +245,7 @@ kubectl logs job/data-import
 
 CronJob tạo Job theo lịch.
 
-```
+```yaml
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -322,7 +271,7 @@ spec:
 
 ### Cú pháp Cron
 
-```
+```text
 ┌──────────── Minute (0–59)
 │ ┌────────── Hour (0–23)
 │ │ ┌──────── Day of month
@@ -354,23 +303,14 @@ DaemonSet đảm bảo một Pod của DaemonSet chạy trên mỗi Node đủ �
 
 Ví dụ cluster có 4 Nodes thì một DaemonSet log collector thông thường sẽ tạo 4 Pods, nếu cả 4 Node đều phù hợp và có thể schedule.
 
+```text
 DaemonSet: Node Monitoring Agent
 
-Node 1
-
-Agent Pod
-
-Node 2
-
-Agent Pod
-
-Node 3
-
-Agent Pod
-
-Node 4
-
-Agent Pod
+┌───────────┐ ┌───────────┐ ┌───────────┐ ┌───────────┐
+│  Node 1   │ │  Node 2   │ │  Node 3   │ │  Node 4   │
+│ Agent Pod │ │ Agent Pod │ │ Agent Pod │ │ Agent Pod │
+└───────────┘ └───────────┘ └───────────┘ └───────────┘
+```
 
 ### Use cases
 
@@ -381,8 +321,7 @@ Agent Pod
 
 ## 9. DaemonSet Manifest
 
-```
-
+```yaml
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -416,14 +355,13 @@ spec:
             limits:
               cpu: "100m"
               memory: "128Mi"
-
 ```
 
 `NODE_NAME` được inject từ Downward API.
 
 ### Kiểm tra
 
-```
+```bash
 kubectl get daemonsets
 kubectl get pods -o wide
 kubectl describe daemonset node-agent
@@ -463,13 +401,13 @@ Pod `Pending` không nhất thiết do thiếu CPU/RAM. Có thể Node bị tain
 
 Gắn label Node:
 
-```
+```bash
 kubectl label node <node-name> workload=backend
 ```
 
 Trong Pod:
 
-```
+```yaml
 spec:
   nodeSelector:
     workload: backend
@@ -490,7 +428,7 @@ Node Affinity linh hoạt hơn NodeSelector.
 
 ### Required — Bắt buộc
 
-```
+```yaml
 affinity:
   nodeAffinity:
     requiredDuringSchedulingIgnoredDuringExecution:
@@ -505,7 +443,7 @@ Không có Node phù hợp → Pod Pending.
 
 ### Preferred — Ưu tiên
 
-```
+```yaml
 affinity:
   nodeAffinity:
     preferredDuringSchedulingIgnoredDuringExecution:
@@ -534,14 +472,14 @@ Hãy nhớ:
 
 Ví dụ gắn taint:
 
-```
+```bash
 kubectl taint nodes <node-name> \
   dedicated=backend:NoSchedule
 ```
 
 Pod muốn schedule lên Node có taint này cần có toleration:
 
-```
+```yaml
 tolerations:
   - key: dedicated
     operator: Equal
@@ -571,7 +509,7 @@ Bạn có thể dùng `podAntiAffinity` hoặc `topologySpreadConstraints` để
 
 Ví dụ topology spread:
 
-```
+```yaml
 topologySpreadConstraints:
   - maxSkew: 1
     topologyKey: kubernetes.io/hostname
@@ -614,24 +552,16 @@ Khi Pod được yêu cầu terminate theo quy trình bình thường:
 
 Các bước được điều phối bất đồng bộ; không có bảo đảm mọi client, load balancer hoặc proxy ngừng gửi traffic tức thì.
 
-Graceful Shutdown Timeline
+### Graceful Shutdown Timeline
 
-1. Termination requested
-
-   Pod bắt đầu quá trình shutdown.
-2. Endpoint draining + preStop
-
-   Cập nhật routing, chạy hook trước khi dừng.
-3. SIGTERM
-
-   Ứng dụng ngừng nhận việc mới và hoàn tất việc đang xử lý.
-4. SIGKILL nếu quá hạn
-
-   Kubelet buộc dừng sau khi hết thời gian grace.
+1. **Termination requested** — Pod bắt đầu quá trình shutdown.
+2. **Endpoint draining + preStop** — Cập nhật routing, chạy hook trước khi dừng.
+3. **SIGTERM** — Ứng dụng ngừng nhận việc mới và hoàn tất việc đang xử lý.
+4. **SIGKILL nếu quá hạn** — Kubelet buộc dừng sau khi hết thời gian grace.
 
 ## 17. Manifest Graceful Shutdown
 
-```
+```yaml
 spec:
   terminationGracePeriodSeconds: 60
   containers:
@@ -654,8 +584,23 @@ spec:
 
 Ví dụ Python:
 
-```
-import signalimport timerunning = Truedef shutdown(signum, frame):    global running    running = False    print("Shutdown requested")signal.signal(signal.SIGTERM, shutdown)while running:    time.sleep(1)print("Cleanup completed")
+```python
+import signal
+import time
+
+running = True
+
+def shutdown(signum, frame):
+    global running
+    running = False
+    print("Shutdown requested")
+
+signal.signal(signal.SIGTERM, shutdown)
+
+while running:
+    time.sleep(1)
+
+print("Cleanup completed")
 ```
 
 Ứng dụng thực tế còn phải dừng nhận requests mới, hoàn thành requests đang chạy, đóng pool/database connections và flush logs nếu cần.
@@ -686,30 +631,27 @@ Cần kết hợp:
 
 Khi cần bảo trì Node, bạn phải biết hai lệnh:
 
-```
+```bash
 kubectl cordon <node-name>
 ```
 
 `cordon` đánh dấu Node không thể nhận Pod mới qua scheduling thông thường. Các Pod đang chạy vẫn tiếp tục chạy.
 
-```
+```bash
 kubectl drain <node-name> \
   --ignore-daemonsets
 ```
 
 `drain` cố gắng evict các Pods phù hợp để Node có thể bảo trì. Lệnh có thể bị chặn bởi PDB hoặc một số loại Pod/storage; không được coi là an toàn tuyệt đối.
 
-Cordon
-
-Không schedule Pod mới. Pods cũ vẫn chạy.
-
-Drain
-
-Evict workload Pods để chuẩn bị bảo trì Node.
+| Lệnh   | Tác dụng                                       |
+| ------ | ---------------------------------------------- |
+| Cordon | Không schedule Pod mới. Pods cũ vẫn chạy.      |
+| Drain  | Evict workload Pods để chuẩn bị bảo trì Node.  |
 
 Sau bảo trì:
 
-```
+```bash
 kubectl uncordon <node-name>
 ```
 
@@ -721,8 +663,7 @@ PDB giúp hạn chế số Pod bị gián đoạn bởi voluntary disruptions nh
 
 Ví dụ Deployment có 3 replicas và bạn muốn duy trì ít nhất 2 Pods Available trong các eviction có kiểm soát.
 
-```
-
+```yaml
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
@@ -732,7 +673,6 @@ spec:
   selector:
     matchLabels:
       app: backend
-
 ```
 
 PDB không ngăn được mọi sự cố bất ngờ, như Node mất điện, và không phải cơ chế bảo vệ chung cho mọi cách xóa Pod hoặc mọi hành vi Deployment rollout.
@@ -751,7 +691,7 @@ Những Node conditions cần nhận biết:
 
 Các lệnh:
 
-```
+```bash
 kubectl get nodes -o wide
 
 kubectl describe node <node-name>
@@ -763,7 +703,7 @@ kubectl get pods -A -o wide
 
 Nếu Pods Pending, xem đặc biệt:
 
-```
+```text
 Allocated resources
 Taints
 Conditions
@@ -774,19 +714,21 @@ Events
 
 ## 22. Quy trình trace khi có sự cố
 
+```text
 Service degraded / Pods unhealthy
-
-Pod state
-
-Pending / Crash / OOM
-
-Node state
-
-Ready / Pressure / Capacity
-
+        │
+        ▼
+Pod state                (Pending / Crash / OOM)
+        │
+        ▼
+Node state               (Ready / Pressure / Capacity)
+        │
+        ▼
 Events + Logs + Metrics
-
+        │
+        ▼
 Root Cause → Fix → Verify
+```
 
 ### Bảng tra nhanh
 
@@ -805,7 +747,7 @@ Root Cause → Fix → Verify
 
 ### 10 lệnh nên thuộc lòng
 
-```
+```bash
 kubectl get pods -A -o wide
 
 kubectl get nodes -o wide
@@ -845,7 +787,7 @@ Bạn sẽ tạo:
 
 ## 23. Setup
 
-```
+```bash
 kubectl config current-context
 kubectl get nodes
 kubectl top nodes
@@ -863,8 +805,7 @@ Nếu `kubectl top nodes` lỗi `Metrics API not available`, phần HPA CPU-base
 
 Tạo `hpa-demo.yaml`:
 
-```
-
+```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -924,12 +865,11 @@ spec:
         target:
           type: Utilization
           averageUtilization: 50
-
 ```
 
 Apply:
 
-```
+```bash
 kubectl apply -f hpa-demo.yaml
 
 kubectl rollout status deployment/cpu-demo \
@@ -940,7 +880,7 @@ kubectl get hpa -n operations-lab
 
 Tạo traffic từ client Pod:
 
-```
+```bash
 kubectl run load-generator \
   -n operations-lab \
   --image=busybox:1.36 \
@@ -951,13 +891,13 @@ kubectl run load-generator \
 
 Quan sát:
 
-```
+```bash
 kubectl get hpa -n operations-lab -w
 ```
 
 Terminal khác:
 
-```
+```bash
 kubectl get pods -n operations-lab -w
 ```
 
@@ -965,7 +905,7 @@ Expected: Nếu metrics hoạt động và workload đủ tải, HPA có thể s
 
 Khi đã quan sát xong:
 
-```
+```bash
 kubectl delete pod load-generator -n operations-lab
 ```
 
@@ -975,8 +915,7 @@ HPA sẽ đánh giá scale down theo chu kỳ và các chính sách ổn định
 
 Tạo `batch.yaml`:
 
-```
-
+```yaml
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -1014,12 +953,11 @@ spec:
               command: ["/bin/sh", "-c"]
               args:
                 - "date; echo CronJob executed"
-
 ```
 
 Chạy:
 
-```
+```bash
 kubectl apply -f batch.yaml
 
 kubectl wait --for=condition=complete \
@@ -1032,7 +970,7 @@ kubectl get jobs,cronjobs -n operations-lab
 
 Đợi ít nhất một lịch chạy của CronJob, sau đó:
 
-```
+```bash
 kubectl get jobs -n operations-lab
 
 kubectl get pods -n operations-lab
@@ -1044,8 +982,7 @@ CronJob có thể không chạy đúng ngay giây đầu mỗi phút vì control
 
 Tạo `daemonset.yaml`:
 
-```
-
+```yaml
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -1080,12 +1017,11 @@ spec:
             limits:
               cpu: 100m
               memory: 64Mi
-
 ```
 
 Chạy:
 
-```
+```bash
 kubectl apply -f daemonset.yaml
 
 kubectl get daemonset -n operations-lab
@@ -1100,8 +1036,7 @@ Expected: Một DaemonSet Pod trên mỗi Node đủ điều kiện.
 
 Tạo `pending-pod.yaml`:
 
-```
-
+```yaml
 apiVersion: v1
 kind: Pod
 metadata:
@@ -1113,12 +1048,11 @@ spec:
   containers:
     - name: app
       image: nginx:alpine
-
 ```
 
 Chạy:
 
-```
+```bash
 kubectl apply -f pending-pod.yaml
 
 kubectl get pod pending-demo -n operations-lab
@@ -1132,13 +1066,13 @@ Trong Events, bạn sẽ thấy thông tin scheduling failure, ví dụ về nod
 
 Xóa Pod test:
 
-```
+```bash
 kubectl delete pod pending-demo -n operations-lab
 ```
 
 ## 28. Cleanup an toàn
 
-```
+```bash
 kubectl delete namespace operations-lab
 ```
 
@@ -1146,65 +1080,67 @@ Chỉ xóa namespace lab và tài nguyên bên trong. Cluster `kind-lab` và cá
 
 # Phần 9 — Knowledge Test
 
-Scaling & Operations Test
+*Scaling & Operations Test · 8 câu*
 
-0/8 câu
+**1. Deployment có 3 replicas, CPU utilization 90%, target 60%. Theo công thức cơ bản, HPA đề xuất bao nhiêu replicas?**
 
-1\. Deployment có 3 replicas, CPU utilization 90%, target 60%. Theo công thức cơ bản HPA đề xuất bao nhiêu replicas?
+- A. 4
+- B. 5
+- C. 6
 
-4
+> **Đáp án:** B — ceil(3 × 90 / 60) = ceil(4,5) = 5.
 
-5
+**2. HPA báo CPU `<unknown>`. Bạn kiểm tra gì?**
 
-6
+- A. Metrics Server và CPU requests
+- B. Ingress Controller
+- C. PV reclaimPolicy
 
-2\. HPA báo CPU \<unknown>. Bạn kiểm tra gì?
+> **Đáp án:** A — `<unknown>` thường do Metrics API lỗi hoặc container thiếu `resources.requests.cpu`.
 
-Metrics Server và CPU requests
+**3. Muốn chạy migration một lần rồi hoàn thành, dùng resource nào?**
 
-Ingress Controller
+- A. DaemonSet
+- B. Deployment
+- C. Job
 
-PV reclaimPolicy
+> **Đáp án:** C — Job dành cho tác vụ chạy một lần rồi hoàn tất.
 
-3\. Muốn chạy migration một lần rồi hoàn thành, dùng resource nào?
+**4. CronJob `concurrencyPolicy: Forbid` nghĩa là gì?**
 
-DaemonSet
+- A. Không cho Job mới chạy chồng Job cũ
+- B. Cho chạy vô hạn
+- C. Không bao giờ retry
 
-Deployment
+> **Đáp án:** A — `Forbid` bỏ lượt mới khi Job cũ còn đang chạy.
 
-Job
+**5. Toleration có bắt buộc Pod phải được schedule trên Node có taint không?**
 
-4\. CronJob concurrencyPolicy: Forbid nghĩa là gì?
+- A. Có
+- B. Không
 
-Không cho Job mới chạy chồng Job cũ
+> **Đáp án:** B — Toleration chỉ cho phép Pod chạy trên Node có taint, không bắt buộc Pod chọn Node đó; muốn dành Node cần kết hợp thêm Node Affinity.
 
-Cho chạy vô hạn
+**6. Node còn CPU/RAM nhưng Pod Pending. Nguyên nhân có thể là gì?**
 
-Không bao giờ retry
+- A. NodeSelector hoặc affinity không khớp
+- B. Chắc chắn Docker image lỗi
 
-5\. Toleration có bắt buộc Pod phải được schedule trên Node có taint không?
+> **Đáp án:** A — Pending là vấn đề scheduling; lỗi image thường biểu hiện là `ImagePullBackOff` sau khi Pod đã được schedule.
 
-Có
+**7. Cordon và Drain khác gì?**
 
-Không
+- A. Cordon ngừng nhận Pods mới; Drain evict Pods phù hợp
+- B. Hai lệnh giống nhau
 
-6\. Node còn CPU/RAM nhưng Pod Pending. Nguyên nhân có thể là gì?
+> **Đáp án:** A — `cordon` chỉ chặn scheduling mới, `drain` evict các Pods phù hợp để bảo trì Node.
 
-NodeSelector hoặc affinity không khớp
+**8. Khi Pod terminate, ứng dụng nên làm gì khi nhận SIGTERM?**
 
-Chắc chắn Docker image lỗi
+- A. Ngừng nhận việc mới và hoàn thành công việc đang xử lý
+- B. Luôn bỏ qua signal
 
-7\. Cordon và Drain khác gì?
-
-Cordon ngừng nhận Pods mới; Drain evict Pods phù hợp
-
-Hai lệnh giống nhau
-
-8\. Khi Pod terminate, ứng dụng nên làm gì khi nhận SIGTERM?
-
-Ngừng nhận việc mới và hoàn thành công việc đang xử lý
-
-Luôn bỏ qua signal
+> **Đáp án:** A — Đây là graceful shutdown; bỏ qua SIGTERM sẽ dẫn đến bị SIGKILL khi hết thời gian grace.
 
 ## Tổng kết Giai đoạn 3 — Những gì cần thuộc
 

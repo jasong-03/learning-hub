@@ -1,48 +1,22 @@
 # Kubernetes — Giai đoạn 4: Production Platform
 
-Advanced
-
-Helm · Observability · CI/CD · GitOps · Security · Hands-on
+*Advanced · Helm · Observability · CI/CD · GitOps · Security · Hands-on*
 
 Giai đoạn 1–3 giúp bạn hiểu cách Kubernetes chạy ứng dụng, quản lý network, scale và xử lý sự cố.
 
 Giai đoạn 4 là bước chuyển từ quản lý Kubernetes bằng các lệnh riêng lẻ sang xây dựng một nền tảng triển khai, giám sát và vận hành ứng dụng có thể lặp lại, kiểm soát và khôi phục.
 
-Bạn sẽ học 7 nhóm kiến thức:
+Bạn sẽ học 7 nhóm kiến thức (Production Platform Learning Checklist):
 
-Production Platform Learning Checklist
+1. **Helm** — Đóng gói Kubernetes manifests thành ứng dụng có thể cài đặt và nâng cấp.
+2. **Prometheus & Grafana** — Metrics, dashboards, alerting.
+3. **Loki & Centralized Logging** — Thu thập và truy vấn logs tập trung.
+4. **CI/CD với GitHub Actions** — Build, test, scan, push container image.
+5. **ArgoCD & GitOps** — Git là nguồn khai báo trạng thái triển khai.
+6. **Argo Rollouts** — Canary, Blue/Green và rollback.
+7. **Security Hardening** — Bảo vệ workloads và software supply chain.
 
-0/7
-
-1\. Helm
-
-Đóng gói Kubernetes manifests thành ứng dụng có thể cài đặt và nâng cấp
-
-2\. Prometheus & Grafana
-
-Metrics, dashboards, alerting
-
-3\. Loki & Centralized Logging
-
-Thu thập và truy vấn logs tập trung
-
-4\. CI/CD với GitHub Actions
-
-Build, test, scan, push container image
-
-5\. ArgoCD & GitOps
-
-Git là nguồn khai báo trạng thái triển khai
-
-6\. Argo Rollouts
-
-Canary, Blue/Green và rollback
-
-7\. Security Hardening
-
-Bảo vệ workloads và software supply chain
-
-Trong bộ Kubernetes 46 Labs bạn gửi, phần này chủ yếu tương ứng với Lab 27–32, Lab 40, cùng Lab 23 về security contexts. Những nội dung như OpenTelemetry, image signing, alert runbooks và supply-chain security là phần mình bổ sung để bạn hiểu cách vận hành production hiện đại.
+Trong bộ Kubernetes 46 Labs, phần này chủ yếu tương ứng với Lab 27–32, Lab 40, cùng Lab 23 về security contexts. Những nội dung như OpenTelemetry, image signing, alert runbooks và supply-chain security là phần mình bổ sung để bạn hiểu cách vận hành production hiện đại.
 
 # Phần 1 — Helm: Kubernetes Package Manager
 
@@ -50,7 +24,7 @@ Trong bộ Kubernetes 46 Labs bạn gửi, phần này chủ yếu tương ứng
 
 Giả sử một ứng dụng có 10 Kubernetes manifests:
 
-```
+```text
 namespace.yaml
 configmap.yaml
 secret.yaml
@@ -67,23 +41,23 @@ Nếu triển khai nhiều môi trường `dev`, `staging`, `production`, bạn 
 
 Thay vì copy YAML nhiều lần, Helm dùng templates và values để tạo ra Kubernetes manifests phù hợp với từng môi trường.
 
-Chart Templates
-
-Deployment, Service, HPA...
-
-Values
-
-Image, replicas, resources...
-
-Helm Template Engine
-
-Rendered Kubernetes YAML
-
-Được gửi đến Kubernetes API Server
+```text
+Chart Templates                    Values
+(Deployment, Service, HPA...)      (Image, replicas, resources...)
+              \                    /
+               v                  v
+               Helm Template Engine
+                        |
+                        v
+              Rendered Kubernetes YAML
+                        |
+                        v
+     Được gửi đến Kubernetes API Server
+```
 
 ## 2. Cấu trúc một Helm Chart
 
-```
+```text
 backend-chart/
 ├── Chart.yaml
 ├── values.yaml
@@ -107,7 +81,7 @@ backend-chart/
 
 ### Ví dụ values.yaml
 
-```
+```yaml
 replicaCount: 2
 
 image:
@@ -128,7 +102,7 @@ resources:
 
 ### Template Deployment
 
-```
+```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -159,7 +133,7 @@ Trong đó:
 
 ### Những lệnh Helm phải thuộc
 
-```
+```bash
 # Tạo Chart
 helm create backend-chart
 
@@ -186,7 +160,7 @@ helm rollback backend 1 -n development
 helm uninstall backend -n development
 ```
 
-Lưu ý: Helm rollback khôi phục release revision được Helm lưu, khác với `kubectl rollout undo` của Deployment. Helm revision và Kubernetes Deployment revision không phải cùng một hệ thống.
+> **Lưu ý:** Helm rollback khôi phục release revision được Helm lưu, khác với `kubectl rollout undo` của Deployment. Helm revision và Kubernetes Deployment revision không phải cùng một hệ thống.
 
 ## 3. Helm trong production
 
@@ -199,49 +173,39 @@ Các nguyên tắc nên áp dụng:
 - Kiểm tra `helm diff` trước thay đổi lớn nếu có plugin.
 - Hiểu `--atomic` hoặc cơ chế rollback của phiên bản Helm đang dùng; đừng giả định tất cả resources đều được khôi phục hoàn toàn như database data.
 
-Khi nào dùng Helm? Khi bạn cần tái sử dụng manifests, quản lý cấu hình nhiều môi trường, cài các nền tảng như Prometheus và ArgoCD, hoặc quản lý ứng dụng theo release.
+**Khi nào dùng Helm?** Khi bạn cần tái sử dụng manifests, quản lý cấu hình nhiều môi trường, cài các nền tảng như Prometheus và ArgoCD, hoặc quản lý ứng dụng theo release.
 
 # Phần 2 — Prometheus & Grafana
 
 ## 4. Observability là gì?
 
-Monitoring trả lời: Hệ thống có đang gặp vấn đề không?
+Monitoring trả lời: *Hệ thống có đang gặp vấn đề không?*
 
-Observability giúp trả lời sâu hơn: Vì sao hệ thống gặp vấn đề?
+Observability giúp trả lời sâu hơn: *Vì sao hệ thống gặp vấn đề?*
 
 Ba nguồn dữ liệu cốt lõi:
 
-Metrics
-
-CPU, RPS, latency, errors
-
-Logs
-
-Events, errors, messages
-
-Traces
-
-Luồng request qua các services
+| Nguồn   | Nội dung                       |
+| ------- | ------------------------------ |
+| Metrics | CPU, RPS, latency, errors      |
+| Logs    | Events, errors, messages       |
+| Traces  | Luồng request qua các services |
 
 ## 5. Prometheus hoạt động thế nào?
 
 Prometheus là hệ thống thu thập và truy vấn time-series metrics.
 
-App /metrics
-
-Node / Kubelet
-
-Prometheus
-
-Scrape · Store · PromQL
-
-Grafana
-
-Dashboards
-
-Alertmanager
-
-Route alerts
+```text
+App /metrics        Node / Kubelet
+        \              /
+         v            v
+          Prometheus
+   (Scrape · Store · PromQL)
+         /            \
+        v              v
+   Grafana          Alertmanager
+ (Dashboards)       (Route alerts)
+```
 
 Trong Kubernetes, bộ `kube-prometheus-stack` thường cung cấp Prometheus Operator, Prometheus, Alertmanager, exporters và Grafana theo cấu hình Chart.
 
@@ -258,7 +222,7 @@ Trong Kubernetes, bộ `kube-prometheus-stack` thường cung cấp Prometheus O
 
 ### CPU container usage
 
-```
+```text
 rate(container_cpu_usage_seconds_total{
   namespace="production",
   container!="",
@@ -268,7 +232,7 @@ rate(container_cpu_usage_seconds_total{
 
 ### Memory usage
 
-```
+```text
 container_memory_working_set_bytes{
   namespace="production",
   container!="",
@@ -278,7 +242,7 @@ container_memory_working_set_bytes{
 
 ### CPU throttling ratio
 
-```
+```text
 rate(container_cpu_cfs_throttled_periods_total{
   namespace="production"
 }[5m])
@@ -292,7 +256,7 @@ Tỷ lệ này thể hiện phần trăm CFS periods có throttling, không ph�
 
 ### HTTP 5xx error ratio
 
-```
+```text
 sum(rate(http_requests_total{
   status=~"5.."
 }[5m]))
@@ -300,11 +264,11 @@ sum(rate(http_requests_total{
 sum(rate(http_requests_total[5m]))
 ```
 
-Tên metric và labels phụ thuộc instrumentations của ứng dụng, không phải mọi app đều có metric `http_requests_total` hay label `status`.
+Tên metric và labels phụ thuộc instrumentation của ứng dụng; không phải mọi app đều có metric `http_requests_total` hay label `status`.
 
 ### p95 latency từ Histogram
 
-```
+```text
 histogram_quantile(
   0.95,
   sum by (le) (
@@ -341,7 +305,7 @@ Alert tốt cần thể hiện tình trạng ảnh hưởng hoặc nguy cơ có 
 
 Ví dụ rule minh họa:
 
-```
+```yaml
 groups:
   - name: backend-alerts
     rules:
@@ -371,7 +335,7 @@ Giả sử Deployment có 10 Pods trên 4 Nodes. Một Pod crash rồi được 
 
 Nếu chỉ dùng:
 
-```
+```bash
 kubectl logs <pod-name>
 ```
 
@@ -386,21 +350,22 @@ Centralized Logging tập trung logs về một hệ thống để lưu trữ, t
 
 ## 10. Loki hoạt động như thế nào?
 
+```text
 Kubernetes Pods
-
-Container stdout/stderr logs
-
+  (Container stdout/stderr logs)
+        |
+        v
 Log Collector
-
-Grafana Alloy / Fluent Bit / các collector tương thích
-
+  (Grafana Alloy / Fluent Bit / các collector tương thích)
+        |
+        v
 Loki
-
-Ingest · Index labels · Store logs
-
+  (Ingest · Index labels · Store logs)
+        |
+        v
 Grafana Explore
-
-LogQL queries
+  (LogQL queries)
+```
 
 Tài liệu gốc Lab 28 sử dụng Loki + Promtail. Đó là stack được dạy trong giáo trình. Với triển khai mới, cần lưu ý Promtail đã kết thúc vòng đời hỗ trợ; nên cân nhắc Grafana Alloy hoặc log collector được hỗ trợ khác thay vì bắt đầu hệ thống production mới bằng Promtail.
 
@@ -410,25 +375,25 @@ LogQL là ngôn ngữ truy vấn logs của Loki.
 
 ### Tìm logs của backend
 
-```
+```text
 {namespace="production", app="backend"}
 ```
 
 ### Tìm lỗi
 
-```
+```text
 {namespace="production", app="backend"} |= "ERROR"
 ```
 
 ### Tìm 502
 
-```
+```text
 {namespace="production"} |= "502"
 ```
 
 ### Đếm lỗi trong 5 phút
 
-```
+```text
 sum(
   count_over_time(
     {namespace="production", app="backend"} |= "ERROR" [5m]
@@ -442,13 +407,13 @@ Các labels trong ví dụ phụ thuộc cấu hình log collector.
 
 Thay vì:
 
-```
+```text
 Something went wrong
 ```
 
 Hãy ưu tiên structured logs:
 
-```
+```json
 {
   "level": "error",
   "service": "backend",
@@ -477,47 +442,41 @@ Ví dụ khách hàng báo API chậm:
 
 Tracing thường được xây dựng bằng OpenTelemetry và backend như Tempo hoặc Jaeger.
 
-Production lưu ý: Đừng log API keys, access tokens, passwords hoặc thông tin cá nhân không cần thiết. Với Loki, tránh đưa `user_id`, `request_id` hay giá trị có cardinality rất cao thành indexed labels.
+> **Production lưu ý:** Đừng log API keys, access tokens, passwords hoặc thông tin cá nhân không cần thiết. Với Loki, tránh đưa `user_id`, `request_id` hay giá trị có cardinality rất cao thành indexed labels.
 
 # Phần 4 — CI/CD với GitHub Actions
 
 ## 13. CI/CD là gì?
 
-- CI (Continuous Integration): Tự động build, test và kiểm tra code.
-- CD (Continuous Delivery/Deployment): Đưa phiên bản đã kiểm tra đến môi trường triển khai, thủ công phê duyệt hoặc tự động tùy chính sách.
+- **CI (Continuous Integration):** Tự động build, test và kiểm tra code.
+- **CD (Continuous Delivery/Deployment):** Đưa phiên bản đã kiểm tra đến môi trường triển khai, bằng phê duyệt thủ công hoặc tự động tùy chính sách.
 
 Quy trình tham khảo:
 
-Git Push
-
-Developer tạo commit
-
-CI Pipeline
-
-Lint · Unit Tests · Integration Tests
-
-Security Checks
-
-Dependency / Image Scan
-
-Build & Push Image
-
-Registry: ECR / GHCR
-
-Update GitOps Repo
-
-Image digest hoặc version
-
-ArgoCD Sync
-
-Kubernetes rollout
+```text
+Git Push              Developer tạo commit
+   |
+   v
+CI Pipeline           Lint · Unit Tests · Integration Tests
+   |
+   v
+Security Checks       Dependency / Image Scan
+   |
+   v
+Build & Push Image    Registry: ECR / GHCR
+   |
+   v
+Update GitOps Repo    Image digest hoặc version
+   |
+   v
+ArgoCD Sync           Kubernetes rollout
+```
 
 ## 14. GitHub Actions Workflow
 
 Ví dụ đơn giản để validate Helm Chart khi có Pull Request:
 
-```
-
+```yaml
 name: Helm CI
 
 on:
@@ -547,7 +506,6 @@ jobs:
           helm template backend ./charts/backend \
             --values ./charts/backend/values.yaml \
             > /tmp/backend-rendered.yaml
-
 ```
 
 Đây là pipeline validation; nó chưa build hoặc deploy ứng dụng.
@@ -571,7 +529,7 @@ Với production, nên pin GitHub Actions bằng commit SHA đã kiểm tra, tha
 
 Không nên dựa vào:
 
-```
+```yaml
 image: myapp:latest
 ```
 
@@ -579,19 +537,19 @@ Vì `latest` là mutable tag, có thể thay đổi mà không thể hiện rõ 
 
 Tốt hơn:
 
-```
+```yaml
 image: myapp:v1.2.3
 ```
 
 Và chặt chẽ hơn:
 
-```
+```yaml
 image: myapp@sha256:<verified-image-digest>
 ```
 
 Digest cố định chính xác image artifact.
 
-Production rule: Code cần được kiểm tra, image cần có provenance phù hợp và deployment cần truy vết được commit → image → release.
+> **Production rule:** Code cần được kiểm tra, image cần có provenance phù hợp và deployment cần truy vết được commit → image → release.
 
 # Phần 5 — ArgoCD & GitOps
 
@@ -601,7 +559,7 @@ GitOps là mô hình vận hành trong đó desired state được quản lý tr
 
 Ví dụ:
 
-```
+```text
 Git: replicas = 3
 Cluster: replicas = 5
 ```
@@ -612,21 +570,22 @@ Nếu ứng dụng ArgoCD được cấu hình self-heal, controller có thể �
 
 ## 17. GitOps Workflow
 
+```text
 Git Repository
-
-Desired state: manifests / Helm values
-
+  (Desired state: manifests / Helm values)
+        |
+        v
 ArgoCD
-
-Compare desired vs live state
-
+  (Compare desired vs live state)
+        |
+        v
 Kubernetes Cluster
-
-Sync · Health · Rollout
+  (Sync · Health · Rollout)
+```
 
 ### Ví dụ repository
 
-```
+```text
 gitops/
 ├── apps/
 │   └── backend/
@@ -643,8 +602,7 @@ Một tổ chức có thể dùng Kustomize hoặc Helm để tránh duplication
 
 ## 18. ArgoCD Application Manifest
 
-```
-
+```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -668,7 +626,6 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
-
 ```
 
 Ví dụ này yêu cầu ArgoCD đã được cài và CRD `Application` có sẵn. Repository là địa chỉ minh họa.
@@ -696,7 +653,7 @@ Phải hết sức cẩn thận khi bật `prune`, nhất là với storage reso
 
 Nếu GitOps đang quản lý resource:
 
-```
+```bash
 kubectl edit deployment backend -n production
 ```
 
@@ -718,17 +675,15 @@ Argo Rollouts mở rộng cách triển khai ứng dụng bằng các chiến l�
 
 Ví dụ phát hành version v2:
 
+```text
 Canary — Phân phối traffic theo giai đoạn
 
-10%25%50%100%
+Giai đoạn:  10%  ->  25%  ->  50%  ->  100%
 
-Stable v1
-
-Canary v2
-
-90% v1
-
-10% v2
+Ví dụ ở giai đoạn 10%:
+  Stable v1  : 90% traffic
+  Canary v2  : 10% traffic
+```
 
 Minh họa weighted traffic. Để kiểm soát tỷ lệ traffic chính xác cần traffic-routing provider hỗ trợ; không có provider thì weight có thể được mô phỏng bằng tỷ lệ replicas.
 
@@ -751,8 +706,7 @@ Quy trình:
 
 ## 22. Argo Rollouts Manifest
 
-```
-
+```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Rollout
 metadata:
@@ -784,7 +738,6 @@ spec:
         - setWeight: 50
         - pause:
             duration: 60s
-
 ```
 
 Đây là mẫu Rollout cơ bản. Nó yêu cầu Argo Rollouts Controller và CRDs. Chưa có analysis metrics, nên không tự quyết định rollback dựa trên 5xx.
@@ -795,7 +748,7 @@ spec:
 
 Ví dụ logic:
 
-```
+```text
 Canary v2
   ↓
 Query Prometheus
@@ -821,36 +774,20 @@ Chúng thường được dùng cùng nhau, nhưng không thay thế cho nhau.
 
 Bảo mật Kubernetes không chỉ là tạo Secret và RBAC.
 
-Source & CI
-
-Code review, dependency scanning, secret scanning
-
-Container Image
-
-Minimal image, vulnerability scanning, provenance
-
-Pod Security
-
-Non-root, capabilities, seccomp, read-only filesystem
-
-Kubernetes API
-
-RBAC, ServiceAccount, audit logs
-
-Networking
-
-NetworkPolicy, TLS, restricted exposure
-
-Secrets & Storage
-
-Encryption, access controls, rotation, backup
+| Lớp               | Nội dung                                              |
+| ----------------- | ----------------------------------------------------- |
+| Source & CI       | Code review, dependency scanning, secret scanning     |
+| Container Image   | Minimal image, vulnerability scanning, provenance     |
+| Pod Security      | Non-root, capabilities, seccomp, read-only filesystem |
+| Kubernetes API    | RBAC, ServiceAccount, audit logs                      |
+| Networking        | NetworkPolicy, TLS, restricted exposure               |
+| Secrets & Storage | Encryption, access controls, rotation, backup         |
 
 ## 24. SecurityContext
 
 Ví dụ hardening một container:
 
-```
-
+```yaml
 apiVersion: v1
 kind: Pod
 metadata:
@@ -883,7 +820,6 @@ spec:
         limits:
           cpu: "500m"
           memory: "512Mi"
-
 ```
 
 Đây là mẫu chính sách, không phải Pod có thể chạy được ngay: image là placeholder, ứng dụng phải hỗ trợ chạy non-root và filesystem read-only. Có thể cần mount `emptyDir` cho các đường dẫn phải ghi.
@@ -911,7 +847,7 @@ Kubernetes hỗ trợ ba Pod Security Standards:
 
 Có thể cấu hình enforcement theo namespace labels:
 
-```
+```yaml
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -936,7 +872,7 @@ Không nên bật enforcement `restricted` lên tất cả namespaces production
 - Kubernetes API access có audit trail.
 - Có quy trình rotation, backup, restore và incident response.
 
-Quan trọng: Security hardening phải đi cùng kiểm chứng chức năng. Một container an toàn về cấu hình nhưng không startup được không phải kết quả deploy tốt.
+> **Quan trọng:** Security hardening phải đi cùng kiểm chứng chức năng. Một container an toàn về cấu hình nhưng không startup được không phải kết quả deploy tốt.
 
 # Phần 8 — Lab tích hợp trên `kind-lab`
 
@@ -944,21 +880,22 @@ Quan trọng: Security hardening phải đi cùng kiểm chứng chức năng. M
 
 ## 27. Kiến trúc bài thực hành
 
+```text
 Helm Chart
-
-Templates + values.yaml
-
+  (Templates + values.yaml)
+        |
+        v
 Validate
-
-helm lint + helm template
-
+  (helm lint + helm template)
+        |
+        v
 Kind Cluster
-
-Deployment + Service + Helm Release
+  (Deployment + Service + Helm Release)
+```
 
 ## 28. Setup
 
-```
+```bash
 kubectl config current-context
 kubectl get nodes
 helm version
@@ -974,7 +911,7 @@ Context phải là `kind-lab`.
 
 ## 29. Tạo Helm Chart
 
-```
+```bash
 helm create platform-demo
 ```
 
@@ -982,7 +919,7 @@ Helm tạo sẵn cấu trúc Chart cùng các templates mẫu.
 
 Xem:
 
-```
+```bash
 find platform-demo -maxdepth 2 -type f
 ```
 
@@ -990,7 +927,7 @@ Kiểm tra file `platform-demo/values.yaml`, tìm các cấu hình image, replic
 
 ### Validate
 
-```
+```bash
 helm lint ./platform-demo
 
 helm template demo ./platform-demo \
@@ -999,13 +936,13 @@ helm template demo ./platform-demo \
 
 Xem các resource sẽ được tạo:
 
-```
+```bash
 grep -E "^kind:|^  name:" rendered.yaml
 ```
 
 ### Install
 
-```
+```bash
 helm upgrade --install demo ./platform-demo \
   -n platform-lab \
   --wait --timeout 3m
@@ -1013,7 +950,7 @@ helm upgrade --install demo ./platform-demo \
 
 Kiểm tra:
 
-```
+```bash
 helm list -n platform-lab
 
 kubectl get deploy,pods,svc -n platform-lab
@@ -1029,7 +966,7 @@ Sửa giá trị `replicaCount` trong `values.yaml`, ví dụ từ 1 sang 3.
 
 Upgrade:
 
-```
+```bash
 helm upgrade demo ./platform-demo \
   -n platform-lab \
   --wait --timeout 3m
@@ -1037,7 +974,7 @@ helm upgrade demo ./platform-demo \
 
 Kiểm tra:
 
-```
+```bash
 helm history demo -n platform-lab
 
 kubectl get deploy,pods -n platform-lab
@@ -1045,7 +982,7 @@ kubectl get deploy,pods -n platform-lab
 
 Rollback về revision 1:
 
-```
+```bash
 helm rollback demo 1 \
   -n platform-lab \
   --wait --timeout 3m
@@ -1053,13 +990,13 @@ helm rollback demo 1 \
 
 Kiểm tra lại:
 
-```
+```bash
 helm history demo -n platform-lab
 
 kubectl get deploy,pods -n platform-lab
 ```
 
-Expected: Chart cài đặt thành công, thay đổi số replicas theo cấu hình rồi rollback về manifest của revision 1.
+**Expected:** Chart cài đặt thành công, thay đổi số replicas theo cấu hình rồi rollback về manifest của revision 1.
 
 ## 31. Mô phỏng Configuration Drift
 
@@ -1067,7 +1004,7 @@ Chỉ thực hiện trong namespace lab.
 
 Đầu tiên kiểm tra Deployment mà Chart đã tạo:
 
-```
+```bash
 kubectl get deployments -n platform-lab
 ```
 
@@ -1075,14 +1012,14 @@ Giả sử tên Deployment là `demo-platform-demo`.
 
 Thay đổi thủ công:
 
-```
+```bash
 kubectl scale deployment/demo-platform-demo \
   --replicas=4 -n platform-lab
 ```
 
 Quan sát:
 
-```
+```bash
 kubectl get deploy -n platform-lab
 ```
 
@@ -1096,8 +1033,7 @@ Có thể đưa về desired replicas bằng lệnh scale tương ứng, hoặc 
 
 Tạo file `.github/workflows/helm-ci.yaml` trong repository của bạn:
 
-```
-
+```yaml
 name: Helm Validation
 
 on:
@@ -1122,7 +1058,6 @@ jobs:
       - run: |
           helm template demo ./platform-demo \
             -n platform-lab > /tmp/rendered.yaml
-
 ```
 
 Đây là bản CI học tập; trong repository production nên pin Actions bằng verified commit SHAs và thêm kiểm tra Kubernetes schema, security cũng như các test cần thiết khác.
@@ -1131,7 +1066,7 @@ Khi tạo Pull Request trên GitHub, workflow kiểm tra Chart mà không cần 
 
 ## 33. Cleanup
 
-```
+```bash
 helm uninstall demo -n platform-lab
 
 kubectl delete namespace platform-lab
@@ -1157,7 +1092,7 @@ Không xóa `kind-lab`.
 
 ### Những lệnh cần nhớ
 
-```
+```bash
 # Helm
 helm list -A
 helm history <release> -n <namespace>
@@ -1192,7 +1127,7 @@ Bạn phải biết Synced không đồng nghĩa ứng dụng hoạt động.
 
 Quy trình:
 
-```
+```text
 CI success
    ↓
 Image đúng digest?
@@ -1212,55 +1147,60 @@ App logs / metrics / traces
 
 Nếu Pods Ready nhưng Service không có endpoints, kiểm tra Service selector và EndpointSlices. Nếu endpoints đầy đủ nhưng Ingress trả 502, xem ingress logs, targetPort, kết nối tới app và graceful shutdown.
 
-Đây là tư duy production: Không dừng ở trạng thái của một tool; phải trace xuyên suốt cả delivery pipeline và request path.
+> **Đây là tư duy production:** Không dừng ở trạng thái của một tool; phải trace xuyên suốt cả delivery pipeline và request path.
 
 # Phần 10 — Kiểm tra kiến thức Giai đoạn 4
 
-Production Platform Knowledge Test
+*Production Platform Knowledge Test · 7 câu*
 
-0/7 câu
+**1. Helm và ArgoCD khác nhau ở điểm cốt lõi nào?**
 
-1\. Helm và ArgoCD khác nhau ở điểm cốt lõi nào?
+- A. Helm package/render release, ArgoCD reconcile desired state từ Git
+- B. Hai tool luôn làm cùng một việc
 
-Helm package/render release, ArgoCD reconcile desired state từ Git
+> **Đáp án:** A — Helm đóng gói và render release; ArgoCD liên tục reconcile cluster theo desired state trong Git.
 
-Hai tool luôn làm cùng một việc
+**2. ArgoCD hiện Synced nhưng backend trả 502. Điều này có thể xảy ra không?**
 
-2\. ArgoCD hiện Synced nhưng backend trả 502. Điều này có thể xảy ra không?
+- A. Không
+- B. Có, Synced không chứng minh request path hoạt động
 
-Không
+> **Đáp án:** B — Synced chỉ cho biết desired và live state khớp; Pod, Service endpoints hay Ingress vẫn có thể lỗi.
 
-Có, Synced không chứng minh request path hoạt động
+**3. Prometheus dùng gì để tính request rate?**
 
-3\. Prometheus dùng gì để tính request rate?
+- A. `rate()` trên Counter
+- B. `sum()` trên Gauge bất kỳ
 
-rate() trên Counter
+> **Đáp án:** A — Request total là Counter tích lũy; `rate()` tính tốc độ tăng mỗi giây trong khoảng thời gian.
 
-sum() trên Gauge bất kỳ
+**4. Muốn tìm logs chứa ERROR trên Loki, thường dùng toán tử nào?**
 
-4\. Muốn tìm logs chứa ERROR trên Loki, thường dùng toán tử nào?
+- A. `|= "ERROR"`
+- B. `kubectl top`
 
-|= "ERROR"
+> **Đáp án:** A — `|=` là line filter của LogQL; `kubectl top` chỉ hiển thị CPU/memory usage.
 
-kubectl top
+**5. Canary deployment giúp ích gì?**
 
-5\. Canary deployment giúp ích gì?
+- A. Đưa phiên bản mới cho một phần traffic trước khi mở rộng
+- B. Tự sửa mọi application bug
 
-Đưa phiên bản mới cho một phần traffic trước khi mở rộng
+> **Đáp án:** A — Canary giảm blast radius khi thử phiên bản mới; nó không sửa bug.
 
-Tự sửa mọi application bug
+**6. Pod SecurityContext có `readOnlyRootFilesystem: true`, app cần ghi file tạm. Giải pháp phù hợp?**
 
-6\. Pod SecurityContext có readOnlyRootFilesystem: true, app cần ghi file tạm. Giải pháp phù hợp?
+- A. Bỏ mọi chính sách security
+- B. Mount writable volume đúng phạm vi cần thiết
 
-Bỏ mọi chính sách security
+> **Đáp án:** B — Ví dụ mount `emptyDir` cho đường dẫn cần ghi, vẫn giữ root filesystem read-only.
 
-Mount writable volume đúng phạm vi cần thiết
+**7. Trong GitOps, engineer dùng `kubectl edit` thay đổi replicas nhưng ArgoCD bật selfHeal. Điều gì có thể xảy ra?**
 
-7\. Trong GitOps, engineer dùng kubectl edit thay đổi replicas nhưng ArgoCD bật selfHeal. Điều gì có thể xảy ra?
+- A. ArgoCD đưa live state về desired state trong Git
+- B. ArgoCD tự ghi thay đổi về Git
 
-ArgoCD đưa live state về desired state trong Git
-
-ArgoCD tự ghi thay đổi về Git
+> **Đáp án:** A — selfHeal sửa drift trên cluster theo Git; ArgoCD không ghi thay đổi thủ công ngược về Git.
 
 ## Tổng kết — Những điều cần thuộc
 

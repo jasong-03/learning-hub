@@ -1,12 +1,13 @@
 # Kubernetes Resource Requests & Limits — Tổng ôn kiến thức A–Z
+
 Sau khi học Pod, Deployment, Service và Namespace, phần Resource Requests & Limits giúp bạn hiểu Kubernetes phân bổ CPU/RAM như thế nào, tại sao Pod bị `Pending`, `OOMKilled`, hoặc ứng dụng chạy chậm dù vẫn `Running`.
 
 ## 1. Resource Requests & Limits là gì?
 
 Hãy nhớ hai câu:
 
-- Requests: Pod cần ít nhất bao nhiêu tài nguyên để Kubernetes lên kế hoạch đặt Pod vào Node?
-- Limits: Container được phép sử dụng tối đa bao nhiêu tài nguyên?
+- **Requests** — Pod cần ít nhất bao nhiêu tài nguyên để Kubernetes lên kế hoạch đặt Pod vào Node?
+- **Limits** — Container được phép sử dụng tối đa bao nhiêu tài nguyên?
 
 |           | Requests                                                        | Limits                                |
 | --------- | --------------------------------------------------------------- | ------------------------------------- |
@@ -15,27 +16,16 @@ Hãy nhớ hai câu:
 | Memory    | Scheduler xét memory request                                    | Vượt giới hạn có thể bị OOMKilled     |
 | Ảnh hưởng | Pod có thể Pending nếu Node không đủ tài nguyên có thể cấp phát | Container có thể bị chậm hoặc bị kill |
 
-Ví dụ: Container backend
+Ví dụ: Container `backend`
 
-CPU
+| Resource | Request / Limit | Ý nghĩa                         |
+| -------- | --------------- | ------------------------------- |
+| CPU      | `250m / 500m`   | 0.25 CPU request, 0.5 CPU limit |
+| Memory   | `128Mi / 256Mi` | 128 MiB request, 256 MiB limit  |
 
-## 250m / 500m
+Các con số này thể hiện tỷ lệ request/limit trong cấu hình, không phải mức tài nguyên đang sử dụng.
 
-Request / Limit
-
-0.25 CPU request, 0.5 CPU limit
-
-Memory
-
-## 128Mi / 256Mi
-
-Request / Limit
-
-128 MiB request, 256 MiB limit
-
-Thanh màu thể hiện tỷ lệ request/limit trong cấu hình, không phải mức tài nguyên đang sử dụng.
-
-Lưu ý: Request không có nghĩa Kubernetes luôn cấp cố định lượng CPU/RAM đó cho container. CPU có thể được chia sẻ, còn memory request chủ yếu được dùng cho scheduling và quyết định khi Node chịu áp lực bộ nhớ.
+> **Lưu ý:** Request không có nghĩa Kubernetes luôn cấp cố định lượng CPU/RAM đó cho container. CPU có thể được chia sẻ, còn memory request chủ yếu được dùng cho scheduling và quyết định khi Node chịu áp lực bộ nhớ.
 
 ## 2. CPU và Memory được tính thế nào?
 
@@ -61,12 +51,11 @@ Chữ `m` nghĩa là millicore, với 1000m = 1 CPU.
 | `1Gi`   | 1024 MiB |
 | `2Gi`   | 2048 MiB |
 
-Memory là dung lượng bộ nhớ, không giống CPU theo đơn vị thời gian xử lý.
+Memory là dung lượng bộ nhớ, không giống CPU được tính theo thời gian xử lý.
 
 ## 3. Khai báo Requests & Limits trong Deployment
 
-```
-
+```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -91,7 +80,6 @@ spec:
             limits:
               cpu: "500m"
               memory: "256Mi"
-
 ```
 
 Mỗi Pod có một container với:
@@ -114,7 +102,7 @@ Các tổng này giả định mỗi Pod chỉ có đúng container trên, khôn
 
 Giả sử có hai Node với tài nguyên CPU còn có thể phân bổ dựa trên requests:
 
-```
+```text
 Node A: 500m CPU còn allocatable
 Node B: 1000m CPU còn allocatable
 
@@ -126,37 +114,28 @@ Kết quả:
 - Node A không đủ request để schedule Pod.
 - Node B đáp ứng yêu cầu về CPU và có thể được chọn nếu các điều kiện khác cũng thỏa mãn.
 
-Thử tự schedule một Pod
+### Thử tự schedule một Pod
 
-CPU request của Pod
+CPU request của Pod: **750m**
 
-## 750m
+| Node   | CPU available | Kết quả                 |
+| ------ | ------------- | ----------------------- |
+| Node A | 500m          | Không đủ CPU request    |
+| Node B | 1000m         | Đủ CPU để xét schedule  |
 
-Node A
-
-500m available
-
-Không đủ CPU request
-
-Node B
-
-1000m available
-
-Đủ CPU để xét schedule
-
-Mô phỏng chỉ xét CPU requests. Scheduler thực tế còn xét memory, taints, affinity và các ràng buộc khác.
+Mô phỏng này chỉ xét CPU requests. Scheduler thực tế còn xét memory, taints, affinity và các ràng buộc khác.
 
 Nếu không Node nào đáp ứng được yêu cầu, Pod có thể ở trạng thái `Pending` và Events báo `Insufficient cpu` hoặc `Insufficient memory`.
 
 ## 5. CPU Throttling và Memory OOMKilled
 
-Hai trường hợp này khác nhau rất quan trọng.
+Phân biệt hai trường hợp này rất quan trọng.
 
 ### CPU vượt limit → Throttling
 
 Ví dụ:
 
-```
+```yaml
 resources:
   requests:
     cpu: "250m"
@@ -174,7 +153,7 @@ Hậu quả: Ứng dụng chạy chậm hơn, latency tăng, nhưng không bị 
 
 Ví dụ:
 
-```
+```yaml
 resources:
   requests:
     memory: "128Mi"
@@ -186,7 +165,7 @@ Nếu container sử dụng vượt memory limit và kernel không thể giải 
 
 Kubernetes báo:
 
-```
+```text
 Last State: Terminated
 Reason: OOMKilled
 Exit Code: 137
@@ -194,13 +173,12 @@ Exit Code: 137
 
 `137` thường tương ứng với tiến trình bị SIGKILL (`128 + 9`), nhưng không phải mọi exit code 137 đều chứng minh do OOM. Phải kiểm tra thêm `Reason`.
 
-CPU limit vượt ngưỡng
+### Tóm tắt
 
-Throttling → ứng dụng có thể chạy chậm, không bị kill chỉ vì vượt CPU.
-
-Memory limit vượt ngưỡng
-
-Có thể OOMKilled → container bị terminate, thường có exit code 137.
+| Trường hợp               | Hậu quả                                                        |
+| ------------------------ | -------------------------------------------------------------- |
+| CPU limit vượt ngưỡng    | Throttling → ứng dụng có thể chạy chậm, không bị kill chỉ vì vượt CPU |
+| Memory limit vượt ngưỡng | Có thể OOMKilled → container bị terminate, thường có exit code 137 |
 
 ## 6. QoS Classes — Kubernetes ưu tiên Pod thế nào?
 
@@ -214,11 +192,9 @@ Kubernetes chia Pod thành 3 nhóm QoS (Quality of Service) theo cấu hình tà
 
 Ví dụ:
 
-Guaranteed
+### Guaranteed (QoS cao)
 
-QoS cao
-
-```
+```yaml
 resources:
   requests:
     cpu: "500m"
@@ -228,9 +204,9 @@ resources:
     memory: "512Mi"
 ```
 
-Burstable
+### Burstable
 
-```
+```yaml
 resources:
   requests:
     cpu: "100m"
@@ -240,13 +216,13 @@ resources:
     memory: "512Mi"
 ```
 
-BestEffort
+### BestEffort
 
-```
+```yaml
 resources: {}
 ```
 
-Điểm cần nhớ: QoS ảnh hưởng đến việc eviction khi Node chịu áp lực tài nguyên. Guaranteed không có nghĩa Pod không bao giờ bị OOMKilled nếu tự vượt memory limit.
+> **Điểm cần nhớ:** QoS ảnh hưởng đến việc eviction khi Node chịu áp lực tài nguyên. Guaranteed không có nghĩa Pod không bao giờ bị OOMKilled nếu tự vượt memory limit.
 
 Ngoài ra, khi Node chịu memory pressure, kubelet xét nhiều yếu tố như mức sử dụng vượt request và Pod Priority, không chỉ mỗi QoS.
 
@@ -263,7 +239,7 @@ Bạn vừa học Namespace, nên cần phân biệt:
 
 Ví dụ ResourceQuota:
 
-```
+```yaml
 apiVersion: v1
 kind: ResourceQuota
 metadata:
@@ -280,17 +256,13 @@ Nếu các Pod trong namespace yêu cầu tổng CPU lớn hơn 2 cores, API Ser
 
 ## 8. Lab 21 — Resource Management & OOMKiller
 
-Trong bộ 46 Labs bạn gửi, Lab 21 yêu cầu thực hành ba nội dung: tạo OOMKilled, quan sát CPU throttling và kiểm tra QoS Classes.&#x20;
-
-Pasted text.txt
-
-
+Trong bộ 46 Labs, Lab 21 yêu cầu thực hành ba nội dung: tạo OOMKilled, quan sát CPU throttling và kiểm tra QoS Classes.
 
 Đây là bản rút gọn để bạn thực hiện trên `kind-lab`, không xóa cluster.
 
 ### Setup
 
-```
+```bash
 kubectl config current-context
 kubectl create namespace resource-lab \
   --dry-run=client -o yaml | kubectl apply -f -
@@ -300,8 +272,7 @@ kubectl create namespace resource-lab \
 
 Tạo `memory-hog.yaml`:
 
-```
-
+```yaml
 apiVersion: v1
 kind: Pod
 metadata:
@@ -324,23 +295,22 @@ spec:
         - "250M"
         - "--vm-hang"
         - "1"
-
 ```
 
-```
+```bash
 kubectl apply -f memory-hog.yaml
 kubectl get pod memory-hog -n resource-lab -w
 ```
 
 Ở terminal khác:
 
-```
+```bash
 kubectl describe pod memory-hog -n resource-lab
 ```
 
 Tìm:
 
-```
+```text
 Reason: OOMKilled
 Exit Code: 137
 ```
@@ -351,8 +321,7 @@ Nếu không xuất hiện, cần kiểm tra image, logs và trạng thái Pod t
 
 Tạo `cpu-hog.yaml`:
 
-```
-
+```yaml
 apiVersion: v1
 kind: Pod
 metadata:
@@ -369,10 +338,9 @@ spec:
           cpu: "100m"
         limits:
           cpu: "200m"
-
 ```
 
-```
+```bash
 kubectl apply -f cpu-hog.yaml
 kubectl top pod cpu-hog -n resource-lab
 ```
@@ -383,7 +351,7 @@ Nếu Metrics Server hoạt động, CPU sử dụng thường ở gần mức g
 
 Kiểm tra:
 
-```
+```bash
 kubectl get pod memory-hog -n resource-lab \
   -o jsonpath='{.status.qosClass}{"\n"}'
 
@@ -393,14 +361,14 @@ kubectl get pod cpu-hog -n resource-lab \
 
 Expected:
 
-```
+```text
 Burstable
 Burstable
 ```
 
 ### Cleanup
 
-```
+```bash
 kubectl delete namespace resource-lab
 ```
 
@@ -408,7 +376,7 @@ Không ảnh hưởng cluster `kind-lab` hay các namespace của Lab trước.
 
 ## 9. Các lệnh troubleshooting quan trọng
 
-```
+```bash
 # Xem resource được khai báo
 kubectl describe pod <pod-name> -n <namespace>
 
@@ -435,47 +403,46 @@ kubectl get events -n <namespace> \
 
 ## 10. Knowledge Test — Resource Management
 
-Resource Requests & Limits Test
+Resource Requests & Limits Test — 5 câu.
 
-0/5 câu
+**1. Pod request 500m CPU, limit 1000m CPU. Container có thể sử dụng 800m không?**
 
-1\. Pod request 500m CPU, limit 1000m CPU. Container có thể sử dụng 800m không?
+- A. Có, nếu có CPU khả dụng
+- B. Không, request là giới hạn cứng
 
-Có, nếu có CPU khả dụng
+> **Đáp án:** A — Request là mức tối thiểu để schedule; container có thể dùng tới limit 1000m nếu Node còn CPU rảnh.
 
-Không, request là giới hạn cứng
+**2. Container vượt CPU limit. Điều gì thường xảy ra?**
 
-2\. Container vượt CPU limit. Điều gì thường xảy ra?
+- A. OOMKilled
+- B. CPU throttling
+- C. Pod bị xóa
 
-OOMKilled
+> **Đáp án:** B — Vượt CPU limit dẫn tới throttling, không bị kill chỉ vì vượt CPU.
 
-CPU throttling
+**3. Container vượt memory limit. Điều gì có thể xảy ra?**
 
-Pod bị xóa
+- A. OOMKilled
+- B. CPU throttling
+- C. Service bị xóa
 
-3\. Container vượt memory limit. Điều gì có thể xảy ra?
+> **Đáp án:** A — Vượt memory limit có thể khiến container bị OOMKilled (thường exit code 137).
 
-OOMKilled
+**4. Pod có `requests.cpu=limits.cpu` và `requests.memory=limits.memory` cho mọi container. QoS là gì?**
 
-CPU throttling
+- A. Burstable
+- B. BestEffort
+- C. Guaranteed
 
-Service bị xóa
+> **Đáp án:** C — Mọi container có CPU và memory request bằng limit là điều kiện của Guaranteed.
 
-4\. Pod có requests.cpu=limits.cpu và requests.memory=limits.memory cho mọi container. QoS là gì?
+**5. Pod `Pending` và Events báo `Insufficient cpu`. Bạn nên kiểm tra gì?**
 
-Burstable
+- A. Node allocatable và CPU requests
+- B. Service ClusterIP
+- C. Ingress DNS
 
-BestEffort
-
-Guaranteed
-
-5\. Pod Pending và Events báo Insufficient cpu. Bạn nên kiểm tra gì?
-
-Node allocatable và CPU requests
-
-Service ClusterIP
-
-Ingress DNS
+> **Đáp án:** A — Scheduler không tìm được Node có đủ CPU allocatable cho CPU request của Pod.
 
 ## 11. Chốt kiến thức — 5 điều quan trọng nhất
 
@@ -485,6 +452,6 @@ Ingress DNS
 4. QoS có ba loại: Guaranteed, Burstable, BestEffort; ảnh hưởng đến ưu tiên eviction khi Node chịu áp lực.
 5. ResourceQuota quản lý tổng tài nguyên của Namespace, khác với Requests & Limits khai báo cho container.
 
-Tình huống production cần nhớ: Một backend bị OOMKilled không có nghĩa giải pháp luôn là tăng memory limit. DevOps cần kiểm tra memory usage, application logs, memory leak, traffic, memory request/limit và khả năng cấp phát của Node trước khi quyết định.
+> **Tình huống production cần nhớ:** Một backend bị OOMKilled không có nghĩa giải pháp luôn là tăng memory limit. DevOps cần kiểm tra memory usage, application logs, memory leak, traffic, memory request/limit và khả năng cấp phát của Node trước khi quyết định.
 
 Đó là kiến thức cốt lõi của Resource Requests & Limits. Bài tiếp theo liên quan trực tiếp là HPA — Horizontal Pod Autoscaler, nơi Kubernetes dùng metrics để tự điều chỉnh số replicas của Deployment.
