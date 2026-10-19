@@ -46,7 +46,9 @@ describe('Kubernetes course regression against V1', () => {
       assert.equal(item.kind, old.kind === 'lab' ? 'lab' : 'lesson', old.id);
       if (item.kind === 'lesson') assert.equal(item.label, V1_LABELS[old.kind], old.id);
     }
-    assert.equal(index.courseItems('kubernetes').length, v1Kept.length, 'no extra Kubernetes items');
+    const mnemonics = ['application-deployment', 'networking-security', 'scaling-operations', 'production-platform', 'aws-eks'];
+    for (const moduleId of mnemonics) assert.equal(index.getLesson(`kubernetes:${moduleId}-mnemonic`)?.moduleId, `kubernetes:${moduleId}`, moduleId);
+    assert.equal(index.courseItems('kubernetes').length, v1Kept.length + mnemonics.length, 'no extra Kubernetes items');
   });
 
   it('merges every V1 guide part into its phase guide page', () => {

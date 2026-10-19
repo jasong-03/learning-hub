@@ -35,7 +35,7 @@ export const EXPECTED_LAB_COUNT = 46;
 /** Code-fence languages Shiki does not bundle are rendered as plain text. */
 export const FENCE_LANGUAGE_FALLBACK = 'text';
 
-export type LessonLabel = 'Note' | 'Roadmap' | 'Overview' | 'Guide';
+export type LessonLabel = 'Note' | 'Roadmap' | 'Overview' | 'Guide' | 'Mnemonic';
 
 /** A source file rendered as exactly one lesson page. */
 export interface SingleSource {
@@ -83,6 +83,20 @@ function note(n: number, file: string, slugSuffix: string, topic: string): Singl
   };
 }
 
+/** A phase's visual mnemonic page, shown right after the phase guide. */
+function mnemonic(module: string, topic: string): SingleSource {
+  return {
+    type: 'single',
+    file: `Visual Mnemonic — ${topic}.md`,
+    module,
+    id: `${module}-mnemonic`,
+    label: 'Mnemonic',
+    slug: 'mnemonic',
+    navTitle: `Visual Mnemonic — ${topic}`,
+    lang: 'vi',
+  };
+}
+
 /** Order here is the lesson order within each module. Every Markdown file in `progress/` must appear exactly once. */
 export const SOURCES: Source[] = [
   note(1, 'Kubernetes Note #1 — Pod, Service, kubectl, Manifest & YAML.md', 'pod-service-kubectl-manifest-yaml', 'Pod, Service, kubectl & YAML'),
@@ -106,10 +120,15 @@ export const SOURCES: Source[] = [
     lang: 'vi',
   },
   { type: 'guide', file: 'Application Deployment.md', module: 'application-deployment', lang: 'vi' },
+  mnemonic('application-deployment', 'Application Deployment'),
   { type: 'guide', file: 'Networking & Security.md', module: 'networking-security', lang: 'vi' },
+  mnemonic('networking-security', 'Networking & Security'),
   { type: 'guide', file: 'Scaling & Operations.md', module: 'scaling-operations', lang: 'vi' },
+  mnemonic('scaling-operations', 'Scaling & Operations'),
   { type: 'guide', file: 'Production Platform.md', module: 'production-platform', lang: 'vi' },
+  mnemonic('production-platform', 'Production Platform'),
   { type: 'guide', file: 'AWS EKS Production.md', module: 'aws-eks', lang: 'vi' },
+  mnemonic('aws-eks', 'AWS EKS Production'),
   { type: 'labs-bundle', file: 'Kubernetes Labs — All Labs (01–46).md', lang: 'en' },
 ];
 

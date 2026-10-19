@@ -129,7 +129,7 @@ describe('AI Engineer Interview course import', () => {
   });
 
   it('does not change the Kubernetes course', () => {
-    assert.equal(index.courseItems('kubernetes').length, 62);
+    assert.equal(index.courseItems('kubernetes').length, 67);
     assert.equal(index.courseQuestionSets('kubernetes').length, 0);
   });
 });
