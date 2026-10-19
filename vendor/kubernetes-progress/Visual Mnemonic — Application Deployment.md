@@ -10,41 +10,41 @@ Pod và Deployment giúp chạy ứng dụng, nhưng ứng dụng thực tế c�
 
 ## 2. Visual Mnemonic — Khách sạn Kubernetes
 
-### ConfigMap — Bảng nội quy
+- ![ConfigMap — Bảng nội quy](image/mnemonic-configmap.jpg)
 
-Chứa cấu hình không nhạy cảm như LOG_LEVEL, APP_ENV.
+  **ConfigMap — Bảng nội quy**
 
-![ConfigMap — Bảng nội quy](image/mnemonic-configmap.jpg)
+  Chứa cấu hình không nhạy cảm như LOG_LEVEL, APP_ENV.
 
-### Secret — Két bảo mật
+- ![Secret — Két bảo mật](image/mnemonic-secret.jpg)
 
-Chứa password, API tokens, certificates. Base64 không phải encryption.
+  **Secret — Két bảo mật**
 
-![Secret — Két bảo mật](image/mnemonic-secret.jpg)
+  Chứa password, API tokens, certificates. Base64 không phải encryption.
 
-### Health Probes — Quản lý nhân viên
+- ![Health Probes — Quản lý nhân viên](image/mnemonic-health-probes.jpg)
 
-Startup: Chuẩn bị xong chưa? Readiness: Nhận khách được chưa? Liveness: Còn hoạt động không?
+  **Health Probes — Quản lý nhân viên**
 
-![Health Probes — Quản lý nhân viên](image/mnemonic-health-probes.jpg)
+  Startup: Chuẩn bị xong chưa? Readiness: Nhận khách được chưa? Liveness: Còn hoạt động không?
 
-### PVC / PV — Phiếu xin tủ / Tủ thật
+- ![PVC / PV — Phiếu xin tủ / Tủ thật](image/mnemonic-pvc-pv.jpg)
 
-PVC yêu cầu dung lượng; PV đại diện cho storage được cấp.
+  **PVC / PV — Phiếu xin tủ / Tủ thật**
 
-![PVC / PV — Phiếu xin tủ / Tủ thật](image/mnemonic-pvc-pv.jpg)
+  PVC yêu cầu dung lượng; PV đại diện cho storage được cấp.
 
-### StorageClass — Máy cấp tủ
+- ![StorageClass — Máy cấp tủ](image/mnemonic-storageclass.jpg)
 
-Xác định cách cấp storage tự động thông qua provisioner.
+  **StorageClass — Máy cấp tủ**
 
-![StorageClass — Máy cấp tủ](image/mnemonic-storageclass.jpg)
+  Xác định cách cấp storage tự động thông qua provisioner.
 
-### StatefulSet — Nhân viên có mã riêng
+- ![StatefulSet — Nhân viên có mã riêng](image/mnemonic-statefulset.jpg)
 
-Mỗi Pod có identity ổn định và có thể có PVC riêng.
+  **StatefulSet — Nhân viên có mã riêng**
 
-![StatefulSet — Nhân viên có mã riêng](image/mnemonic-statefulset.jpg)
+  Mỗi Pod có identity ổn định và có thể có PVC riêng.
 
 ## 3. How It Works
 ![các thành phần hỗ trợ Pod chạy ứng dụng](image/mnemonic-cac-thanh-phan-ho-tro-pod-chay-ung-dung.png)

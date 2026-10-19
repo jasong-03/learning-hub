@@ -104,3 +104,40 @@ html > body[data-scroll-locked] {
   overflow-y: hidden;
   padding-block: 0.25rem;
 }
+
+/* Card grid for image-led lists (see src/lib/mdx/remark-image-cards.ts): image on top, caption below. */
+ul.image-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem 1.25rem;
+  padding: 0;
+  list-style: none;
+}
+@media (min-width: 640px) {
+  ul.image-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+ul.image-cards > li {
+  margin: 0;
+  padding: 0;
+}
+ul.image-cards > li::marker {
+  content: none;
+}
+ul.image-cards > li > p {
+  margin-block: 0.25rem;
+}
+ul.image-cards > li > p:first-child {
+  margin: 0 0 0.75rem;
+}
+ul.image-cards > li > p:first-child img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 5 / 4;
+  object-fit: cover;
+  margin: 0;
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border);
+}

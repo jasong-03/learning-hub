@@ -10,41 +10,41 @@ Khi ứng dụng đã chạy, cần trả lời: **Request từ Internet tìm đ
 
 ## 2. Visual Mnemonic
 
-### Ingress — Cổng điều hướng
+- ![Ingress — Cổng điều hướng](image/mnemonic-ingress.jpg)
 
-Nhìn hostname hoặc URL path để đưa HTTP/HTTPS request tới đúng Service. Cần Ingress Controller để thực thi.
+  **Ingress — Cổng điều hướng**
 
-![Ingress — Cổng điều hướng](image/mnemonic-ingress.jpg)
+  Nhìn hostname hoặc URL path để đưa HTTP/HTTPS request tới đúng Service. Cần Ingress Controller để thực thi.
 
-### Gateway API — Trung tâm điều phối
+- ![Gateway API — Trung tâm điều phối](image/mnemonic-gateway-api.jpg)
 
-GatewayClass chọn cách triển khai, Gateway mở cổng tiếp nhận, HTTPRoute chỉ định đường đi.
+  **Gateway API — Trung tâm điều phối**
 
-![Gateway API — Trung tâm điều phối](image/mnemonic-gateway-api.jpg)
+  GatewayClass chọn cách triển khai, Gateway mở cổng tiếp nhận, HTTPRoute chỉ định đường đi.
 
-### CoreDNS — Danh bạ thành phố
+- ![CoreDNS — Danh bạ thành phố](image/mnemonic-coredns.jpg)
 
-Chuyển tên Service như backend-svc thành địa chỉ mạng để ứng dụng tìm nhau.
+  **CoreDNS — Danh bạ thành phố**
 
-![CoreDNS — Danh bạ thành phố](image/mnemonic-coredns.jpg)
+  Chuyển tên Service như backend-svc thành địa chỉ mạng để ứng dụng tìm nhau.
 
-### RBAC — Bảng phân quyền
+- ![RBAC — Bảng phân quyền](image/mnemonic-rbac.jpg)
 
-Quyết định danh tính nào có quyền get, list, create, delete tài nguyên Kubernetes.
+  **RBAC — Bảng phân quyền**
 
-![RBAC — Bảng phân quyền](image/mnemonic-rbac.jpg)
+  Quyết định danh tính nào có quyền get, list, create, delete tài nguyên Kubernetes.
 
-### ServiceAccount — Thẻ nhân viên
+- ![ServiceAccount — Thẻ nhân viên](image/mnemonic-serviceaccount.jpg)
 
-Cung cấp danh tính cho workload khi cần xác thực với Kubernetes API.
+  **ServiceAccount — Thẻ nhân viên**
 
-![ServiceAccount — Thẻ nhân viên](image/mnemonic-serviceaccount.jpg)
+  Cung cấp danh tính cho workload khi cần xác thực với Kubernetes API.
 
-### NetworkPolicy — Chốt kiểm soát đường đi
+- ![NetworkPolicy — Chốt kiểm soát đường đi](image/mnemonic-networkpolicy.jpg)
 
-Quy định những kết nối ingress và egress nào của Pod được phép.
+  **NetworkPolicy — Chốt kiểm soát đường đi**
 
-![NetworkPolicy — Chốt kiểm soát đường đi](image/mnemonic-networkpolicy.jpg)
+  Quy định những kết nối ingress và egress nào của Pod được phép.
 
 ## 3. How It Works — Request flow
 

@@ -10,41 +10,41 @@ Traffic tăng thì ai tăng Pod? Pod `Pending` dù Node còn tài nguyên do đ�
 
 ## 2. Visual Mnemonic
 
-### HPA — Quản lý tăng nhân sự
+- ![HPA — Quản lý tăng nhân sự](image/mnemonic-hpa.jpg)
 
-Khi tải theo metrics tăng, HPA tăng số Pod replicas trong giới hạn cho phép.
+  **HPA — Quản lý tăng nhân sự**
 
-![HPA — Quản lý tăng nhân sự](image/mnemonic-hpa.jpg)
+  Khi tải theo metrics tăng, HPA tăng số Pod replicas trong giới hạn cho phép.
 
-### Job — Nhiệm vụ một lần
+- ![Job — Nhiệm vụ một lần](image/mnemonic-job.jpg)
 
-Chạy công việc hữu hạn như data import hoặc migration; có thể retry nếu thất bại.
+  **Job — Nhiệm vụ một lần**
 
-![Job — Nhiệm vụ một lần](image/mnemonic-job.jpg)
+  Chạy công việc hữu hạn như data import hoặc migration; có thể retry nếu thất bại.
 
-### CronJob — Lịch giao hàng
+- ![CronJob — Lịch giao hàng](image/mnemonic-cronjob.jpg)
 
-Tự tạo Job theo lịch, ví dụ backup mỗi ngày lúc 02:00.
+  **CronJob — Lịch giao hàng**
 
-![CronJob — Lịch giao hàng](image/mnemonic-cronjob.jpg)
+  Tự tạo Job theo lịch, ví dụ backup mỗi ngày lúc 02:00.
 
-### DaemonSet — Bảo vệ mỗi tòa nhà
+- ![DaemonSet — Bảo vệ mỗi tòa nhà](image/mnemonic-daemonset.jpg)
 
-Duy trì một agent Pod trên mỗi Node đủ điều kiện, như log collector.
+  **DaemonSet — Bảo vệ mỗi tòa nhà**
 
-![DaemonSet — Bảo vệ mỗi tòa nhà](image/mnemonic-daemonset.jpg)
+  Duy trì một agent Pod trên mỗi Node đủ điều kiện, như log collector.
 
-### Scheduler — Người phân chỗ
+- ![Scheduler — Người phân chỗ](image/mnemonic-scheduler.jpg)
 
-Chọn Node phù hợp theo tài nguyên, labels, affinity, taints và các ràng buộc khác.
+  **Scheduler — Người phân chỗ**
 
-![Scheduler — Người phân chỗ](image/mnemonic-scheduler.jpg)
+  Chọn Node phù hợp theo tài nguyên, labels, affinity, taints và các ràng buộc khác.
 
-### Graceful Shutdown — Kết thúc ca an toàn
+- ![Graceful Shutdown — Kết thúc ca an toàn](image/mnemonic-graceful-shutdown.jpg)
 
-Ngừng nhận công việc mới, hoàn tất request đang xử lý và đóng tài nguyên trước khi thoát.
+  **Graceful Shutdown — Kết thúc ca an toàn**
 
-![Graceful Shutdown — Kết thúc ca an toàn](image/mnemonic-graceful-shutdown.jpg)
+  Ngừng nhận công việc mới, hoàn tất request đang xử lý và đóng tài nguyên trước khi thoát.
 
 ## 3. How It Works — HPA
 

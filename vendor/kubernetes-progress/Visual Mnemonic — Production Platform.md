@@ -10,41 +10,41 @@ Không chỉ chạy Pod: bạn cần **build, deploy, monitor, release an toàn 
 
 ## 2. Visual Mnemonic
 
-### Helm — Máy đóng gói
+- ![Helm — Máy đóng gói](image/mnemonic-helm.jpg)
 
-Đóng gói templates và values thành manifests, quản lý cài đặt, nâng cấp và rollback theo release.
+  **Helm — Máy đóng gói**
 
-![Helm — Máy đóng gói](image/mnemonic-helm.jpg)
+  Đóng gói templates và values thành manifests, quản lý cài đặt, nâng cấp và rollback theo release.
 
-### Prometheus & Grafana — Phòng giám sát
+- ![Prometheus & Grafana — Phòng giám sát](image/mnemonic-prometheus-grafana.jpg)
 
-Prometheus thu thập metrics; Grafana hiển thị dashboard giúp phát hiện bất thường.
+  **Prometheus & Grafana — Phòng giám sát**
 
-![Prometheus & Grafana — Phòng giám sát](image/mnemonic-prometheus-grafana.jpg)
+  Prometheus thu thập metrics; Grafana hiển thị dashboard giúp phát hiện bất thường.
 
-### Loki — Kho nhật ký
+- ![Loki — Kho nhật ký](image/mnemonic-loki.jpg)
 
-Tập trung logs từ các Pod để tìm lỗi, tra cứu sự kiện và điều tra incident.
+  **Loki — Kho nhật ký**
 
-![Loki — Kho nhật ký](image/mnemonic-loki.jpg)
+  Tập trung logs từ các Pod để tìm lỗi, tra cứu sự kiện và điều tra incident.
 
-### CI/CD — Dây chuyền kiểm định
+- ![CI/CD — Dây chuyền kiểm định](image/mnemonic-ci-cd.jpg)
 
-Tự động test, scan, build và phát hành container images.
+  **CI/CD — Dây chuyền kiểm định**
 
-![CI/CD — Dây chuyền kiểm định](image/mnemonic-ci-cd.jpg)
+  Tự động test, scan, build và phát hành container images.
 
-### ArgoCD — Giám sát bản thiết kế
+- ![ArgoCD — Giám sát bản thiết kế](image/mnemonic-argocd.jpg)
 
-So sánh trạng thái thực tế với Git, đồng bộ và có thể tự sửa configuration drift.
+  **ArgoCD — Giám sát bản thiết kế**
 
-![ArgoCD — Giám sát bản thiết kế](image/mnemonic-argocd.jpg)
+  So sánh trạng thái thực tế với Git, đồng bộ và có thể tự sửa configuration drift.
 
-### Argo Rollouts — Thử hàng trước khi giao
+- ![Argo Rollouts — Thử hàng trước khi giao](image/mnemonic-argo-rollouts.jpg)
 
-Phát hành Canary hoặc Blue/Green, kiểm soát rủi ro khi đưa phiên bản mới vào sử dụng.
+  **Argo Rollouts — Thử hàng trước khi giao**
 
-![Argo Rollouts — Thử hàng trước khi giao](image/mnemonic-argo-rollouts.jpg)
+  Phát hành Canary hoặc Blue/Green, kiểm soát rủi ro khi đưa phiên bản mới vào sử dụng.
 
 ## 3. How It Works — Code đến Production
 
